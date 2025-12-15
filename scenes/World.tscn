@@ -1,8 +1,8 @@
 [gd_scene load_steps=5 format=3 uid="uid://dygkvii468c7v"]
 
 [ext_resource type="Script" uid="uid://cs824houtmiri" path="res://src/world/World.gd" id="1_7g83o"]
-[ext_resource type="Script" uid="uid://bsdvl1v8srif7" path="res://src/world/HexGrid.gd" id="1_kqs1s"]
 [ext_resource type="Script" uid="uid://dmm1myogjxbjx" path="res://src/world/Camera.gd" id="2_d1c63"]
+[ext_resource type="Script" uid="uid://dnio28xxq5yxt" path="res://src/world/ChunkManager.gd" id="4_1lgw5"]
 [ext_resource type="Script" uid="uid://ddi1sqhd2lfj5" path="res://src/ui/TileInfoPanel.gd" id="4_d1c63"]
 
 [node name="World" type="Node2D"]
@@ -11,9 +11,8 @@ script = ExtResource("1_7g83o")
 [node name="Camera2D" type="Camera2D" parent="."]
 script = ExtResource("2_d1c63")
 
-[node name="HexGrid" type="Node2D" parent="."]
-script = ExtResource("1_kqs1s")
-metadata/_custom_type_script = "uid://bsdvl1v8srif7"
+[node name="ChunkManager" type="Node2D" parent="."]
+script = ExtResource("4_1lgw5")
 
 [node name="UI" type="CanvasLayer" parent="."]
 

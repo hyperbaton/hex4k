@@ -7,5 +7,5 @@ extends Node
 
 func _ready():
 	registry.register_data(loader)
-	world.initialize_world()
+	#world.initialize_world()
 	print("Game initialized.")

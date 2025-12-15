@@ -41,7 +41,6 @@ func _draw():
 			3.0
 		)
 
-
 func get_hex_points() -> PackedVector2Array:
 	var points := PackedVector2Array()
 	for i in range(6):
