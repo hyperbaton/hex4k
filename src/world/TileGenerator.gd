@@ -1,4 +1,4 @@
-extends Node
+extends RefCounted
 
 class_name TileGenerator
 
@@ -17,8 +17,8 @@ var humidity_noise := FastNoiseLite.new()
 
 var temperature_noise := FastNoiseLite.new()
 
-func _init(noise_seed: int) -> void:
-	noise_seed = noise_seed
+func _init(p_seed: int) -> void:
+	self.noise_seed = p_seed
 	altitude_noise.seed = noise_seed
 	altitude_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
 	altitude_noise.frequency = noise_scale
@@ -31,7 +31,7 @@ func _init(noise_seed: int) -> void:
 
 func generate_tile(q: float, r:float) -> HexTile:
 	var tile := HexTile.new()
-	if abs(q + r) > WorldConfig.MAX_MAP_RADIUS:
+	if max(abs(q), abs(r), abs(-q - r)) > WorldConfig.MAX_MAP_RADIUS:
 		tile.terrain_id = "void"
 		return tile
 
