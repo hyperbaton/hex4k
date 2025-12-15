@@ -1,0 +1,36 @@
+[gd_scene load_steps=2 format=3 uid="uid://cqj4hpqa4x6mm"]
+
+[ext_resource type="Script" uid="uid://b08shbpm8wap4" path="res://src/core/MainMenu.gd" id="1_yqorp"]
+
+[node name="MainMenu" type="Node2D"]
+
+[node name="MainMenu" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_yqorp")
+
+[node name="CenterContainer" type="CenterContainer" parent="MainMenu"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainMenu/CenterContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MainMenu/CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "Hex4k"
+
+[node name="ButtonNewGame" type="Button" parent="MainMenu/CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "New Game"
+
+[node name="ButtonLoadGame" type="Button" parent="MainMenu/CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "Load Game"
+
+[node name="ButtonQuit" type="Button" parent="MainMenu/CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "Quit"

@@ -1,0 +1,28 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Hex4k"
+run/main_scene="uid://cqj4hpqa4x6mm"
+config/features=PackedStringArray("4.5", "Mobile")
+config/icon="res://icon.svg"
+
+[dotnet]
+
+project/assembly_name="Hex4k"
+
+[gui]
+
+theme/custom_font="uid://8ugpefeyo0uo"
+
+[rendering]
+
+renderer/rendering_method="mobile"
