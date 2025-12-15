@@ -9,6 +9,10 @@ var unit_id: String = "empty"
 var q: int
 var r: int
 
+var altitude: float
+var humidity: float
+var temperature: float
+
 const HEX_SIZE := 32.0
 
 var selected := false
@@ -51,9 +55,17 @@ func get_hex_points() -> PackedVector2Array:
 func get_terrain_color() -> Color:
 	match terrain_id:
 		"water": return Color(0.2, 0.4, 0.8)
-		"plains": return Color(0.3, 0.7, 0.3)
 		"forest": return Color(0.1, 0.5, 0.2)
 		"hills": return Color(0.6, 0.6, 0.4)
 		"mountain": return Color(0.5, 0.5, 0.5)
+		"ocean": return Color(0.15, 0.3, 0.7)
+		"coast": return Color(0.85, 0.8, 0.6)
+		"desert": return Color(0.9, 0.85, 0.5)
+		"steppe": return Color(0.7, 0.8, 0.4)
+		"plains": return Color(0.4, 0.75, 0.4)
+		"forest": return Color(0.1, 0.5, 0.2)
+		"swamp": return Color(0.2, 0.4, 0.25)
+		"dry_mountain": return Color(0.55, 0.5, 0.45)
+		"alpine": return Color(0.8, 0.8, 0.8)
 		_: return Color.MAGENTA
 		
