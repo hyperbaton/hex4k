@@ -29,8 +29,22 @@ func _init(p_seed: int) -> void:
 	temperature_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
 	temperature_noise.frequency = temperature_scale
 
-func generate_tile(q: float, r:float) -> HexTile:
-	var tile := HexTile.new()
+func generate_chunk_data(chunk_q: int, chunk_r: int) -> ChunkData:
+	var chunk := ChunkData.new()
+	chunk.coord = Vector2i(chunk_q, chunk_r)
+
+	for q in range(WorldConfig.CHUNK_SIZE):
+		for r in range(WorldConfig.CHUNK_SIZE):
+			var world_q = chunk_q * WorldConfig.CHUNK_SIZE + q
+			var world_r = chunk_r * WorldConfig.CHUNK_SIZE + r
+
+			var tile_data = generate_tile_data(world_q, world_r)
+			chunk.tiles[Vector2i(q, r)] = tile_data
+
+	return chunk
+
+func generate_tile_data(q: float, r:float) -> HexTileData:
+	var tile := HexTileData.new()
 	if max(abs(q), abs(r), abs(-q - r)) > WorldConfig.MAX_MAP_RADIUS:
 		tile.terrain_id = "void"
 		return tile
@@ -42,7 +56,7 @@ func generate_tile(q: float, r:float) -> HexTile:
 	var humidity = get_humidity(q, r)
 	tile.humidity = humidity
 	tile.terrain_id = get_terrain_from_altitude(altitude, humidity)
-	tile.position = WorldUtil.axial_to_pixel(q, r)
+	#tile.position = WorldUtil.axial_to_pixel(q, r)
 	return tile
 
 func get_altitude(q: int, r: int) -> float:

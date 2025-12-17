@@ -8,8 +8,8 @@ class_name TileInfoPanel
 func show_tile(tile: HexTile):
 	visible = true
 	title_label.text = "Tile Information"
-	coords_label.text = "Coordinates: (%d, %d)" % [tile.q, tile.r]
-	terrain_label.text = "Terrain: %s" % tile.terrain_id
+	coords_label.text = "Coordinates: (%d, %d)" % [tile.data.q, tile.data.r]
+	terrain_label.text = "Terrain: %s" % tile.data.terrain_id
 
 func hide_panel():
 	visible = false

@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://dygkvii468c7v"]
+[gd_scene load_steps=6 format=3 uid="uid://dygkvii468c7v"]
 
 [ext_resource type="Script" uid="uid://cs824houtmiri" path="res://src/world/World.gd" id="1_7g83o"]
 [ext_resource type="Script" uid="uid://dmm1myogjxbjx" path="res://src/world/Camera.gd" id="2_d1c63"]
 [ext_resource type="Script" uid="uid://dnio28xxq5yxt" path="res://src/world/ChunkManager.gd" id="4_1lgw5"]
 [ext_resource type="Script" uid="uid://ddi1sqhd2lfj5" path="res://src/ui/TileInfoPanel.gd" id="4_d1c63"]
+[ext_resource type="Script" uid="uid://kowa1myr1x3l" path="res://src/ui/SaveButton.gd" id="5_1lgw5"]
 
 [node name="World" type="Node2D"]
 script = ExtResource("1_7g83o")
@@ -18,15 +19,11 @@ script = ExtResource("4_1lgw5")
 
 [node name="Root" type="Control" parent="UI"]
 layout_mode = 3
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -40.0
-offset_top = -40.0
-grow_horizontal = 0
-grow_vertical = 0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="TileInfoPanel" type="PanelContainer" parent="UI/Root"]
 layout_mode = 1
@@ -52,3 +49,10 @@ layout_mode = 2
 
 [node name="Terrain" type="Label" parent="UI/Root/TileInfoPanel/VBoxContainer"]
 layout_mode = 2
+
+[node name="SaveButton" type="Button" parent="UI/Root"]
+layout_mode = 1
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Save world"
+script = ExtResource("5_1lgw5")

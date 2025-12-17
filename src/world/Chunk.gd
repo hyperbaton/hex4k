@@ -1,14 +1,15 @@
 extends Node2D
 class_name Chunk
 
-var chunk_q: int
-var chunk_r: int
+var chunk_data: ChunkData
 
-func generate(generator: TileGenerator):
-	for q in range(WorldConfig.CHUNK_SIZE):
-		for r in range(WorldConfig.CHUNK_SIZE):
-			var world_q = chunk_q * WorldConfig.CHUNK_SIZE + q
-			var world_r = chunk_r * WorldConfig.CHUNK_SIZE + r
+func build_from_data(data: ChunkData):
+	chunk_data = data
 
-			var tile := generator.generate_tile(world_q, world_r)
-			add_child(tile)
+	for local_coord in data.tiles.keys():
+		var tile_data: HexTileData = data.tiles[local_coord]
+
+		var tile := HexTile.new()
+		tile.setup_from_data(tile_data)
+
+		add_child(tile)
