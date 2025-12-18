@@ -55,6 +55,7 @@ func update_visual():
 
 func get_terrain_color() -> Color:
 	match data.terrain_id:
+		"river": return Color(0.1, 0.6, 0.9)
 		"water": return Color(0.2, 0.4, 0.8)
 		"forest": return Color(0.1, 0.5, 0.2)
 		"hills": return Color(0.6, 0.6, 0.4)

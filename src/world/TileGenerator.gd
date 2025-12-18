@@ -17,6 +17,11 @@ var humidity_noise := FastNoiseLite.new()
 
 var temperature_noise := FastNoiseLite.new()
 
+@export var river_seed_offset := 299
+@export var river_scale := 0.1
+
+var river_noise := FastNoiseLite.new()
+
 func _init(p_seed: int) -> void:
 	self.noise_seed = p_seed
 	altitude_noise.seed = noise_seed
@@ -28,6 +33,9 @@ func _init(p_seed: int) -> void:
 	temperature_noise.seed = noise_seed + temperature_seed_offset
 	temperature_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
 	temperature_noise.frequency = temperature_scale
+	river_noise.seed = noise_seed + river_seed_offset
+	river_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	river_noise.frequency = temperature_scale
 
 func generate_chunk_data(chunk_q: int, chunk_r: int) -> ChunkData:
 	var chunk := ChunkData.new()
@@ -53,9 +61,10 @@ func generate_tile_data(q: float, r:float) -> HexTileData:
 	tile.r = r
 	var altitude = get_altitude(q, r)
 	tile.altitude = altitude
+	tile.is_river = generate_river(q, r, altitude)
 	var humidity = get_humidity(q, r)
 	tile.humidity = humidity
-	tile.terrain_id = get_terrain_from_altitude(altitude, humidity)
+	tile.terrain_id = get_terrain_from_altitude(altitude, humidity, tile.is_river)
 	#tile.position = WorldUtil.axial_to_pixel(q, r)
 	return tile
 
@@ -115,13 +124,22 @@ func get_humidity(q: int, r: int) -> float:
 func get_temperature(q: int, r: int) -> float:
 	var value = temperature_noise.get_noise_2d(float(q), float(r))
 	return (value + 1.0) * 0.5
+	
+func generate_river(q, r, altitude):
+	var v = river_noise.get_noise_2d(0.1*q, 0.1*r)
+	if abs(v) < 0.03 and altitude < 0.75 and altitude > 0.35:
+		return true
+	return false
 
-func get_terrain_from_altitude(altitude: float, humidity: float) -> String:
-	if altitude < 0.30:
+
+func get_terrain_from_altitude(altitude: float, humidity: float, is_river: float) -> String:
+	if is_river:
+		return "river"
+	elif altitude < 0.30:
 		return "ocean"
-	elif altitude < 0.40:
+	elif altitude < 0.35:
 		return "coast"
-	elif altitude < 0.55:
+	elif altitude < 0.8:
 		if humidity < 0.20:
 			return "desert"
 		elif humidity < 0.40:
@@ -132,7 +150,7 @@ func get_terrain_from_altitude(altitude: float, humidity: float) -> String:
 			return "forest"
 		else:
 			return "swamp"
-	elif altitude < 0.70:
+	elif altitude < 0.90:
 		return "hills"
 	else:
 		if humidity < 0.4:
