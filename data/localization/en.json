@@ -1,0 +1,122 @@
+{
+	"terrain": {
+		"grassland": {
+			"name": "Grassland",
+			"description": "Fertile plains perfect for farming and settlement."
+		},
+		"forest": {
+			"name": "Forest",
+			"description": "Dense woodlands providing lumber and shelter."
+		},
+		"mountain": {
+			"name": "Mountain",
+			"description": "Towering peaks rich in minerals but difficult to traverse."
+		},
+		"ocean": {
+			"name": "Ocean",
+			"description": "Deep waters impassable by land units."
+		}
+	},
+	"resource": {
+		"food": {
+			"name": "Food",
+			"description": "Sustains your population and allows growth."
+		},
+		"wood": {
+			"name": "Wood",
+			"description": "Essential material for construction."
+		},
+		"stone": {
+			"name": "Stone",
+			"description": "Durable building material for advanced structures."
+		},
+		"population": {
+			"name": "Population",
+			"description": "The workforce that powers your civilization."
+		},
+		"admin_capacity": {
+			"name": "Administrative Capacity",
+			"description": "Determines how many buildings your city can manage efficiently."
+		},
+		"research": {
+			"name": "Research",
+			"description": "Advances your knowledge and unlocks new technologies."
+		}
+	},
+	"modifier": {
+		"copper_deposit": {
+			"name": "Copper Deposit",
+			"description": "A rich vein of copper ore ready for mining."
+		},
+		"fertile_soil": {
+			"name": "Fertile Soil",
+			"description": "Exceptionally rich earth that increases agricultural yields."
+		}
+	},
+	"building": {
+		"city_center": {
+			"name": "City Center",
+			"description": "The heart of your city, providing basic resources and administration."
+		},
+		"farm": {
+			"name": "Farm",
+			"description": "Produces food to feed your population."
+		},
+		"house": {
+			"name": "House",
+			"description": "Provides housing for your growing population."
+		},
+		"granary": {
+			"name": "Granary",
+			"description": "Stores food and reduces decay."
+		},
+		"road_dirt": {
+			"name": "Dirt Road",
+			"description": "Basic road allowing faster movement for caravans."
+		}
+	},
+	"tech_branch": {
+		"agriculture": {
+			"name": "Agriculture",
+			"description": "The science of cultivating plants and livestock."
+		},
+		"construction": {
+			"name": "Construction",
+			"description": "Techniques for building structures and infrastructure."
+		},
+		"mining": {
+			"name": "Mining",
+			"description": "Extracting valuable minerals from the earth."
+		}
+	},
+	"milestone": {
+		"agriculture_1": {
+			"name": "Plant Domestication",
+			"description": "Understanding which plants can be cultivated. Unlocks basic farms."
+		},
+		"agriculture_2": {
+			"name": "Irrigation",
+			"description": "Controlling water flow to increase yields. Unlocks granaries."
+		},
+		"construction_1": {
+			"name": "Mudbrick",
+			"description": "Creating durable building materials from clay and straw."
+		}
+	},
+	"unit": {
+		"settler": {
+			"name": "Settler",
+			"description": "Brave pioneers who can establish new cities."
+		},
+		"caravan": {
+			"name": "Caravan",
+			"description": "Traders who transport goods between cities."
+		}
+	},
+	"perk": {
+		"agricultural_society": {
+			"name": "Agricultural Society",
+			"description": "Your civilization has mastered the art of farming, becoming experts in food production."
+		}
+	}
+}

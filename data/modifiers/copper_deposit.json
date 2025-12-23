@@ -1,0 +1,34 @@
+{
+	"type": "resource_deposit",
+	"duration": -1,
+	"stackable": false,
+	"conflicts_with": ["iron_deposit"],
+	"effects": {
+		"yields": {},
+		"terrain_transform": null,
+		"provides_resource": "copper",
+		"movement_cost_modifier": 0.0
+	},
+	"conditions": {
+		"terrain_types": ["mountain", "hills"],
+		"altitude_min": 0.6,
+		"altitude_max": 1.0,
+		"requires_modifiers": [],
+		"prohibits_modifiers": []
+	},
+	"generation": {
+		"spawn_chance": 0.08,
+		"altitude_min": 0.6,
+		"altitude_max": 1.0,
+		"humidity_min": 0.0,
+		"humidity_max": 1.0,
+		"temperature_min": 0.0,
+		"temperature_max": 1.0,
+		"terrain_types": ["mountain", "hills"]
+	},
+	"visual": {
+		"icon": "res://assets/icons/copper.png",
+		"overlay_color": "#CD7F3280"
+	},
+	"milestones_required": []
+}

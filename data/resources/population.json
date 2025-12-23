@@ -1,0 +1,15 @@
+{
+	"type": "flow",
+	"storage": {
+		"max_stack": 0,
+		"decay": {
+			"enabled": false,
+			"base_rate_per_turn": 0.0
+		}
+	},
+	"visual": {
+		"icon": "res://assets/icons/population.png",
+		"color": "#FFD700"
+	},
+	"milestones_required": []
+}

@@ -1,0 +1,40 @@
+{
+	"category": "economic",
+	"unlock_conditions": {
+		"milestones_before": {
+			"agriculture_2": true
+		},
+		"milestones_not_researched": {},
+		"cities_with_buildings": {
+			"farm": 5
+		},
+		"tiles_owned_by_terrain": {},
+		"turn_range": {
+			"min": 10,
+			"max": 100
+		}
+	},
+	"effects": {
+		"building_modifiers": {
+			"farm": {
+				"production_multiplier": 1.25,
+				"construction_cost_multiplier": 0.8
+			}
+		},
+		"unit_modifiers": {},
+		"yield_bonuses": {
+			"global": {
+				"food": 2
+			},
+			"per_terrain_type": {}
+		},
+		"admin_distance_multiplier_modifier": 0.0,
+		"unlocks_tech_branch": null,
+		"unlocks_unique_buildings": []
+	},
+	"visual": {
+		"icon": "res://assets/icons/perk_agricultural.png",
+		"aesthetic_tag": "agricultural"
+	},
+	"exclusive_with": []
+}

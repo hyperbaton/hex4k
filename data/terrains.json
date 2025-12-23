@@ -1,5 +1,0 @@
-{
-	"grassland": {"movement": 1, "food_bonus": 1},
-	"forest": {"movement": 2, "wood": 2},
-	"mountain": {"movement": 3, "ore": 2}
-}

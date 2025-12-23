@@ -1,0 +1,14 @@
+{
+	"movement_cost": 2.0,
+	"generation": {
+		"altitude_min": 0.35,
+		"altitude_max": 0.80,
+		"humidity_min": 0.65,
+		"humidity_max": 1.0,
+		"temperature_min": 0.2,
+		"temperature_max": 0.8
+	},
+	"visual": {
+		"color": "#1A6B2E"
+	}
+}

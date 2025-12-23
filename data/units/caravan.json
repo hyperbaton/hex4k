@@ -1,0 +1,39 @@
+{
+	"category": "caravan",
+	"cost": {
+		"production": 50,
+		"wood": 20,
+		"turns": 5
+	},
+	"stats": {
+		"movement": 3,
+		"attack": 0,
+		"defense": 3,
+		"health": 50,
+		"range": 0,
+		"cargo_capacity": 100
+	},
+	"abilities": ["trade_route"],
+	"terrain_costs": {
+		"grassland": 1,
+		"plains": 1,
+		"forest": 2,
+		"mountain": 999,
+		"ocean": 999,
+		"road_dirt": 0.5,
+		"paved_road": 0.25
+	},
+	"requirements": {
+		"milestones_required": [],
+		"resources_consumed_on_build": {}
+	},
+	"maintenance": {
+		"per_turn": {
+			"gold": 1
+		}
+	},
+	"upgrades_to": "advanced_caravan",
+	"visual": {
+		"sprite": "res://assets/sprites/caravan.png"
+	}
+}

@@ -1,0 +1,35 @@
+{
+	"agriculture": {
+		"color": "#4A9B4A",
+		"icon": "res://assets/icons/tech_agriculture.png",
+		"requires_branches": [],
+		"milestone_ids": [
+			"agriculture_1",
+			"agriculture_2",
+			"agriculture_3"
+		]
+	},
+	"construction": {
+		"color": "#8B7355",
+		"icon": "res://assets/icons/tech_construction.png",
+		"requires_branches": [],
+		"milestone_ids": [
+			"construction_1",
+			"construction_2"
+		]
+	},
+	"mining": {
+		"color": "#A0A0A0",
+		"icon": "res://assets/icons/tech_mining.png",
+		"requires_branches": [
+			{
+				"branch": "construction",
+				"level": 5.0
+			}
+		],
+		"milestone_ids": [
+			"mining_1",
+			"mining_2"
+		]
+	}
+}

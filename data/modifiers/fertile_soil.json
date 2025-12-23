@@ -1,0 +1,36 @@
+{
+	"type": "yield_modifier",
+	"duration": -1,
+	"stackable": true,
+	"conflicts_with": [],
+	"effects": {
+		"yields": {
+			"food": 2
+		},
+		"terrain_transform": null,
+		"provides_resource": null,
+		"movement_cost_modifier": 0.0
+	},
+	"conditions": {
+		"terrain_types": ["grassland", "plains"],
+		"altitude_min": 0.3,
+		"altitude_max": 0.7,
+		"requires_modifiers": [],
+		"prohibits_modifiers": []
+	},
+	"generation": {
+		"spawn_chance": 0.05,
+		"altitude_min": 0.3,
+		"altitude_max": 0.7,
+		"humidity_min": 0.5,
+		"humidity_max": 1.0,
+		"temperature_min": 0.3,
+		"temperature_max": 0.8,
+		"terrain_types": ["grassland", "plains"]
+	},
+	"visual": {
+		"icon": "res://assets/icons/fertile_soil.png",
+		"overlay_color": "#4A9B4A80"
+	},
+	"milestones_required": []
+}

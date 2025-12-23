@@ -1,0 +1,17 @@
+{
+	"required_branches": [
+		{
+			"branch": "construction",
+			"level": 3.0
+		}
+	],
+	"visibility": {
+		"show_at_branches": [
+			{
+				"branch": "construction",
+				"level": 1.0
+			}
+		]
+	},
+	"icon": "res://assets/icons/construction_1.png"
+}

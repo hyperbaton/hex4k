@@ -1,0 +1,84 @@
+{
+	"category": "production",
+	"construction": {
+		"cost_per_turn": {
+			"wood": 5,
+			"stone": 2
+		},
+		"total_turns": 8
+	},
+	"admin_cost": {
+		"base": 1.0,
+		"distance_multiplier": 0.1
+	},
+	"requirements": {
+		"terrain_types": ["grassland", "plains"],
+		"terrain_exclude": ["ocean", "mountain", "forest"],
+		"required_modifiers": [],
+		"required_adjacent": {
+			"building_ids": [],
+			"building_categories": [],
+			"min_count": 0,
+			"max_distance": 1
+		},
+		"prohibited_adjacent": {
+			"building_ids": [],
+			"building_categories": [],
+			"min_distance": 0
+		},
+		"requires_city_center_connection": true,
+		"milestones_required": ["agriculture_1"]
+	},
+	"production": {
+		"per_turn_produces": {
+			"food": 4
+		},
+		"per_turn_consumes": {
+			"population": 1
+		},
+		"branch_specific_research": {
+			"agriculture": 0.1
+		}
+	},
+	"adjacency_bonuses": [
+		{
+			"source_type": "terrain",
+			"source_id": "grassland",
+			"radius": 1,
+			"yields": {
+				"food": 1
+			}
+		},
+		{
+			"source_type": "building",
+			"source_id": "farm",
+			"radius": 1,
+			"yields": {
+				"food": 0.5
+			}
+		},
+		{
+			"source_type": "modifier",
+			"source_id": "fertile_soil",
+			"radius": 1,
+			"yields": {
+				"food": 2
+			}
+		}
+	],
+	"provides": {
+		"population_storage": 0,
+		"resource_storage": {},
+		"admin_capacity": 0,
+		"caravan_capacity": 0,
+		"decay_reduction": {}
+	},
+	"upgrades_to": "improved_farm",
+	"can_units_stand": true,
+	"has_orientation": false,
+	"is_city_center": false,
+	"visual": {
+		"sprite": "res://assets/sprites/farm.png",
+		"color": "#E8B830"
+	}
+}

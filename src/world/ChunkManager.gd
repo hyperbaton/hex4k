@@ -23,9 +23,22 @@ func _ready():
 			generator = TileGenerator.new(noise_seed)
 			load_world(GameState.save_id)
 
-func _unhandled_input(event):
+func _input(event):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		# Check if click is not on UI
+		var ui_root = get_node("../UI/Root")
+		if ui_root:
+			var local_pos = ui_root.get_local_mouse_position()
+			var rect = ui_root.get_rect()
+			if rect.has_point(local_pos):
+				# Check if any UI element was actually clicked
+				for child in ui_root.get_children():
+					if child is Control and child.visible:
+						var child_rect = child.get_global_rect()
+						if child_rect.has_point(event.position):
+							return  # Click was on UI, don't handle
 		handle_click(event.position)
+		get_viewport().set_input_as_handled()
 	
 func handle_click(_screen_pos: Vector2):
 	var camera := get_viewport().get_camera_2d()

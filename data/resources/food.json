@@ -1,0 +1,15 @@
+{
+	"type": "storable",
+	"storage": {
+		"max_stack": 1000,
+		"decay": {
+			"enabled": true,
+			"base_rate_per_turn": 0.05
+		}
+	},
+	"visual": {
+		"icon": "res://assets/icons/food.png",
+		"color": "#E8B830"
+	},
+	"milestones_required": []
+}
