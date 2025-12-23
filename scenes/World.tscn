@@ -1,7 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://dygkvii468c7v"]
+[gd_scene load_steps=8 format=3 uid="uid://dygkvii468c7v"]
 
 [ext_resource type="Script" uid="uid://cs824houtmiri" path="res://src/world/World.gd" id="1_7g83o"]
 [ext_resource type="Script" uid="uid://dmm1myogjxbjx" path="res://src/world/Camera.gd" id="2_d1c63"]
+[ext_resource type="Script" path="res://src/core/CityManager.gd" id="3_citymanager"]
+[ext_resource type="Script" path="res://src/world/WorldQuery.gd" id="4_worldquery"]
 [ext_resource type="Script" uid="uid://dnio28xxq5yxt" path="res://src/world/ChunkManager.gd" id="4_1lgw5"]
 [ext_resource type="Script" uid="uid://ddi1sqhd2lfj5" path="res://src/ui/TileInfoPanel.gd" id="4_d1c63"]
 [ext_resource type="Script" uid="uid://kowa1myr1x3l" path="res://src/ui/SaveButton.gd" id="5_1lgw5"]
@@ -14,6 +16,12 @@ script = ExtResource("2_d1c63")
 
 [node name="ChunkManager" type="Node2D" parent="."]
 script = ExtResource("4_1lgw5")
+
+[node name="CityManager" type="Node" parent="."]
+script = ExtResource("3_citymanager")
+
+[node name="WorldQuery" type="Node" parent="."]
+script = ExtResource("4_worldquery")
 
 [node name="UI" type="CanvasLayer" parent="."]
 

@@ -6,6 +6,6 @@ extends Node
 @onready var world := $World
 
 func _ready():
-	registry.register_data(loader)
+	#registry.register_data(loader)
 	#world.initialize_world()
 	print("Game initialized.")

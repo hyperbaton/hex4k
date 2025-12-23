@@ -188,3 +188,36 @@ func load_visible_chunks():
 		spawn_chunk_node(coord, data)
 
 	unload_far_chunks(visible_chunks)
+
+# === Public API for World/WorldQuery ===
+
+func get_tile_data(coord: Vector2i) -> HexTileData:
+	"""Get terrain data for a tile at the given coordinates"""
+	var chunk_coord = Vector2i(
+		floor(float(coord.x) / WorldConfig.CHUNK_SIZE),
+		floor(float(coord.y) / WorldConfig.CHUNK_SIZE)
+	)
+	
+	var chunk = get_or_create_chunk_data(chunk_coord)
+	if not chunk:
+		return null
+	
+	var local_coord = Vector2i(
+		coord.x - chunk_coord.x * WorldConfig.CHUNK_SIZE,
+		coord.y - chunk_coord.y * WorldConfig.CHUNK_SIZE
+	)
+	
+	return chunk.tiles.get(local_coord)
+
+func get_tile_at_position(world_pos: Vector2) -> HexTile:
+	"""Get the visual HexTile node at a world position"""
+	var coords = WorldUtil.pixel_to_axial(world_pos)
+	return get_tile_at_coords(coords.x, coords.y)
+
+func get_tile_at_coords(q: int, r: int) -> HexTile:
+	"""Get the visual HexTile node at hex coordinates"""
+	for chunk in get_children():
+		for tile in chunk.get_children():
+			if tile is HexTile and tile.data.q == q and tile.data.r == r:
+				return tile
+	return null

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c5tfru14kcu31"]
+
+[ext_resource type="Script" uid="uid://c11ry5tmovl24" path="res://test/scripts/WorldIntegrationTest.gd" id="1"]
+
+[node name="WorldIntegrationTest" type="Node"]
+script = ExtResource("1")
