@@ -1,0 +1,144 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/ui/CityOverlay.gd" id="1"]
+[ext_resource type="Script" path="res://src/ui/CityHeader.gd" id="2"]
+[ext_resource type="Script" path="res://src/ui/ActionMenu.gd" id="3"]
+[ext_resource type="Script" path="res://src/ui/ResourceDetailPanel.gd" id="4"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dimmer"]
+bg_color = Color(0, 0, 0, 0.3)
+
+[node name="CityOverlay" type="CanvasLayer"]
+script = ExtResource("1")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0, 0, 0, 0.3)
+
+[node name="CityHeader" type="PanelContainer" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 60.0
+grow_horizontal = 2
+mouse_filter = 0
+script = ExtResource("2")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CityHeader"]
+layout_mode = 2
+
+[node name="CityName" type="Label" parent="CityHeader/HBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(200, 0)
+text = "City Name"
+vertical_alignment = 1
+
+[node name="VSeparator" type="VSeparator" parent="CityHeader/HBoxContainer"]
+layout_mode = 2
+
+[node name="PopulationDisplay" type="HBoxContainer" parent="CityHeader/HBoxContainer"]
+layout_mode = 2
+
+[node name="Icon" type="ColorRect" parent="CityHeader/HBoxContainer/PopulationDisplay"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0.8, 0.6, 0.4, 1)
+
+[node name="Label" type="Label" parent="CityHeader/HBoxContainer/PopulationDisplay"]
+layout_mode = 2
+text = "0 / 0"
+vertical_alignment = 1
+
+[node name="VSeparator2" type="VSeparator" parent="CityHeader/HBoxContainer"]
+layout_mode = 2
+
+[node name="ResourcesContainer" type="HBoxContainer" parent="CityHeader/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ActionMenu" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3")
+
+[node name="ButtonsContainer" type="Control" parent="ActionMenu"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CategoriesContainer" type="Control" parent="ActionMenu"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BuildingsContainer" type="Control" parent="ActionMenu"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ResourceDetailPanel" type="PanelContainer" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -300.0
+offset_right = 400.0
+offset_bottom = 300.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("4")
+
+[node name="MarginContainer" type="MarginContainer" parent="ResourceDetailPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ResourceDetailPanel/MarginContainer"]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="ResourceDetailPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="ResourceDetailPanel/MarginContainer/VBoxContainer/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Resource Details"
+vertical_alignment = 1
+
+[node name="CloseButton" type="Button" parent="ResourceDetailPanel/MarginContainer/VBoxContainer/Header"]
+layout_mode = 2
+text = "Close"
+
+[node name="HSeparator" type="HSeparator" parent="ResourceDetailPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="ResourceDetailPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ResourceList" type="VBoxContainer" parent="ResourceDetailPanel/MarginContainer/VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3

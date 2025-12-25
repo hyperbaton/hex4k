@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://dygkvii468c7v"]
+[gd_scene load_steps=10 format=3 uid="uid://dygkvii468c7v"]
 
 [ext_resource type="Script" uid="uid://cs824houtmiri" path="res://src/world/World.gd" id="1_7g83o"]
 [ext_resource type="Script" uid="uid://dmm1myogjxbjx" path="res://src/world/Camera.gd" id="2_d1c63"]
@@ -7,6 +7,8 @@
 [ext_resource type="Script" uid="uid://dnio28xxq5yxt" path="res://src/world/ChunkManager.gd" id="4_1lgw5"]
 [ext_resource type="Script" uid="uid://ddi1sqhd2lfj5" path="res://src/ui/TileInfoPanel.gd" id="4_d1c63"]
 [ext_resource type="Script" uid="uid://kowa1myr1x3l" path="res://src/ui/SaveButton.gd" id="5_1lgw5"]
+[ext_resource type="Script" path="res://src/world/TileHighlighter.gd" id="6_tilehigh"]
+[ext_resource type="PackedScene" path="res://scenes/CityOverlay.tscn" id="8_cityoverlay"]
 
 [node name="World" type="Node2D"]
 script = ExtResource("1_7g83o")
@@ -22,6 +24,9 @@ script = ExtResource("3_citymanager")
 
 [node name="WorldQuery" type="Node" parent="."]
 script = ExtResource("4_worldquery")
+
+[node name="TileHighlighter" type="Node2D" parent="."]
+script = ExtResource("6_tilehigh")
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -65,3 +70,8 @@ offset_right = 8.0
 offset_bottom = 8.0
 text = "Save world"
 script = ExtResource("5_1lgw5")
+
+[node name="CityOverlayLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="CityOverlay" parent="CityOverlayLayer" instance=ExtResource("8_cityoverlay")]
