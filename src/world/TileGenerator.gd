@@ -13,7 +13,7 @@ var altitude_noise := FastNoiseLite.new()
 var humidity_noise := FastNoiseLite.new()
 
 @export var temperature_seed_offset := 499
-@export var temperature_scale := 0.1
+@export var temperature_scale := 0.05  # Lower frequency for larger temperature zones
 
 var temperature_noise := FastNoiseLite.new()
 
@@ -21,6 +21,9 @@ var temperature_noise := FastNoiseLite.new()
 @export var river_scale := 0.1
 
 var river_noise := FastNoiseLite.new()
+
+# Cache for terrain matching
+var terrain_cache: Array[Dictionary] = []
 
 func _init(p_seed: int) -> void:
 	self.noise_seed = p_seed
@@ -35,7 +38,38 @@ func _init(p_seed: int) -> void:
 	temperature_noise.frequency = temperature_scale
 	river_noise.seed = noise_seed + river_seed_offset
 	river_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
-	river_noise.frequency = temperature_scale
+	river_noise.frequency = river_scale
+	
+	# Build terrain cache sorted by priority (highest first)
+	_build_terrain_cache()
+
+func _build_terrain_cache():
+	"""Build a sorted cache of terrains for efficient matching"""
+	terrain_cache.clear()
+	
+	for terrain_id in Registry.terrains.get_all_terrain_ids():
+		var terrain = Registry.terrains.get_terrain(terrain_id)
+		var gen = terrain.get("generation", {})
+		
+		# Skip special terrains (river, lake) - they're handled separately
+		if gen.get("special", "") != "":
+			continue
+		
+		terrain_cache.append({
+			"id": terrain_id,
+			"altitude_min": gen.get("altitude_min", 0.0),
+			"altitude_max": gen.get("altitude_max", 1.0),
+			"humidity_min": gen.get("humidity_min", 0.0),
+			"humidity_max": gen.get("humidity_max", 1.0),
+			"temperature_min": gen.get("temperature_min", 0.0),
+			"temperature_max": gen.get("temperature_max", 1.0),
+			"priority": gen.get("priority", 5)
+		})
+	
+	# Sort by priority descending (higher priority = checked first)
+	terrain_cache.sort_custom(func(a, b): return a.priority > b.priority)
+	
+	print("TileGenerator: Built terrain cache with ", terrain_cache.size(), " terrains")
 
 func generate_chunk_data(chunk_q: int, chunk_r: int) -> ChunkData:
 	var chunk := ChunkData.new()
@@ -59,13 +93,20 @@ func generate_tile_data(q: float, r:float) -> HexTileData:
 
 	tile.q = q
 	tile.r = r
+	
 	var altitude = get_altitude(q, r)
 	tile.altitude = altitude
-	tile.is_river = generate_river(q, r, altitude)
+	
 	var humidity = get_humidity(q, r)
 	tile.humidity = humidity
-	tile.terrain_id = get_terrain_from_altitude(altitude, humidity, tile.is_river)
-	#tile.position = WorldUtil.axial_to_pixel(q, r)
+	
+	var temperature = get_temperature(q, r)
+	tile.temperature = temperature
+	
+	tile.is_river = generate_river(q, r, altitude)
+	
+	tile.terrain_id = get_terrain_from_parameters(altitude, humidity, temperature, tile.is_river)
+	
 	return tile
 
 func get_altitude(q: int, r: int) -> float:
@@ -96,13 +137,13 @@ func get_altitude(q: int, r: int) -> float:
 		var mountranges = (altitude_noise.get_noise_2d(xp*0.5, yp*0.5) + 1.0) * 0.5
 		mountranges = max(mountranges - mountainness, 0) * 1 / (1-mountainness)
 		value += mountranges
-	# Apply mascara to have something like continents
-	var mask = cell_mascara(q,r,x,y)
+	
+	# Apply mask to have something like continents
+	var mask = cell_mascara(q, r, x, y)
 	
 	return clamp(mask + (value + 1.0) * 0.5, 0, 1)
-	#return (value + 1.0) * 0.5  # [-1,1] → [0,1]
 	
-func cell_mascara(q:int, r: int, x: float,y: float) -> float:
+func cell_mascara(q: int, r: int, x: float, y: float) -> float:
 	var wavelength = 120
 	var cx = floor(x/wavelength)
 	var cy = floor(y/wavelength)
@@ -125,35 +166,61 @@ func get_temperature(q: int, r: int) -> float:
 	var value = temperature_noise.get_noise_2d(float(q), float(r))
 	return (value + 1.0) * 0.5
 	
-func generate_river(q, r, altitude):
+func generate_river(q: int, r: int, altitude: float) -> bool:
 	var v = river_noise.get_noise_2d(0.1*q, 0.1*r)
 	if abs(v) < 0.03 and altitude < 0.75 and altitude > 0.35:
 		return true
 	return false
 
-
-func get_terrain_from_altitude(altitude: float, humidity: float, is_river: float) -> String:
+func get_terrain_from_parameters(altitude: float, humidity: float, temperature: float, is_river: bool) -> String:
+	"""Select terrain based on altitude, humidity, temperature using registry data"""
+	
+	# Special cases first
 	if is_river:
 		return "river"
-	elif altitude < 0.30:
-		return "ocean"
-	elif altitude < 0.35:
-		return "coast"
-	elif altitude < 0.8:
-		if humidity < 0.20:
-			return "desert"
-		elif humidity < 0.40:
-			return "steppe"
-		elif humidity < 0.65:
+	
+	# Find best matching terrain from cache
+	var best_match := ""
+	var best_score := -1.0
+	
+	for terrain in terrain_cache:
+		# Check if parameters are within range
+		if altitude < terrain.altitude_min or altitude > terrain.altitude_max:
+			continue
+		if humidity < terrain.humidity_min or humidity > terrain.humidity_max:
+			continue
+		if temperature < terrain.temperature_min or temperature > terrain.temperature_max:
+			continue
+		
+		# Calculate how well this terrain fits (center of ranges = better fit)
+		var alt_center = (terrain.altitude_min + terrain.altitude_max) / 2.0
+		var hum_center = (terrain.humidity_min + terrain.humidity_max) / 2.0
+		var temp_center = (terrain.temperature_min + terrain.temperature_max) / 2.0
+		
+		var alt_range = terrain.altitude_max - terrain.altitude_min
+		var hum_range = terrain.humidity_max - terrain.humidity_min
+		var temp_range = terrain.temperature_max - terrain.temperature_min
+		
+		# Score based on how close we are to center of each range (normalized)
+		var alt_score = 1.0 - abs(altitude - alt_center) / max(alt_range / 2.0, 0.01)
+		var hum_score = 1.0 - abs(humidity - hum_center) / max(hum_range / 2.0, 0.01)
+		var temp_score = 1.0 - abs(temperature - temp_center) / max(temp_range / 2.0, 0.01)
+		
+		# Weight by priority and range specificity (smaller ranges = more specific = better match)
+		var specificity = 3.0 - (alt_range + hum_range + temp_range)
+		var score = (alt_score + hum_score + temp_score) * terrain.priority * (1.0 + specificity * 0.1)
+		
+		if score > best_score:
+			best_score = score
+			best_match = terrain.id
+	
+	# Fallback for unmatched areas
+	if best_match == "":
+		if altitude < 0.30:
+			return "ocean"
+		elif altitude > 0.90:
+			return "high_mountain"
+		else:
 			return "plains"
-		elif humidity < 0.85:
-			return "forest"
-		else:
-			return "swamp"
-	elif altitude < 0.90:
-		return "hills"
-	else:
-		if humidity < 0.4:
-			return "dry_mountain"
-		else:
-			return "alpine"
+	
+	return best_match

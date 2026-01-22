@@ -308,11 +308,15 @@ func close_all_menus():
 	
 	# Clear category buttons
 	for button in category_buttons:
-		animate_button_disappear(button)
+		if is_instance_valid(button):
+			animate_button_disappear(button)
+	category_buttons.clear()
 	
 	# Clear building buttons
 	for button in building_buttons:
-		animate_button_disappear(button)
+		if is_instance_valid(button):
+			animate_button_disappear(button)
+	building_buttons.clear()
 	
 	emit_signal("closed")
 

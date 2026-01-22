@@ -221,3 +221,7 @@ func get_tile_at_coords(q: int, r: int) -> HexTile:
 			if tile is HexTile and tile.data.q == q and tile.data.r == r:
 				return tile
 	return null
+
+func get_tile_at_coord(coord: Vector2i) -> HexTile:
+	"""Get the visual HexTile node at hex coordinates (Vector2i version)"""
+	return get_tile_at_coords(coord.x, coord.y)

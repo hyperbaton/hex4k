@@ -128,6 +128,7 @@ func can_place_building(coord: Vector2i, building_id: String) -> Dictionary:
 	"""
 	Check if a building can be placed at the given coordinate.
 	Returns {can_place: bool, reason: String}
+	Note: Terrain checks should be done by WorldQuery before calling this.
 	"""
 	# Check if tile exists in city
 	if not has_tile(coord):
@@ -139,10 +140,8 @@ func can_place_building(coord: Vector2i, building_id: String) -> Dictionary:
 	if tile.has_building():
 		return {can_place = false, reason = "Tile already has a building"}
 	
-	# Check terrain compatibility
-	var terrain_id = get_terrain_at_tile(coord)
-	if not Registry.buildings.can_place_on_terrain(building_id, terrain_id):
-		return {can_place = false, reason = "Invalid terrain"}
+	# Note: Terrain compatibility is checked by WorldQuery.can_build_here()
+	# which has access to terrain data. We skip it here.
 	
 	# Check tech requirements
 	var required_milestones = Registry.buildings.get_required_milestones(building_id)

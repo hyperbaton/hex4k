@@ -99,7 +99,9 @@ func can_build_here(coord: Vector2i, building_id: String) -> Dictionary:
 		return {can_build = false, reason = "Invalid terrain for this building"}
 	
 	# Delegate to city for full check (admin, existing building, tech, etc.)
-	return city.can_place_building(coord, building_id)
+	var city_check = city.can_place_building(coord, building_id)
+	# Normalize the response key from can_place to can_build
+	return {can_build = city_check.get("can_place", false), reason = city_check.get("reason", "")}
 
 func get_buildable_buildings(coord: Vector2i) -> Array[String]:
 	"""Get list of building IDs that can be built at this location"""
