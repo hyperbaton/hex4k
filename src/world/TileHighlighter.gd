@@ -12,6 +12,8 @@ class HighlightInfo:
 	var coord: Vector2i
 	var color: Color
 	var adjacency_bonuses: Array[Dictionary] = []  # [{resource_id, amount}]
+	var admin_cost: float = 0.0  # Admin cost to display (0 = don't show)
+	var show_admin_cost: bool = false
 
 func _ready():
 	pass
@@ -36,6 +38,16 @@ func highlight_tiles(coords: Array[Vector2i], color: Color):
 	"""Highlight multiple tiles"""
 	for coord in coords:
 		highlight_tile(coord, color)
+
+func highlight_tile_with_admin_cost(coord: Vector2i, color: Color, admin_cost: float):
+	"""Highlight a tile and show admin cost"""
+	var info = HighlightInfo.new()
+	info.coord = coord
+	info.color = color
+	info.admin_cost = admin_cost
+	info.show_admin_cost = true
+	highlighted_tiles[coord] = info
+	queue_redraw()
 
 func add_adjacency_bonus_display(coord: Vector2i, resource_id: String, amount: float):
 	"""Add an adjacency bonus display to a tile"""
@@ -73,9 +85,37 @@ func draw_tile_highlight(info: HighlightInfo):
 	# Draw outline
 	draw_polyline(transformed_points, info.color, 3.0)
 	
+	# Draw admin cost if enabled
+	if info.show_admin_cost:
+		draw_admin_cost(world_pos, info.admin_cost, info.color)
+	
 	# Draw adjacency bonuses
 	if not info.adjacency_bonuses.is_empty():
 		draw_adjacency_bonuses(world_pos, info.adjacency_bonuses)
+
+func draw_admin_cost(world_pos: Vector2, cost: float, highlight_color: Color):
+	"""Draw admin cost indicator on a tile"""
+	var pos = world_pos + Vector2(0, -WorldConfig.HEX_SIZE * 0.3)
+	
+	# Draw background pill
+	var bg_color = Color(0, 0, 0, 0.75)
+	draw_circle(pos, 16, bg_color)
+	
+	# Draw admin icon (small scroll/document symbol using the highlight color)
+	var icon_color = highlight_color
+	icon_color.a = 1.0
+	
+	# Simple admin icon - a small rectangle with lines
+	var icon_pos = pos + Vector2(-12, -6)
+	draw_rect(Rect2(icon_pos, Vector2(10, 12)), icon_color, false, 1.5)
+	draw_line(icon_pos + Vector2(2, 3), icon_pos + Vector2(8, 3), icon_color, 1.0)
+	draw_line(icon_pos + Vector2(2, 6), icon_pos + Vector2(8, 6), icon_color, 1.0)
+	draw_line(icon_pos + Vector2(2, 9), icon_pos + Vector2(6, 9), icon_color, 1.0)
+	
+	# Draw cost text
+	var text = "%.1f" % cost
+	var font = ThemeDB.fallback_font
+	draw_string(font, pos + Vector2(2, 5), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color.WHITE)
 
 func draw_adjacency_bonuses(world_pos: Vector2, bonuses: Array[Dictionary]):
 	"""Draw adjacency bonus icons"""

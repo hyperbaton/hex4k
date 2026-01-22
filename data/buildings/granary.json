@@ -1,11 +1,15 @@
 {
 	"category": "storage",
 	"construction": {
-		"cost_per_turn": {
-			"wood": 10,
-			"stone": 5
+		"initial_cost": {
+			"wood": 20,
+			"stone": 15
 		},
-		"total_turns": 6
+		"cost_per_turn": {
+			"wood": 5,
+			"stone": 3
+		},
+		"total_turns": 4
 	},
 	"admin_cost": {
 		"base": 1.0,

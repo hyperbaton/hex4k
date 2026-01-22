@@ -1,11 +1,15 @@
 {
 	"category": "production",
 	"construction": {
-		"cost_per_turn": {
-			"wood": 5,
-			"stone": 2
+		"initial_cost": {
+			"wood": 15,
+			"stone": 5
 		},
-		"total_turns": 8
+		"cost_per_turn": {
+			"wood": 3,
+			"stone": 1
+		},
+		"total_turns": 4
 	},
 	"admin_cost": {
 		"base": 1.0,

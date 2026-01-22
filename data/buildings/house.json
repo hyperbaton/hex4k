@@ -1,11 +1,15 @@
 {
 	"category": "housing",
 	"construction": {
-		"cost_per_turn": {
-			"wood": 8,
-			"stone": 4
+		"initial_cost": {
+			"wood": 10,
+			"stone": 5
 		},
-		"total_turns": 5
+		"cost_per_turn": {
+			"wood": 5,
+			"stone": 2
+		},
+		"total_turns": 3
 	},
 	"admin_cost": {
 		"base": 1.0,

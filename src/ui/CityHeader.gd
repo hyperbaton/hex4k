@@ -10,6 +10,7 @@ signal clicked
 @onready var resources_container := $HBoxContainer/ResourcesContainer
 
 var current_city: City
+var admin_display: HBoxContainer  # Admin capacity display
 
 # Cache for loaded textures
 static var icon_cache: Dictionary = {}
@@ -34,6 +35,9 @@ func update_display():
 	
 	# Resources
 	update_resources()
+	
+	# Admin capacity
+	update_admin_display()
 
 func update_resources():
 	# Clear existing resource displays
@@ -53,6 +57,60 @@ func update_resources():
 		
 		if capacity > 0 or stored > 0:
 			add_resource_display(resource_id, stored, capacity)
+
+func update_admin_display():
+	"""Update the administrative capacity display"""
+	# Remove old display if it exists
+	if admin_display and is_instance_valid(admin_display):
+		admin_display.queue_free()
+		admin_display = null
+	
+	# Create new admin display
+	admin_display = HBoxContainer.new()
+	admin_display.add_theme_constant_override("separation", 4)
+	
+	# Add separator
+	var separator = VSeparator.new()
+	admin_display.add_child(separator)
+	
+	# Icon - try to load admin_capacity icon
+	var icon_container = TextureRect.new()
+	icon_container.custom_minimum_size = Vector2(24, 24)
+	icon_container.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon_container.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	
+	var icon_path = "res://assets/icons/admin_capacity.svg"
+	if ResourceLoader.exists(icon_path):
+		var texture = load(icon_path)
+		if texture:
+			icon_container.texture = texture
+	admin_display.add_child(icon_container)
+	
+	# Admin text: used / total
+	var used = current_city.admin_capacity_used
+	var total = current_city.admin_capacity_available
+	var available = current_city.get_available_admin_capacity()
+	
+	var label = Label.new()
+	label.text = "%.1f / %.1f" % [used, total]
+	label.add_theme_font_size_override("font_size", 14)
+	
+	# Color based on capacity status
+	if available <= 0:
+		label.add_theme_color_override("font_color", Color.RED)
+	elif available < total * 0.2:
+		label.add_theme_color_override("font_color", Color.YELLOW)
+	else:
+		label.add_theme_color_override("font_color", Color.WHITE)
+	
+	admin_display.add_child(label)
+	
+	# Tooltip
+	admin_display.tooltip_text = "Administrative Capacity\nUsed: %.1f\nTotal: %.1f\nAvailable: %.1f" % [used, total, available]
+	admin_display.mouse_filter = Control.MOUSE_FILTER_STOP
+	
+	# Add to resources container (at the end)
+	resources_container.add_child(admin_display)
 
 func add_resource_display(resource_id: String, amount: float, capacity: float):
 	var display = HBoxContainer.new()

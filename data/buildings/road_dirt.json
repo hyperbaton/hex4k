@@ -1,11 +1,13 @@
 {
 	"category": "road",
 	"construction": {
-		"cost_per_turn": {
-			"wood": 2,
-			"stone": 1
+		"initial_cost": {
+			"wood": 3
 		},
-		"total_turns": 3
+		"cost_per_turn": {
+			"wood": 1
+		},
+		"total_turns": 2
 	},
 	"admin_cost": {
 		"base": 0.5,

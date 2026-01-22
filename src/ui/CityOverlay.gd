@@ -16,6 +16,7 @@ var city_manager: CityManager
 var tile_highlighter: TileHighlighter
 var chunk_manager: Node  # ChunkManager reference for updating tile visuals
 var selected_building_id: String = ""
+var is_expand_mode: bool = false  # True when in tile expansion mode
 
 var is_open := false
 
@@ -27,6 +28,7 @@ func _ready():
 	
 	# Connect signals
 	action_menu.build_requested.connect(_on_build_requested)
+	action_menu.expand_requested.connect(_on_expand_requested)
 	action_menu.closed.connect(_on_action_menu_closed)
 	resource_detail_panel.closed.connect(_on_resource_detail_closed)
 	city_header.clicked.connect(_on_header_clicked)
@@ -85,6 +87,10 @@ func _input(event: InputEvent):
 			selected_building_id = ""
 			clear_tile_highlights()
 			action_menu.close_all_menus()
+		elif is_expand_mode:
+			# Cancel expand mode
+			is_expand_mode = false
+			clear_tile_highlights()
 		else:
 			# Close the overlay
 			close_overlay()
@@ -115,6 +121,9 @@ func open_city(city: City, p_world_query: WorldQuery, p_city_manager: CityManage
 	tile_highlighter = p_tile_highlighter
 	chunk_manager = p_chunk_manager
 	
+	# Pass city reference to action menu
+	action_menu.set_city(city)
+	
 	# Recalculate city stats
 	current_city.recalculate_city_stats()
 	
@@ -132,6 +141,7 @@ func close_overlay():
 	hide_overlay()
 	clear_tile_highlights()
 	selected_building_id = ""
+	is_expand_mode = false
 	emit_signal("closed")
 
 func show_overlay():
@@ -177,8 +187,11 @@ func _on_click_catcher_input(event: InputEvent):
 		if selected_building_id != "":
 			# In building mode - try to place or cancel
 			try_place_building_at_mouse()
+		elif is_expand_mode:
+			# In expand mode - try to claim tile or cancel
+			try_expand_at_mouse()
 		else:
-			# Not in building mode - close overlay
+			# Not in any mode - close overlay
 			close_overlay()
 		
 		# Mark as handled
@@ -354,3 +367,135 @@ func on_highlighted_tile_clicked(coord: Vector2i):
 	"""Handle click on a highlighted tile"""
 	if selected_building_id != "":
 		place_building_at_coord(coord)
+	elif is_expand_mode:
+		expand_to_tile(coord)
+
+# === Expand Mode ===
+
+func _on_expand_requested():
+	"""Player clicked the Expand button"""
+	is_expand_mode = true
+	selected_building_id = ""  # Cancel any building selection
+	print("Entered expand mode")
+	
+	# Show expandable tiles
+	highlight_expandable_tiles()
+
+func highlight_expandable_tiles():
+	"""Highlight tiles that can be claimed by the city"""
+	# Clear existing highlights
+	if tile_highlighter:
+		tile_highlighter.clear_all()
+	
+	# Get all tiles adjacent to city but not in city
+	var expandable_coords = get_expandable_tile_coords()
+	var available_admin = current_city.get_available_admin_capacity()
+	
+	for coord in expandable_coords:
+		# Calculate admin cost for this tile
+		var admin_cost = calculate_tile_admin_cost(coord)
+		
+		# Determine color based on whether we can afford it
+		var color: Color
+		if admin_cost <= available_admin:
+			color = Color.GREEN  # Can afford
+		else:
+			color = Color(1.0, 0.5, 0.0)  # Orange - cannot afford
+		
+		# Highlight with admin cost display
+		tile_highlighter.highlight_tile_with_admin_cost(coord, color, admin_cost)
+
+func get_expandable_tile_coords() -> Array[Vector2i]:
+	"""Get all tiles that are adjacent to the city but not part of it"""
+	var expandable: Array[Vector2i] = []
+	var seen := {}
+	
+	# For each city tile, check its neighbors
+	for city_coord in current_city.tiles.keys():
+		var neighbors = get_hex_neighbors(city_coord)
+		for neighbor in neighbors:
+			# Skip if already in city
+			if current_city.has_tile(neighbor):
+				continue
+			# Skip if already seen
+			if seen.has(neighbor):
+				continue
+			# Skip if owned by another city
+			if city_manager.is_tile_owned(neighbor):
+				continue
+			
+			seen[neighbor] = true
+			expandable.append(neighbor)
+	
+	return expandable
+
+func get_hex_neighbors(coord: Vector2i) -> Array[Vector2i]:
+	"""Get the 6 adjacent hex coordinates"""
+	var neighbors: Array[Vector2i] = []
+	var directions = [
+		Vector2i(1, 0), Vector2i(1, -1), Vector2i(0, -1),
+		Vector2i(-1, 0), Vector2i(-1, 1), Vector2i(0, 1)
+	]
+	for dir in directions:
+		neighbors.append(coord + dir)
+	return neighbors
+
+func calculate_tile_admin_cost(coord: Vector2i) -> float:
+	"""Calculate the admin cost to claim a tile"""
+	var distance = current_city.calculate_distance_from_center(coord)
+	return current_city.calculate_tile_claim_cost(distance)
+
+func try_expand_at_mouse():
+	"""Try to expand to the tile at mouse position"""
+	if not is_expand_mode:
+		return
+	
+	# Get world position
+	var camera = get_viewport().get_camera_2d()
+	var world_pos = camera.get_global_mouse_position()
+	var coord = WorldUtil.pixel_to_axial(world_pos)
+	
+	# Check if this is a valid (highlighted) tile
+	if tile_highlighter and tile_highlighter.highlighted_tiles.has(coord):
+		# Valid tile - try to expand
+		expand_to_tile(coord)
+	else:
+		# Invalid tile - exit expand mode
+		print("Clicked invalid tile, exiting expand mode")
+		is_expand_mode = false
+		clear_tile_highlights()
+
+func expand_to_tile(coord: Vector2i):
+	"""Attempt to claim a tile for the city"""
+	var admin_cost = calculate_tile_admin_cost(coord)
+	var available_admin = current_city.get_available_admin_capacity()
+	
+	if admin_cost > available_admin:
+		print("✗ Cannot expand: Insufficient administrative capacity (need %.1f, have %.1f)" % [admin_cost, available_admin])
+		return
+	
+	# Add tile to city
+	current_city.add_tile(coord)
+	city_manager.tile_ownership[coord] = current_city.city_id
+	
+	print("✓ Expanded city to ", coord, " (admin cost: %.1f)" % admin_cost)
+	
+	# Recalculate stats (this will update admin capacity used)
+	current_city.recalculate_city_stats()
+	
+	# Update displays
+	city_header.update_display()
+	
+	# Refresh the expandable tiles display
+	highlight_expandable_tiles()
+	
+	# Update the dimmer to show the new city boundary
+	var world = get_tree().get_first_node_in_group("world")
+	if not world:
+		# Try parent chain
+		var parent = get_parent()
+		while parent:
+			if parent.has_method("get") and parent.get("city_tile_dimmer"):
+				parent.city_tile_dimmer.activate(current_city)
+				break
+			parent = parent.get_parent()

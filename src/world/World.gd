@@ -142,12 +142,19 @@ func setup_test_city():
 		city.resources.set_storage_capacity("food", 100.0)
 		city.resources.set_storage_capacity("wood", 200.0)
 		city.resources.set_storage_capacity("stone", 150.0)
+		city.resources.set_storage_capacity("admin_capacity", 150.0)
 		
 		city.resources.add_stored("food", 45.0)
 		city.resources.add_stored("wood", 120.0)
 		city.resources.add_stored("stone", 30.0)
+		city.resources.add_stored("admin_capacity", 30.0)
 		
 		print("  Added test resources: food=45, wood=120, stone=30")
+		
+		# Add admin capacity for testing (simulating what city_center would provide)
+		city.admin_capacity_available = 20.0
+		city.admin_capacity_used = 2.0
+		print("  Added test admin capacity: 20.0")
 		
 		# Update the visual for the city center building
 		var center_tile = chunk_manager.get_tile_at_coord(test_coord)

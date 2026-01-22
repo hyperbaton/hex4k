@@ -42,11 +42,12 @@
 			"wood": 100,
 			"stone": 100
 		},
-		"admin_capacity": 0,
+		"admin_capacity": 20,
 		"caravan_capacity": 1,
 		"decay_reduction": {}
 	},
 	"upgrades_to": null,
+	"max_per_city": 1,
 	"can_units_stand": true,
 	"has_orientation": false,
 	"is_city_center": true,

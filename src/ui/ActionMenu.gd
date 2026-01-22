@@ -4,6 +4,7 @@ class_name ActionMenu
 # Bottom circular action buttons with expanding menus
 
 signal build_requested(building_id: String)
+signal expand_requested
 signal train_requested
 signal routes_requested
 signal closed
@@ -18,8 +19,12 @@ const BUILDING_OFFSET = 180.0
 @onready var buildings_container := $BuildingsContainer
 
 var build_button: CircularButton
+var expand_button: CircularButton
+var action_buttons: Array[CircularButton] = []  # All main action buttons
 var category_buttons: Array[CircularButton] = []
 var building_buttons: Array[CircularButton] = []
+
+var current_city: City  # Reference to current city for checking build limits
 
 var menu_state := MenuState.CLOSED
 
@@ -39,6 +44,10 @@ func _ready():
 	# Enable input processing
 	set_process_input(true)
 
+func set_city(city: City):
+	"""Set the current city reference for checking build limits"""
+	current_city = city
+
 func _input(event: InputEvent):
 	"""Handle input for buttons - check clicks on circular buttons"""
 	if not visible:
@@ -48,12 +57,13 @@ func _input(event: InputEvent):
 	if event is InputEventMouseMotion:
 		var mouse_pos = event.global_position
 		
-		# Update hover state for all buttons
-		if build_button:
-			var was_hovered = build_button.is_hovered
-			build_button.is_hovered = build_button.is_point_inside(mouse_pos)
-			if was_hovered != build_button.is_hovered:
-				build_button.queue_redraw()
+		# Update hover state for all action buttons
+		for button in action_buttons:
+			if is_instance_valid(button):
+				var was_hovered = button.is_hovered
+				button.is_hovered = button.is_point_inside(mouse_pos)
+				if was_hovered != button.is_hovered:
+					button.queue_redraw()
 		
 		for button in category_buttons:
 			if is_instance_valid(button):
@@ -74,33 +84,31 @@ func _input(event: InputEvent):
 		var mouse_pos = event.global_position
 		
 		if event.pressed:
-			# Check if click is on any button
-			if build_button and build_button.is_point_inside(mouse_pos):
-				print("ActionMenu._input: Click on build button detected!")
-				build_button._gui_input(event)
-				get_viewport().set_input_as_handled()
-				return
+			# Check if click is on any action button
+			for button in action_buttons:
+				if is_instance_valid(button) and button.is_point_inside(mouse_pos):
+					button._gui_input(event)
+					get_viewport().set_input_as_handled()
+					return
 			
 			for button in category_buttons:
 				if is_instance_valid(button) and button.is_point_inside(mouse_pos):
-					print("ActionMenu._input: Click on category button detected!")
 					button._gui_input(event)
 					get_viewport().set_input_as_handled()
 					return
 			
 			for button in building_buttons:
 				if is_instance_valid(button) and button.is_point_inside(mouse_pos):
-					print("ActionMenu._input: Click on building button detected!")
 					button._gui_input(event)
 					get_viewport().set_input_as_handled()
 					return
 		else:
 			# Mouse release - forward to buttons that might be pressed
-			if build_button and build_button.is_pressed:
-				print("ActionMenu._input: Release on build button!")
-				build_button._gui_input(event)
-				get_viewport().set_input_as_handled()
-				return
+			for button in action_buttons:
+				if is_instance_valid(button) and button.is_pressed:
+					button._gui_input(event)
+					get_viewport().set_input_as_handled()
+					return
 			
 			for button in category_buttons:
 				if is_instance_valid(button) and button.is_pressed:
@@ -122,33 +130,50 @@ func _on_viewport_resized():
 
 func setup_action_buttons():
 	# Create main action buttons
-	build_button = create_circular_button("Build", Color.BLUE)
+	build_button = create_circular_button("Build", Color(0.2, 0.4, 0.8))  # Blue
 	build_button.pressed.connect(_on_build_pressed)
 	buttons_container.add_child(build_button)
+	action_buttons.append(build_button)
+	
+	expand_button = create_circular_button("Expand", Color(0.2, 0.7, 0.3))  # Green
+	expand_button.pressed.connect(_on_expand_pressed)
+	buttons_container.add_child(expand_button)
+	action_buttons.append(expand_button)
 	
 	# Position at bottom center
 	position_action_buttons()
 
 func position_action_buttons():
-	if not build_button:
+	if action_buttons.is_empty():
 		return
 	var viewport_size = get_viewport_rect().size
 	var center_x = viewport_size.x / 2
 	var bottom_y = viewport_size.y - 80
 	
-	# Position the build button at bottom center
-	build_button.position = Vector2(center_x - build_button.radius, bottom_y - build_button.radius)
+	# Calculate total width for all action buttons
+	var button_spacing = 20
+	var total_width = action_buttons.size() * (BUTTON_RADIUS * 2) + (action_buttons.size() - 1) * button_spacing
+	var start_x = center_x - total_width / 2
+	
+	# Position each action button
+	for i in range(action_buttons.size()):
+		var button = action_buttons[i]
+		if is_instance_valid(button):
+			var x = start_x + i * (BUTTON_RADIUS * 2 + button_spacing)
+			button.position = Vector2(x, bottom_y - BUTTON_RADIUS)
 
 func reposition_category_buttons():
-	"""Reposition category buttons in horizontal line above build button"""
+	"""Reposition category buttons in horizontal line above action buttons"""
 	if category_buttons.is_empty():
 		return
 	
-	var build_center = build_button.position + Vector2(build_button.radius, build_button.radius)
-	var row_y = build_center.y - BUTTON_RADIUS * 3
+	var viewport_size = get_viewport_rect().size
+	var center_x = viewport_size.x / 2
+	var bottom_y = viewport_size.y - 80
+	var row_y = bottom_y - BUTTON_RADIUS * 3
 	
 	var total_width = category_buttons.size() * (BUTTON_RADIUS * 2) + (category_buttons.size() - 1) * 20
-	var start_x = build_center.x - total_width / 2
+	var start_x = center_x - total_width / 2
 	
 	for i in range(category_buttons.size()):
 		if not is_instance_valid(category_buttons[i]):
@@ -161,11 +186,13 @@ func reposition_building_buttons():
 	if building_buttons.is_empty():
 		return
 	
-	var build_center = build_button.position + Vector2(build_button.radius, build_button.radius)
-	var row_y = build_center.y - BUTTON_RADIUS * 6
+	var viewport_size = get_viewport_rect().size
+	var center_x = viewport_size.x / 2
+	var bottom_y = viewport_size.y - 80
+	var row_y = bottom_y - BUTTON_RADIUS * 6
 	
 	var total_width = building_buttons.size() * (BUTTON_RADIUS * 2) + (building_buttons.size() - 1) * 20
-	var start_x = build_center.x - total_width / 2
+	var start_x = center_x - total_width / 2
 	
 	for i in range(building_buttons.size()):
 		if not is_instance_valid(building_buttons[i]):
@@ -181,7 +208,6 @@ func create_circular_button(text: String, color: Color) -> CircularButton:
 	return button
 
 func _on_build_pressed():
-	print("Build pressed! Current state: ", menu_state)
 	if menu_state == MenuState.CLOSED:
 		# First click - show categories
 		menu_state = MenuState.ACTIONS_OPEN
@@ -192,6 +218,11 @@ func _on_build_pressed():
 	else:
 		# ACTIONS_OPEN state - show categories
 		show_building_categories()
+
+func _on_expand_pressed():
+	"""Handle expand button press"""
+	close_all_menus()
+	emit_signal("expand_requested")
 
 func show_building_categories():
 	menu_state = MenuState.CATEGORIES_OPEN
@@ -204,13 +235,15 @@ func show_building_categories():
 	# Get all building categories
 	var categories = get_building_categories()
 	
-	# Position buttons in a horizontal line above the build button
-	var build_center = build_button.position + Vector2(build_button.radius, build_button.radius)
-	var row_y = build_center.y - BUTTON_RADIUS * 3  # One row above, with spacing
+	# Position buttons in a horizontal line above action buttons
+	var viewport_size = get_viewport_rect().size
+	var center_x = viewport_size.x / 2
+	var bottom_y = viewport_size.y - 80
+	var row_y = bottom_y - BUTTON_RADIUS * 3  # One row above, with spacing
 	
 	# Calculate total width needed
 	var total_width = categories.size() * (BUTTON_RADIUS * 2) + (categories.size() - 1) * 20  # 20px spacing
-	var start_x = build_center.x - total_width / 2
+	var start_x = center_x - total_width / 2
 	
 	for i in range(categories.size()):
 		var category = categories[i]
@@ -247,12 +280,14 @@ func show_buildings_in_category(category: String):
 		return
 	
 	# Position buttons in a horizontal line above the category buttons
-	var build_center = build_button.position + Vector2(build_button.radius, build_button.radius)
-	var row_y = build_center.y - BUTTON_RADIUS * 6  # Two rows above build button
+	var viewport_size = get_viewport_rect().size
+	var center_x = viewport_size.x / 2
+	var bottom_y = viewport_size.y - 80
+	var row_y = bottom_y - BUTTON_RADIUS * 6  # Two rows above action buttons
 	
 	# Calculate total width needed
 	var total_width = buildings.size() * (BUTTON_RADIUS * 2) + (buildings.size() - 1) * 20
-	var start_x = build_center.x - total_width / 2
+	var start_x = center_x - total_width / 2
 	
 	for i in range(buildings.size()):
 		var building_id = buildings[i]
@@ -276,6 +311,7 @@ func _on_building_pressed(building_id: String):
 	# Keep menu open for now so player can see tile highlights
 
 func get_building_categories() -> Array[String]:
+	"""Get categories that have at least one available building"""
 	var categories: Array[String] = []
 	var seen = {}
 	
@@ -283,9 +319,25 @@ func get_building_categories() -> Array[String]:
 		var building = Registry.buildings.get_building(building_id)
 		var category = building.get("category", "")
 		
-		if category != "" and not seen.has(category):
-			categories.append(category)
-			seen[category] = true
+		# Skip empty categories or already seen
+		if category == "" or seen.has(category):
+			continue
+		
+		# Check if this building's tech is unlocked
+		var milestones = Registry.buildings.get_required_milestones(building_id)
+		if not Registry.has_all_milestones(milestones):
+			continue
+		
+		# Check max per city limit
+		var max_per_city = Registry.buildings.get_max_per_city(building_id)
+		if max_per_city > 0 and current_city:
+			var current_count = current_city.count_buildings(building_id)
+			if current_count >= max_per_city:
+				continue  # This building has reached its limit
+		
+		# This category has at least one available building
+		categories.append(category)
+		seen[category] = true
 	
 	return categories
 
@@ -295,11 +347,22 @@ func get_available_buildings_in_category(category: String) -> Array[String]:
 	for building_id in Registry.buildings.get_all_building_ids():
 		var building = Registry.buildings.get_building(building_id)
 		
-		if building.get("category", "") == category:
-			# Check if tech is unlocked
-			var milestones = Registry.buildings.get_required_milestones(building_id)
-			if Registry.has_all_milestones(milestones):
-				buildings.append(building_id)
+		if building.get("category", "") != category:
+			continue
+		
+		# Check if tech is unlocked
+		var milestones = Registry.buildings.get_required_milestones(building_id)
+		if not Registry.has_all_milestones(milestones):
+			continue
+		
+		# Check max per city limit
+		var max_per_city = Registry.buildings.get_max_per_city(building_id)
+		if max_per_city > 0 and current_city:
+			var current_count = current_city.count_buildings(building_id)
+			if current_count >= max_per_city:
+				continue  # This building has reached its limit
+		
+		buildings.append(building_id)
 	
 	return buildings
 
@@ -340,8 +403,9 @@ func is_mouse_over() -> bool:
 	var mouse_pos = get_viewport().get_mouse_position()
 	
 	# Check action buttons (use circular hit test)
-	if build_button and build_button.is_point_inside(mouse_pos):
-		return true
+	for button in action_buttons:
+		if is_instance_valid(button) and button.is_point_inside(mouse_pos):
+			return true
 	
 	# Check category buttons
 	for button in category_buttons:

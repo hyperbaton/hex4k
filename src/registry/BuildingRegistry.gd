@@ -55,9 +55,17 @@ func building_exists(building_id: String) -> bool:
 	return buildings.has(building_id)
 
 func get_construction_cost(building_id: String) -> Dictionary:
+	"""Get the per-turn construction cost"""
 	var building = get_building(building_id)
 	if building.has("construction"):
 		return building.construction.get("cost_per_turn", {})
+	return {}
+
+func get_initial_construction_cost(building_id: String) -> Dictionary:
+	"""Get the initial (upfront) construction cost"""
+	var building = get_building(building_id)
+	if building.has("construction"):
+		return building.construction.get("initial_cost", {})
 	return {}
 
 func get_construction_turns(building_id: String) -> int:
@@ -132,6 +140,11 @@ func get_caravan_capacity(building_id: String) -> int:
 	if building.has("provides"):
 		return building.provides.get("caravan_capacity", 0)
 	return 0
+
+func get_max_per_city(building_id: String) -> int:
+	"""Get the maximum number of this building allowed per city. 0 means unlimited."""
+	var building = get_building(building_id)
+	return building.get("max_per_city", 0)
 
 func can_place_on_terrain(building_id: String, terrain_id: String) -> bool:
 	var building = get_building(building_id)

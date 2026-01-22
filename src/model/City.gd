@@ -124,6 +124,36 @@ func is_contiguous(new_coord: Vector2i) -> bool:
 
 # === Building Management ===
 
+func count_buildings(building_id: String) -> int:
+	"""Count how many of a specific building exist in this city (built + under construction)"""
+	var count = 0
+	
+	# Count completed buildings
+	for tile in tiles.values():
+		if tile.building_id == building_id:
+			count += 1
+	
+	# Count buildings under construction
+	for project in construction_queue:
+		if project.building_id == building_id:
+			count += 1
+	
+	return count
+
+func is_tile_under_construction(coord: Vector2i) -> bool:
+	"""Check if a tile has a building under construction"""
+	for project in construction_queue:
+		if project.tile_coord == coord:
+			return true
+	return false
+
+func get_construction_at_tile(coord: Vector2i) -> Dictionary:
+	"""Get the construction project at a tile, or empty dict if none"""
+	for project in construction_queue:
+		if project.tile_coord == coord:
+			return project
+	return {}
+
 func can_place_building(coord: Vector2i, building_id: String) -> Dictionary:
 	"""
 	Check if a building can be placed at the given coordinate.
@@ -140,6 +170,18 @@ func can_place_building(coord: Vector2i, building_id: String) -> Dictionary:
 	if tile.has_building():
 		return {can_place = false, reason = "Tile already has a building"}
 	
+	# Check if tile has construction in progress
+	if is_tile_under_construction(coord):
+		return {can_place = false, reason = "Construction already in progress"}
+	
+	# Check max per city limit
+	var max_per_city = Registry.buildings.get_max_per_city(building_id)
+	if max_per_city > 0:
+		var current_count = count_buildings(building_id)
+		if current_count >= max_per_city:
+			var building_name = Registry.get_name_label("building", building_id)
+			return {can_place = false, reason = "Maximum %s reached (%d)" % [building_name, max_per_city]}
+	
 	# Note: Terrain compatibility is checked by WorldQuery.can_build_here()
 	# which has access to terrain data. We skip it here.
 	
@@ -153,6 +195,14 @@ func can_place_building(coord: Vector2i, building_id: String) -> Dictionary:
 	if admin_cost > get_available_admin_capacity():
 		return {can_place = false, reason = "Insufficient administrative capacity"}
 	
+	# Check initial construction cost
+	var initial_cost = Registry.buildings.get_initial_construction_cost(building_id)
+	for resource_id in initial_cost.keys():
+		var cost = initial_cost[resource_id]
+		if not resources.has_resource(resource_id, cost):
+			var resource_name = Registry.get_name_label("resource", resource_id)
+			return {can_place = false, reason = "Insufficient %s (need %d)" % [resource_name, cost]}
+	
 	return {can_place = true, reason = ""}
 
 func start_construction(coord: Vector2i, building_id: String) -> bool:
@@ -161,6 +211,13 @@ func start_construction(coord: Vector2i, building_id: String) -> bool:
 	if not check.can_place:
 		push_warning("Cannot build %s at %v: %s" % [building_id, coord, check.reason])
 		return false
+	
+	# Deduct initial construction cost
+	var initial_cost = Registry.buildings.get_initial_construction_cost(building_id)
+	for resource_id in initial_cost.keys():
+		var cost = initial_cost[resource_id]
+		resources.add_stored(resource_id, -cost)
+		print("  Deducted initial cost: ", resource_id, " x", cost)
 	
 	# Add to construction queue
 	construction_queue.append({
@@ -207,10 +264,16 @@ func recalculate_city_stats():
 	
 	# Calculate from each tile
 	for tile in get_all_tiles():
+		# Admin cost for claiming the tile (non-center tiles)
+		if not tile.is_city_center:
+			var tile_admin_cost = calculate_tile_claim_cost(tile.distance_from_center)
+			admin_capacity_used += tile_admin_cost
+		
 		if not tile.has_building():
 			continue
 		
 		var building_id = tile.building_id
+		print("  Processing building: ", building_id, " at ", tile.tile_coord)
 		
 		# Production
 		var produces = Registry.buildings.get_production_per_turn(building_id)
@@ -232,14 +295,24 @@ func recalculate_city_stats():
 		population_capacity += Registry.buildings.get_population_capacity(building_id)
 		
 		# Admin capacity
-		admin_capacity_available += Registry.buildings.get_admin_capacity(building_id)
+		var admin_cap = Registry.buildings.get_admin_capacity(building_id)
+		print("    Admin capacity from building: ", admin_cap)
+		admin_capacity_available += admin_cap
 		
-		# Admin cost
+		# Admin cost for the building
 		var admin_cost = Registry.buildings.get_admin_cost(building_id, tile.distance_from_center)
 		admin_capacity_used += admin_cost
 	
+	print("  Final admin capacity: ", admin_capacity_available, " / used: ", admin_capacity_used)
+	
 	# Calculate decay for perishable resources
 	calculate_decay()
+
+func calculate_tile_claim_cost(distance: int) -> float:
+	"""Calculate the admin cost to claim/maintain a tile based on distance"""
+	var base_cost = 1.0
+	var distance_multiplier = 0.5
+	return base_cost + (distance * distance_multiplier)
 
 func calculate_decay():
 	"""Calculate decay for perishable resources"""
