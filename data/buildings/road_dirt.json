@@ -47,7 +47,7 @@
 	"has_orientation": false,
 	"is_city_center": false,
 	"visual": {
-		"sprite": "res://assets/sprites/road_dirt.png",
+		"sprite": "res://assets/buildings/road_dirt.svg",
 		"color": "#8B7355"
 	}
 }

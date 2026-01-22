@@ -78,7 +78,7 @@
 	"has_orientation": false,
 	"is_city_center": false,
 	"visual": {
-		"sprite": "res://assets/sprites/farm.png",
+		"sprite": "res://assets/buildings/farm.svg",
 		"color": "#E8B830"
 	}
 }

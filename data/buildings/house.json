@@ -51,7 +51,7 @@
 	"has_orientation": false,
 	"is_city_center": false,
 	"visual": {
-		"sprite": "res://assets/sprites/house.png",
+		"sprite": "res://assets/buildings/house.svg",
 		"color": "#D4A574"
 	}
 }

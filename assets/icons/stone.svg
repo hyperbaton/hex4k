@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Stone - rock/boulder icon -->
+  <defs>
+    <linearGradient id="stone_grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#B8B8B8"/>
+      <stop offset="100%" style="stop-color:#808080"/>
+    </linearGradient>
+  </defs>
+  <!-- Main stone -->
+  <polygon points="16,4 28,10 26,24 18,28 6,24 4,12" fill="url(#stone_grad)"/>
+  <!-- Facets/highlights -->
+  <polygon points="16,4 22,8 18,14 10,12" fill="#C8C8C8" opacity="0.6"/>
+  <!-- Shadow/depth -->
+  <polygon points="18,28 26,24 24,18 18,22" fill="#606060" opacity="0.4"/>
+  <!-- Cracks -->
+  <path d="M12,10 L14,16 L12,20" stroke="#707070" stroke-width="0.5" fill="none"/>
+  <path d="M20,12 L18,18" stroke="#707070" stroke-width="0.5" fill="none"/>
+</svg>

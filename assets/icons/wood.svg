@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Wood - log icon -->
+  <defs>
+    <linearGradient id="wood_grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#A06830"/>
+      <stop offset="100%" style="stop-color:#805020"/>
+    </linearGradient>
+    <linearGradient id="wood_end" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#D8B080"/>
+      <stop offset="100%" style="stop-color:#C09860"/>
+    </linearGradient>
+  </defs>
+  <!-- Main log -->
+  <rect x="4" y="12" width="22" height="10" rx="2" fill="url(#wood_grad)"/>
+  <!-- Log end (circular) -->
+  <ellipse cx="26" cy="17" rx="4" ry="5" fill="url(#wood_end)"/>
+  <!-- Tree rings -->
+  <ellipse cx="26" cy="17" rx="2.5" ry="3" fill="none" stroke="#A08060" stroke-width="0.5"/>
+  <ellipse cx="26" cy="17" rx="1" ry="1.5" fill="none" stroke="#A08060" stroke-width="0.5"/>
+  <!-- Wood grain lines -->
+  <path d="M6,14 L22,14 M6,17 L22,17 M6,20 L22,20" stroke="#906028" stroke-width="0.5" opacity="0.5"/>
+</svg>

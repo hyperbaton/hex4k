@@ -29,7 +29,7 @@
 	"production": {
 		"per_turn_produces": {
 			"population": 2,
-			"admin_capacity": 5
+			"admin_capacity": 50
 		},
 		"per_turn_consumes": {},
 		"branch_specific_research": {}
@@ -51,7 +51,7 @@
 	"has_orientation": false,
 	"is_city_center": true,
 	"visual": {
-		"sprite": "res://assets/sprites/city_center.png",
+		"sprite": "res://assets/buildings/city_center.svg",
 		"color": "#FFD700"
 	}
 }

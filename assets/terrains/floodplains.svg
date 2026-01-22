@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="74" height="64" viewBox="0 0 74 64">
+  <defs>
+    <linearGradient id="floodplains_grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#50A040"/>
+      <stop offset="100%" style="stop-color:#308828"/>
+    </linearGradient>
+  </defs>
+  <polygon points="18.5,0 55.5,0 74,32 55.5,64 18.5,64 0,32" fill="url(#floodplains_grad)" stroke="#206818" stroke-width="1"/>
+  <!-- Wet soil patches -->
+  <ellipse cx="22" cy="30" rx="7" ry="4" fill="#408038" opacity="0.6"/>
+  <ellipse cx="52" cy="38" rx="6" ry="3" fill="#387030" opacity="0.5"/>
+  <!-- Rich vegetation -->
+  <path d="M15,50 L15,42 M13,50 L12,44 M17,50 L18,43" stroke="#60B050" stroke-width="2" stroke-linecap="round"/>
+  <path d="M35,48 L35,40 M33,48 L32,42 M37,48 L38,41" stroke="#58A848" stroke-width="2" stroke-linecap="round"/>
+  <path d="M55,50 L55,42 M53,50 L52,44 M57,50 L58,43" stroke="#60B050" stroke-width="2" stroke-linecap="round"/>
+  <!-- Water hints -->
+  <path d="M25,45 Q32,42 40,45" stroke="#4898A0" stroke-width="1" fill="none" opacity="0.4"/>
+</svg>

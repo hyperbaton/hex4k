@@ -1,0 +1,16 @@
+{
+	"movement_cost": 1.5,
+	"passable": true,
+	"category": "water",
+	"generation": {
+		"special": "river"
+	},
+	"visual": {
+		"color": "#4090C0",
+		"sprite": "river.svg"
+	},
+	"yields": {
+		"food": 1,
+		"gold": 1
+	}
+}

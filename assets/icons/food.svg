@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Food - wheat/grain icon -->
+  <defs>
+    <linearGradient id="food_grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#F0D040"/>
+      <stop offset="100%" style="stop-color:#D8A020"/>
+    </linearGradient>
+  </defs>
+  <!-- Wheat stalk -->
+  <path d="M16,28 L16,12" stroke="#8B7030" stroke-width="2" stroke-linecap="round"/>
+  <!-- Wheat grains -->
+  <ellipse cx="16" cy="8" rx="3" ry="5" fill="url(#food_grad)"/>
+  <ellipse cx="12" cy="11" rx="2.5" ry="4" fill="url(#food_grad)" transform="rotate(-20 12 11)"/>
+  <ellipse cx="20" cy="11" rx="2.5" ry="4" fill="url(#food_grad)" transform="rotate(20 20 11)"/>
+  <ellipse cx="10" cy="16" rx="2" ry="3.5" fill="url(#food_grad)" transform="rotate(-35 10 16)"/>
+  <ellipse cx="22" cy="16" rx="2" ry="3.5" fill="url(#food_grad)" transform="rotate(35 22 16)"/>
+</svg>

@@ -1,14 +1,21 @@
 {
 	"movement_cost": 3.0,
+	"passable": true,
+	"category": "land",
 	"generation": {
-		"altitude_min": 0.80,
-		"altitude_max": 1.0,
+		"altitude_min": 0.88,
+		"altitude_max": 0.95,
 		"humidity_min": 0.0,
 		"humidity_max": 1.0,
-		"temperature_min": 0.0,
-		"temperature_max": 1.0
+		"temperature_min": 0.15,
+		"temperature_max": 1.0,
+		"priority": 8
 	},
 	"visual": {
-		"color": "#7A6B5A"
+		"color": "#6A6A5A",
+		"sprite": "mountain.svg"
+	},
+	"yields": {
+		"production": 1
 	}
 }

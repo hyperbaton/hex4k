@@ -1,14 +1,12 @@
 {
 	"movement_cost": 1.0,
+	"passable": true,
+	"category": "land",
 	"generation": {
-		"altitude_min": 0.35,
-		"altitude_max": 0.75,
-		"humidity_min": 0.40,
-		"humidity_max": 0.65,
-		"temperature_min": 0.3,
-		"temperature_max": 0.7
+		"special": "deprecated"
 	},
 	"visual": {
 		"color": "#4A9B4A"
-	}
+	},
+	"_comment": "Deprecated - use plains or meadow instead"
 }

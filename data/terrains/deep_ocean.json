@@ -1,0 +1,19 @@
+{
+	"movement_cost": 999.0,
+	"passable": false,
+	"category": "water",
+	"generation": {
+		"altitude_min": 0.0,
+		"altitude_max": 0.18,
+		"humidity_min": 0.0,
+		"humidity_max": 1.0,
+		"temperature_min": 0.0,
+		"temperature_max": 1.0,
+		"priority": 10
+	},
+	"visual": {
+		"color": "#1A3A6A",
+		"sprite": "deep_ocean.svg"
+	},
+	"yields": {}
+}

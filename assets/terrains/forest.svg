@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="74" height="64" viewBox="0 0 74 64">
+  <defs>
+    <linearGradient id="forest_grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#408040"/>
+      <stop offset="100%" style="stop-color:#306030"/>
+    </linearGradient>
+  </defs>
+  <polygon points="18.5,0 55.5,0 74,32 55.5,64 18.5,64 0,32" fill="url(#forest_grad)" stroke="#205020" stroke-width="1"/>
+  <!-- Trees -->
+  <polygon points="20,48 15,48 17.5,38" fill="#306828"/>
+  <polygon points="20,42 15,42 17.5,30" fill="#408038"/>
+  <rect x="16.5" y="48" width="2" height="5" fill="#604020"/>
+  
+  <polygon points="38,50 32,50 35,38" fill="#287028"/>
+  <polygon points="38,42 32,42 35,28" fill="#388838"/>
+  <rect x="34" y="50" width="2" height="5" fill="#604020"/>
+  
+  <polygon points="56,48 50,48 53,36" fill="#306828"/>
+  <polygon points="56,40 50,40 53,26" fill="#408038"/>
+  <rect x="52" y="48" width="2" height="5" fill="#604020"/>
+  
+  <!-- Small undergrowth -->
+  <circle cx="25" cy="52" r="3" fill="#387030"/>
+  <circle cx="45" cy="54" r="2.5" fill="#306028"/>
+</svg>

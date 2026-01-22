@@ -1,0 +1,15 @@
+{
+	"movement_cost": 2.0,
+	"passable": true,
+	"category": "water",
+	"generation": {
+		"special": "lake"
+	},
+	"visual": {
+		"color": "#3A7AAA",
+		"sprite": "lake.svg"
+	},
+	"yields": {
+		"food": 2
+	}
+}

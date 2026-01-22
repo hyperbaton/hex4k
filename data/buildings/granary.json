@@ -51,7 +51,7 @@
 	"has_orientation": false,
 	"is_city_center": false,
 	"visual": {
-		"sprite": "res://assets/sprites/granary.png",
+		"sprite": "res://assets/buildings/granary.svg",
 		"color": "#B8860B"
 	}
 }

@@ -1,0 +1,22 @@
+{
+	"movement_cost": 1.5,
+	"passable": true,
+	"category": "land",
+	"generation": {
+		"altitude_min": 0.55,
+		"altitude_max": 0.75,
+		"humidity_min": 0.30,
+		"humidity_max": 0.70,
+		"temperature_min": 0.30,
+		"temperature_max": 0.70,
+		"priority": 5
+	},
+	"visual": {
+		"color": "#8A9A60",
+		"sprite": "rolling_hills.svg"
+	},
+	"yields": {
+		"food": 1,
+		"production": 1
+	}
+}

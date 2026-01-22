@@ -1,0 +1,21 @@
+{
+	"movement_cost": 1.0,
+	"passable": true,
+	"category": "land",
+	"generation": {
+		"altitude_min": 0.35,
+		"altitude_max": 0.55,
+		"humidity_min": 0.40,
+		"humidity_max": 0.60,
+		"temperature_min": 0.35,
+		"temperature_max": 0.70,
+		"priority": 5
+	},
+	"visual": {
+		"color": "#6AAA50",
+		"sprite": "plains.svg"
+	},
+	"yields": {
+		"food": 2
+	}
+}

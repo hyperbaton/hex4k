@@ -8,7 +8,7 @@
 		}
 	},
 	"visual": {
-		"icon": "res://assets/icons/food.png",
+		"icon": "res://assets/icons/food.svg",
 		"color": "#E8B830"
 	},
 	"milestones_required": []

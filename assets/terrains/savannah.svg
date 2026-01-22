@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="74" height="64" viewBox="0 0 74 64">
+  <defs>
+    <linearGradient id="savannah_grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#B8A850"/>
+      <stop offset="100%" style="stop-color:#98884"/>
+    </linearGradient>
+  </defs>
+  <polygon points="18.5,0 55.5,0 74,32 55.5,64 18.5,64 0,32" fill="url(#savannah_grad)" stroke="#807030" stroke-width="1"/>
+  <!-- Acacia tree -->
+  <ellipse cx="37" cy="25" rx="12" ry="6" fill="#608040"/>
+  <rect x="35.5" y="28" width="3" height="20" fill="#705030"/>
+  <!-- Dry grass -->
+  <path d="M12,52 L12,46 M10,52 L8,47" stroke="#A89840" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M58,50 L58,44 M60,50 L62,45" stroke="#B8A850" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Small bushes -->
+  <ellipse cx="20" cy="45" rx="4" ry="3" fill="#708838"/>
+  <ellipse cx="55" cy="48" rx="3" ry="2" fill="#688030"/>
+</svg>

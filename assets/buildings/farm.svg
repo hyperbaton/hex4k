@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- Farm - Fields with crops -->
+  <defs>
+    <linearGradient id="farm_soil" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B6914"/>
+      <stop offset="100%" style="stop-color:#6B4A0A"/>
+    </linearGradient>
+  </defs>
+  <!-- Field rows (soil) -->
+  <rect x="4" y="24" width="56" height="36" fill="url(#farm_soil)" stroke="#5A3A08" stroke-width="1"/>
+  <!-- Furrows -->
+  <line x1="4" y1="32" x2="60" y2="32" stroke="#5A3A08" stroke-width="1"/>
+  <line x1="4" y1="40" x2="60" y2="40" stroke="#5A3A08" stroke-width="1"/>
+  <line x1="4" y1="48" x2="60" y2="48" stroke="#5A3A08" stroke-width="1"/>
+  <!-- Crops row 1 -->
+  <path d="M8,28 L8,22 M10,28 L10,24 M12,28 L12,22" stroke="#70A830" stroke-width="2" stroke-linecap="round"/>
+  <path d="M20,28 L20,22 M22,28 L22,24 M24,28 L24,22" stroke="#68A028" stroke-width="2" stroke-linecap="round"/>
+  <path d="M32,28 L32,22 M34,28 L34,24 M36,28 L36,22" stroke="#70A830" stroke-width="2" stroke-linecap="round"/>
+  <path d="M44,28 L44,22 M46,28 L46,24 M48,28 L48,22" stroke="#68A028" stroke-width="2" stroke-linecap="round"/>
+  <path d="M56,28 L56,22 M54,28 L54,24 M52,28 L52,22" stroke="#70A830" stroke-width="2" stroke-linecap="round"/>
+  <!-- Crops row 2 -->
+  <path d="M8,36 L8,30 M12,36 L12,32" stroke="#78B038" stroke-width="2" stroke-linecap="round"/>
+  <path d="M24,36 L24,30 M28,36 L28,32" stroke="#70A830" stroke-width="2" stroke-linecap="round"/>
+  <path d="M40,36 L40,30 M44,36 L44,32" stroke="#78B038" stroke-width="2" stroke-linecap="round"/>
+  <path d="M56,36 L56,30 M52,36 L52,32" stroke="#70A830" stroke-width="2" stroke-linecap="round"/>
+  <!-- Small farmhouse -->
+  <rect x="6" y="48" width="16" height="12" fill="#D8C090" stroke="#A08050" stroke-width="1"/>
+  <polygon points="4,48 14,40 24,48" fill="#A06030" stroke="#803010" stroke-width="1"/>
+  <rect x="10" y="52" width="4" height="8" fill="#604020"/>
+</svg>

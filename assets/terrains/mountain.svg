@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="74" height="64" viewBox="0 0 74 64">
+  <defs>
+    <linearGradient id="mountain_grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#808080"/>
+      <stop offset="50%" style="stop-color:#686868"/>
+      <stop offset="100%" style="stop-color:#505050"/>
+    </linearGradient>
+  </defs>
+  <polygon points="18.5,0 55.5,0 74,32 55.5,64 18.5,64 0,32" fill="url(#mountain_grad)" stroke="#404040" stroke-width="1"/>
+  <!-- Mountain peak -->
+  <polygon points="37,12 20,55 54,55" fill="#606060"/>
+  <polygon points="37,12 28,55 37,55" fill="#707070"/>
+  <!-- Snow cap -->
+  <polygon points="37,12 30,28 44,28" fill="#E8E8E8"/>
+  <polygon points="37,12 33,22 41,22" fill="#F8F8F8"/>
+  <!-- Rocky details -->
+  <polygon points="22,50 18,55 26,55" fill="#585858"/>
+  <polygon points="52,48 48,55 56,55" fill="#505050"/>
+</svg>

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- Construction - Building under construction -->
+  <defs>
+    <linearGradient id="scaffold_wood" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#B08050"/>
+      <stop offset="100%" style="stop-color:#906030"/>
+    </linearGradient>
+  </defs>
+  <!-- Foundation outline -->
+  <rect x="10" y="44" width="44" height="16" fill="none" stroke="#808080" stroke-width="2" stroke-dasharray="4,2"/>
+  <!-- Partial walls (brick pattern) -->
+  <rect x="12" y="48" width="16" height="12" fill="#C8B8A0" stroke="#A09080" stroke-width="1"/>
+  <line x1="12" y1="52" x2="28" y2="52" stroke="#A09080" stroke-width="0.5"/>
+  <line x1="12" y1="56" x2="28" y2="56" stroke="#A09080" stroke-width="0.5"/>
+  <line x1="20" y1="48" x2="20" y2="52" stroke="#A09080" stroke-width="0.5"/>
+  <line x1="16" y1="52" x2="16" y2="56" stroke="#A09080" stroke-width="0.5"/>
+  <line x1="24" y1="52" x2="24" y2="56" stroke="#A09080" stroke-width="0.5"/>
+  <!-- Scaffolding -->
+  <!-- Vertical poles -->
+  <rect x="8" y="20" width="3" height="40" fill="url(#scaffold_wood)"/>
+  <rect x="53" y="20" width="3" height="40" fill="url(#scaffold_wood)"/>
+  <rect x="30" y="16" width="3" height="44" fill="url(#scaffold_wood)"/>
+  <!-- Horizontal beams -->
+  <rect x="8" y="28" width="48" height="3" fill="url(#scaffold_wood)"/>
+  <rect x="8" y="42" width="48" height="3" fill="url(#scaffold_wood)"/>
+  <!-- Cross braces -->
+  <line x1="11" y1="28" x2="30" y2="42" stroke="#906030" stroke-width="2"/>
+  <line x1="33" y1="28" x2="53" y2="42" stroke="#906030" stroke-width="2"/>
+  <!-- Tools -->
+  <!-- Hammer -->
+  <rect x="38" y="50" width="2" height="8" fill="#705030"/>
+  <rect x="36" y="48" width="6" height="3" fill="#606060"/>
+  <!-- Pile of materials -->
+  <ellipse cx="48" cy="56" rx="6" ry="4" fill="#C8B090" stroke="#A08860" stroke-width="1"/>
+  <ellipse cx="50" cy="54" rx="4" ry="3" fill="#D8C0A0" stroke="#A08860" stroke-width="1"/>
+  <!-- Progress indicator (gear/cog) -->
+  <circle cx="32" cy="10" r="6" fill="none" stroke="#E0A020" stroke-width="2"/>
+  <circle cx="32" cy="10" r="3" fill="#E0A020"/>
+</svg>

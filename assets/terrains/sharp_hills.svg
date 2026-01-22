@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="74" height="64" viewBox="0 0 74 64">
+  <defs>
+    <linearGradient id="sharp_grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#788858"/>
+      <stop offset="100%" style="stop-color:#607040"/>
+    </linearGradient>
+  </defs>
+  <polygon points="18.5,0 55.5,0 74,32 55.5,64 18.5,64 0,32" fill="url(#sharp_grad)" stroke="#485830" stroke-width="1"/>
+  <!-- Sharp hill peaks -->
+  <polygon points="25,48 18,55 32,55" fill="#687848"/>
+  <polygon points="25,35 15,48 35,48" fill="#708050"/>
+  <polygon points="50,45 42,55 58,55" fill="#607040"/>
+  <polygon points="50,30 40,45 60,45" fill="#687848"/>
+  <!-- Rocky outcrops -->
+  <polygon points="35,50 30,55 40,55" fill="#808878"/>
+</svg>

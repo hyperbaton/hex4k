@@ -1,0 +1,21 @@
+{
+	"movement_cost": 2.0,
+	"passable": true,
+	"category": "land",
+	"generation": {
+		"altitude_min": 0.75,
+		"altitude_max": 0.88,
+		"humidity_min": 0.0,
+		"humidity_max": 1.0,
+		"temperature_min": 0.15,
+		"temperature_max": 1.0,
+		"priority": 7
+	},
+	"visual": {
+		"color": "#7A8A58",
+		"sprite": "sharp_hills.svg"
+	},
+	"yields": {
+		"production": 2
+	}
+}

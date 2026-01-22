@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="74" height="64" viewBox="0 0 74 64">
+  <defs>
+    <linearGradient id="tundra_grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#A8B8A0"/>
+      <stop offset="100%" style="stop-color:#889880"/>
+    </linearGradient>
+  </defs>
+  <polygon points="18.5,0 55.5,0 74,32 55.5,64 18.5,64 0,32" fill="url(#tundra_grad)" stroke="#687860" stroke-width="1"/>
+  <!-- Sparse vegetation -->
+  <path d="M18,48 L18,44 M16,48 L15,45" stroke="#708068" stroke-width="1" stroke-linecap="round"/>
+  <path d="M40,50 L40,46 M42,50 L43,47" stroke="#688060" stroke-width="1" stroke-linecap="round"/>
+  <!-- Lichen patches -->
+  <ellipse cx="28" cy="38" rx="5" ry="3" fill="#90A088"/>
+  <ellipse cx="52" cy="45" rx="4" ry="2.5" fill="#889880"/>
+  <!-- Small snow patches -->
+  <ellipse cx="22" cy="25" rx="4" ry="2" fill="#D8E0D8" opacity="0.6"/>
+  <ellipse cx="55" cy="30" rx="3" ry="1.5" fill="#E0E8E0" opacity="0.5"/>
+</svg>

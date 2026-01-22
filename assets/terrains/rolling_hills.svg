@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="74" height="64" viewBox="0 0 74 64">
+  <defs>
+    <linearGradient id="rolling_grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#88A060"/>
+      <stop offset="100%" style="stop-color:#708848"/>
+    </linearGradient>
+  </defs>
+  <polygon points="18.5,0 55.5,0 74,32 55.5,64 18.5,64 0,32" fill="url(#rolling_grad)" stroke="#506030" stroke-width="1"/>
+  <!-- Rolling hill contours -->
+  <path d="M8,40 Q22,32 37,38 Q52,44 66,36" fill="none" stroke="#789858" stroke-width="2"/>
+  <path d="M5,52 Q20,44 37,50 Q54,56 68,48" fill="none" stroke="#80A060" stroke-width="1.5"/>
+  <!-- Grass on hills -->
+  <path d="M25,35 L25,30 M27,35 L28,31" stroke="#90B068" stroke-width="1" stroke-linecap="round"/>
+  <path d="M50,40 L50,35 M52,40 L53,36" stroke="#88A860" stroke-width="1" stroke-linecap="round"/>
+</svg>

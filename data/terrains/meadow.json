@@ -1,0 +1,22 @@
+{
+	"movement_cost": 1.0,
+	"passable": true,
+	"category": "land",
+	"generation": {
+		"altitude_min": 0.35,
+		"altitude_max": 0.50,
+		"humidity_min": 0.55,
+		"humidity_max": 0.75,
+		"temperature_min": 0.40,
+		"temperature_max": 0.75,
+		"priority": 5
+	},
+	"visual": {
+		"color": "#80C060",
+		"sprite": "meadow.svg"
+	},
+	"yields": {
+		"food": 2,
+		"gold": 1
+	}
+}
