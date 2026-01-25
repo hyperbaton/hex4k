@@ -1,0 +1,10 @@
+{
+	"name": "Representative Bodies",
+	"description": "Elected assemblies representing the people",
+	"flavor_text": "The voice of the people in the halls of power.",
+	"branch": "governance",
+	"requirements": [{"branch": "governance", "level": 15.0}],
+	"unlocks": {"buildings": ["parliament"], "units": [], "modifiers": [], "resources": [], "perks": []},
+	"visibility": {"always_visible": false, "show_when": [{"branch": "governance", "level": 11.0}]},
+	"visual": {"icon": "res://assets/icons/milestones/representative_bodies.png"}
+}

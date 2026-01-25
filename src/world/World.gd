@@ -7,6 +7,8 @@ extends Node2D
 @onready var world_query := $WorldQuery
 @onready var city_overlay := $CityOverlayLayer/CityOverlay
 @onready var tile_highlighter := $TileHighlighter
+@onready var tech_tree_screen := $TechTreeLayer/TechTreeScreen
+@onready var tech_tree_button := $UI/Root/TechTreeButton
 
 var city_tile_dimmer: CityTileDimmer
 
@@ -28,6 +30,8 @@ func _ready():
 	chunk_manager.tile_selected.connect(_on_tile_selected)
 	city_overlay.closed.connect(_on_city_overlay_closed)
 	tile_highlighter.tile_clicked.connect(_on_highlighted_tile_clicked)
+	tech_tree_button.pressed.connect(_on_tech_tree_button_pressed)
+	tech_tree_screen.closed.connect(_on_tech_tree_closed)
 	
 	# Start or load world
 	match GameState.mode:
@@ -39,10 +43,11 @@ func _ready():
 	
 	# Create test setup for development
 	setup_test_city()
+	setup_test_tech_progress()
 
 func _on_tile_selected(tile: HexTile):
-	# Don't handle tile selection if city overlay is open
-	if city_overlay.is_open:
+	# Don't handle tile selection if city overlay or tech tree is open
+	if city_overlay.is_open or tech_tree_screen.is_open:
 		return
 	
 	# Create TileView for selected tile
@@ -77,6 +82,13 @@ func _on_city_overlay_closed():
 func _on_highlighted_tile_clicked(coord: Vector2i):
 	# Forward to city overlay
 	city_overlay.on_highlighted_tile_clicked(coord)
+
+func _on_tech_tree_button_pressed():
+	if not tech_tree_screen.is_open:
+		tech_tree_screen.show_screen()
+
+func _on_tech_tree_closed():
+	pass  # Could re-enable other UI if needed
 
 func _process(_delta):
 	chunk_manager.update_chunks(camera.global_position)
@@ -126,18 +138,6 @@ func setup_test_city():
 	if city:
 		print("✓ Test city founded at ", test_coord)
 		
-		## Expand city to include surrounding tiles for building (force expand, skip checks)
-		#var neighbors = [
-			#Vector2i(1, 0), Vector2i(1, -1), Vector2i(0, -1),
-			#Vector2i(-1, 0), Vector2i(-1, 1), Vector2i(0, 1)
-		#]
-		#for dir in neighbors:
-			#var neighbor_coord = test_coord + dir
-			## Directly add tile to city, bypassing admin checks for test
-			#city.add_tile(neighbor_coord)
-			#city_manager.tile_ownership[neighbor_coord] = city.city_id
-		#print("  Expanded city to ", city.tiles.size(), " tiles")
-		
 		# Add some starting resources for testing
 		city.resources.set_storage_capacity("food", 100.0)
 		city.resources.set_storage_capacity("wood", 200.0)
@@ -165,3 +165,13 @@ func setup_test_city():
 		print("  Click the city center to open the city overlay!")
 	else:
 		push_warning("Failed to found test city")
+
+func setup_test_tech_progress():
+	"""Set up some test tech progress for development"""
+	# Add progress to some branches to see the visualization
+	Registry.tech.set_branch_progress("agriculture", 5.0)
+	Registry.tech.set_branch_progress("construction", 3.0)
+	Registry.tech.set_branch_progress("pottery", 4.0)
+	Registry.tech.set_branch_progress("mining", 1.0)
+	
+	print("✓ Set test tech progress: agriculture=5, construction=3, pottery=4, mining=1")

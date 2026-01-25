@@ -1,0 +1,9 @@
+{
+	"name": "Theory of Relativity",
+	"description": "Revolutionary understanding of space, time, and gravity.",
+	"branch": "natural_sciences",
+	"requirements": [{ "branch": "natural_sciences", "level": 22.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "natural_sciences", "level": 20.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/theory_of_relativity.png" }
+}

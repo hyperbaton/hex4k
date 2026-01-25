@@ -1,0 +1,31 @@
+{
+	"name": "Pulley",
+	"description": "Wheels with rope to change the direction and magnitude of force",
+	"flavor_text": "Lifting becomes effortless through mechanical advantage.",
+	"branch": "engineering",
+	"requirements": [
+		{
+			"branch": "engineering",
+			"level": 5.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "engineering",
+				"level": 3.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/pulley.png"
+	}
+}

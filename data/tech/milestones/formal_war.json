@@ -1,0 +1,31 @@
+{
+	"name": "Formal War",
+	"description": "Rules and declarations governing armed conflict",
+	"flavor_text": "Even in war, there are boundaries.",
+	"branch": "diplomacy",
+	"requirements": [
+		{
+			"branch": "diplomacy",
+			"level": 2.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "diplomacy",
+				"level": 1.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/formal_war.png"
+	}
+}

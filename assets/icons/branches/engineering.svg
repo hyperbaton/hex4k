@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="en" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5a92c4"/>
+      <stop offset="100%" style="stop-color:#3a6284"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="url(#en)" stroke="#2a4254" stroke-width="2"/>
+  <!-- Gear 1 (large) -->
+  <circle cx="26" cy="30" r="12" fill="#606060" stroke="#404040" stroke-width="1"/>
+  <circle cx="26" cy="30" r="5" fill="#808080"/>
+  <!-- Gear teeth -->
+  <rect x="24" y="16" width="4" height="4" fill="#606060"/>
+  <rect x="24" y="40" width="4" height="4" fill="#606060"/>
+  <rect x="12" y="28" width="4" height="4" fill="#606060"/>
+  <rect x="36" y="28" width="4" height="4" fill="#606060"/>
+  <rect x="14" y="20" width="4" height="4" fill="#606060" transform="rotate(45 16 22)"/>
+  <rect x="34" y="20" width="4" height="4" fill="#606060" transform="rotate(-45 36 22)"/>
+  <rect x="14" y="36" width="4" height="4" fill="#606060" transform="rotate(-45 16 38)"/>
+  <rect x="34" y="36" width="4" height="4" fill="#606060" transform="rotate(45 36 38)"/>
+  <!-- Gear 2 (small) -->
+  <circle cx="42" cy="40" r="8" fill="#707070" stroke="#505050" stroke-width="1"/>
+  <circle cx="42" cy="40" r="3" fill="#909090"/>
+  <rect x="40" y="30" width="4" height="3" fill="#707070"/>
+  <rect x="40" y="47" width="4" height="3" fill="#707070"/>
+  <rect x="32" y="38" width="3" height="4" fill="#707070"/>
+  <rect x="49" y="38" width="3" height="4" fill="#707070"/>
+</svg>

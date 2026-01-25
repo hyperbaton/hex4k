@@ -1,0 +1,9 @@
+{
+	"name": "Hydroelectric Dams",
+	"description": "Large-scale water power generation facilities.",
+	"branch": "energy",
+	"requirements": [{ "branch": "energy", "level": 12.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "energy", "level": 11.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/hydroelectric_dams.png" }
+}

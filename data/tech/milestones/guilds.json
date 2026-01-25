@@ -1,0 +1,9 @@
+{
+	"name": "Guilds",
+	"description": "Professional associations regulating trade and crafts.",
+	"branch": "commerce",
+	"requirements": [{ "branch": "commerce", "level": 8.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "commerce", "level": 7.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/guilds.png" }
+}

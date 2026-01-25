@@ -1,0 +1,31 @@
+{
+	"name": "Armour",
+	"description": "Protective gear worn in combat",
+	"flavor_text": "The warrior's second skin.",
+	"branch": "warfare",
+	"requirements": [
+		{
+			"branch": "warfare",
+			"level": 2.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "warfare",
+				"level": 1.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/armour.png"
+	}
+}

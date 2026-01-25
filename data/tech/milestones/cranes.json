@@ -1,0 +1,31 @@
+{
+	"name": "Cranes",
+	"description": "Machines for lifting and moving heavy loads",
+	"flavor_text": "Monuments rise with mechanical assistance.",
+	"branch": "engineering",
+	"requirements": [
+		{
+			"branch": "engineering",
+			"level": 17.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "engineering",
+				"level": 15.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/cranes.png"
+	}
+}

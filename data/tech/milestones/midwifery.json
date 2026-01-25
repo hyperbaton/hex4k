@@ -1,0 +1,31 @@
+{
+	"name": "Midwifery",
+	"description": "Specialized care for childbirth and maternal health",
+	"flavor_text": "Guiding new life into the world with skilled hands.",
+	"branch": "medicine",
+	"requirements": [
+		{
+			"branch": "medicine",
+			"level": 4.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "medicine",
+				"level": 3.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/midwifery.png"
+	}
+}

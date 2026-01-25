@@ -1,0 +1,31 @@
+{
+	"name": "Quenching and Tempering",
+	"description": "Heat treatment to harden and strengthen steel",
+	"flavor_text": "Fire and water work together to create the finest blades.",
+	"branch": "material_science",
+	"requirements": [
+		{
+			"branch": "material_science",
+			"level": 19.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": ["steel"],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "material_science",
+				"level": 16.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/quenching_and_tempering.png"
+	}
+}

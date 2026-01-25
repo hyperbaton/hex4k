@@ -1,0 +1,31 @@
+{
+	"name": "Alloy Discovery",
+	"description": "Combining metals to create stronger materials",
+	"flavor_text": "Together, metals become more than the sum of their parts.",
+	"branch": "material_science",
+	"requirements": [
+		{
+			"branch": "material_science",
+			"level": 7.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "material_science",
+				"level": 5.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/alloy_discovery.png"
+	}
+}

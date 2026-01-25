@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="dp" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffe730"/>
+      <stop offset="100%" style="stop-color:#cfb700"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="url(#dp)" stroke="#9f8700" stroke-width="2"/>
+  <!-- Handshake -->
+  <!-- Left hand -->
+  <path d="M12 34 L18 30 L24 32 L28 30 L32 34" fill="#f5deb3" stroke="#8b7355" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M12 34 L12 42 L18 44 L24 42" fill="#f5deb3" stroke="#8b7355" stroke-width="1.5"/>
+  <!-- Right hand -->
+  <path d="M52 34 L46 30 L40 32 L36 30 L32 34" fill="#deb887" stroke="#8b7355" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M52 34 L52 42 L46 44 L40 42" fill="#deb887" stroke="#8b7355" stroke-width="1.5"/>
+  <!-- Clasped hands center -->
+  <ellipse cx="32" cy="38" rx="8" ry="6" fill="#e8d4b8" stroke="#8b7355" stroke-width="1"/>
+  <!-- Olive branches -->
+  <path d="M16 18 Q20 22 18 26" fill="none" stroke="#228b22" stroke-width="2"/>
+  <ellipse cx="14" cy="16" rx="3" ry="2" fill="#228b22" transform="rotate(-30 14 16)"/>
+  <ellipse cx="18" cy="14" rx="3" ry="2" fill="#228b22" transform="rotate(-10 18 14)"/>
+  
+  <path d="M48 18 Q44 22 46 26" fill="none" stroke="#228b22" stroke-width="2"/>
+  <ellipse cx="50" cy="16" rx="3" ry="2" fill="#228b22" transform="rotate(30 50 16)"/>
+  <ellipse cx="46" cy="14" rx="3" ry="2" fill="#228b22" transform="rotate(10 46 14)"/>
+</svg>

@@ -1,0 +1,9 @@
+{
+	"name": "Apiculture",
+	"description": "The art of keeping bees for honey and wax.",
+	"branch": "animal_husbandry",
+	"requirements": [{ "branch": "animal_husbandry", "level": 14.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "animal_husbandry", "level": 12.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/apiculture.png" }
+}

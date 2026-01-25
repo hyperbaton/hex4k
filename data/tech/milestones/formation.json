@@ -1,0 +1,31 @@
+{
+	"name": "Formation",
+	"description": "Organized battlefield tactics and unit coordination",
+	"flavor_text": "Together we stand, divided we fall.",
+	"branch": "warfare",
+	"requirements": [
+		{
+			"branch": "warfare",
+			"level": 4.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "warfare",
+				"level": 3.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/formation.png"
+	}
+}

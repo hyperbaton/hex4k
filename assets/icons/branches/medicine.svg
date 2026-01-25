@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="md" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ec2453"/>
+      <stop offset="100%" style="stop-color:#ac1433"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="url(#md)" stroke="#7c0423" stroke-width="2"/>
+  <!-- Medical cross -->
+  <rect x="27" y="14" width="10" height="36" rx="2" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <rect x="14" y="27" width="36" height="10" rx="2" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <!-- Heart symbol in center -->
+  <path d="M32 28 C28 24 22 24 22 30 C22 36 32 44 32 44 C32 44 42 36 42 30 C42 24 36 24 32 28" fill="#ec2453"/>
+  <!-- Subtle pulse line -->
+  <path d="M18 52 L24 52 L26 48 L28 54 L30 50 L32 52 L46 52" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

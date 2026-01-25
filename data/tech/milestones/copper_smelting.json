@@ -1,0 +1,31 @@
+{
+	"name": "Copper Smelting",
+	"description": "Extracting copper from ore using heat",
+	"flavor_text": "Fire transforms stone into gleaming metal.",
+	"branch": "material_science",
+	"requirements": [
+		{
+			"branch": "material_science",
+			"level": 3.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": ["copper"],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "material_science",
+				"level": 1.5
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/copper_smelting.png"
+	}
+}

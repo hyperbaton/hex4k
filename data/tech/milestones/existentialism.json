@@ -1,0 +1,31 @@
+{
+	"name": "Existentialism",
+	"description": "Philosophy emphasizing individual existence and freedom",
+	"flavor_text": "Existence precedes essence; we define ourselves.",
+	"branch": "philosophy",
+	"requirements": [
+		{
+			"branch": "philosophy",
+			"level": 13.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "philosophy",
+				"level": 12.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/existentialism.png"
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"name": "Plough",
+	"description": "Animal-drawn implements for efficient soil preparation.",
+	"branch": "agriculture",
+	"requirements": [{ "branch": "agriculture", "level": 10.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "agriculture", "level": 8.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/plough.png" }
+}

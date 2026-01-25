@@ -1,0 +1,31 @@
+{
+	"name": "Polymers",
+	"description": "Synthetic long-chain molecules with versatile properties",
+	"flavor_text": "Chemistry creates materials nature never imagined.",
+	"branch": "material_science",
+	"requirements": [
+		{
+			"branch": "material_science",
+			"level": 30.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": ["plastic"],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "material_science",
+				"level": 26.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/polymers.png"
+	}
+}

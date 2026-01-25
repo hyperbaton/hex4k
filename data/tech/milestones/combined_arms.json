@@ -1,0 +1,31 @@
+{
+	"name": "Combined Arms",
+	"description": "Integration of different military branches in battle",
+	"flavor_text": "Infantry, cavalry, and artillery as one fist.",
+	"branch": "warfare",
+	"requirements": [
+		{
+			"branch": "warfare",
+			"level": 14.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "warfare",
+				"level": 13.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/combined_arms.png"
+	}
+}

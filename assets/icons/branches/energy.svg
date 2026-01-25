@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="eg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff9c10"/>
+      <stop offset="100%" style="stop-color:#cf6c00"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="url(#eg)" stroke="#9f4c00" stroke-width="2"/>
+  <!-- Lightning bolt -->
+  <polygon points="36,8 24,30 32,30 28,56 40,28 32,28" fill="#ffff00" stroke="#ffa500" stroke-width="1.5"/>
+  <!-- Inner highlight -->
+  <polygon points="34,14 28,30 32,30 30,46 36,30 32,30" fill="#fff5cc"/>
+  <!-- Energy rays -->
+  <line x1="14" y1="20" x2="20" y2="24" stroke="#ffff00" stroke-width="2" stroke-linecap="round"/>
+  <line x1="50" y1="20" x2="44" y2="24" stroke="#ffff00" stroke-width="2" stroke-linecap="round"/>
+  <line x1="14" y1="44" x2="20" y2="40" stroke="#ffff00" stroke-width="2" stroke-linecap="round"/>
+  <line x1="50" y1="44" x2="44" y2="40" stroke="#ffff00" stroke-width="2" stroke-linecap="round"/>
+</svg>

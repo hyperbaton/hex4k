@@ -1,0 +1,9 @@
+{
+	"name": "Cultured Tissues",
+	"description": "Growing animal products without raising animals.",
+	"branch": "animal_husbandry",
+	"requirements": [{ "branch": "animal_husbandry", "level": 50.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "animal_husbandry", "level": 40.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/cultured_tissues.png" }
+}

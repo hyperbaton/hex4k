@@ -1,0 +1,31 @@
+{
+	"name": "Gears",
+	"description": "Toothed wheels that transfer motion and force",
+	"flavor_text": "Interlocking teeth multiply power.",
+	"branch": "engineering",
+	"requirements": [
+		{
+			"branch": "engineering",
+			"level": 15.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "engineering",
+				"level": 13.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/gears.png"
+	}
+}

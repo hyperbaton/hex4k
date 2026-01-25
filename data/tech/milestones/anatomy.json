@@ -1,0 +1,31 @@
+{
+	"name": "Anatomy",
+	"description": "Scientific study of the structure of living organisms",
+	"flavor_text": "To heal the body, one must first understand it.",
+	"branch": "medicine",
+	"requirements": [
+		{
+			"branch": "medicine",
+			"level": 6.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "medicine",
+				"level": 5.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/anatomy.png"
+	}
+}

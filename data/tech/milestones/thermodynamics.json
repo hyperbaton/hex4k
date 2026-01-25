@@ -1,0 +1,9 @@
+{
+	"name": "Thermodynamics",
+	"description": "Science of heat, energy, and work transformations.",
+	"branch": "natural_sciences",
+	"requirements": [{ "branch": "natural_sciences", "level": 10.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "natural_sciences", "level": 9.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/thermodynamics.png" }
+}

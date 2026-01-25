@@ -1,0 +1,9 @@
+{
+	"name": "Formal Logic",
+	"description": "Systematic rules for valid reasoning and argumentation.",
+	"branch": "philosophy",
+	"requirements": [{ "branch": "philosophy", "level": 5.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "philosophy", "level": 4.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/formal_logic.png" }
+}

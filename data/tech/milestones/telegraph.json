@@ -1,0 +1,9 @@
+{
+	"name": "Telegraph",
+	"description": "Electrical transmission of coded messages over long distances.",
+	"branch": "communication",
+	"requirements": [{ "branch": "communication", "level": 16.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "communication", "level": 14.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/telegraph.png" }
+}

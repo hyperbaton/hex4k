@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="gv" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#c8980b"/>
+      <stop offset="100%" style="stop-color:#98680b"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="url(#gv)" stroke="#68480b" stroke-width="2"/>
+  <!-- Crown -->
+  <path d="M16 36 L20 22 L26 30 L32 18 L38 30 L44 22 L48 36 Z" fill="#ffd700" stroke="#b8860b" stroke-width="1.5"/>
+  <rect x="16" y="36" width="32" height="6" fill="#ffd700" stroke="#b8860b" stroke-width="1.5"/>
+  <!-- Jewels on crown -->
+  <circle cx="20" cy="24" r="2" fill="#dc143c"/>
+  <circle cx="32" cy="20" r="2.5" fill="#4169e1"/>
+  <circle cx="44" cy="24" r="2" fill="#dc143c"/>
+  <!-- Crown base jewels -->
+  <circle cx="24" cy="39" r="2" fill="#50c878"/>
+  <circle cx="32" cy="39" r="2" fill="#50c878"/>
+  <circle cx="40" cy="39" r="2" fill="#50c878"/>
+  <!-- Pillar/pedestal -->
+  <rect x="26" y="44" width="12" height="10" fill="#daa520" stroke="#b8860b" stroke-width="1"/>
+</svg>

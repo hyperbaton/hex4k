@@ -1,0 +1,31 @@
+{
+	"name": "Organ Printing",
+	"description": "3D bioprinting of functional organs for transplantation",
+	"flavor_text": "Life itself, manufactured to order.",
+	"branch": "medicine",
+	"requirements": [
+		{
+			"branch": "medicine",
+			"level": 13.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "medicine",
+				"level": 12.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/organ_printing.png"
+	}
+}

@@ -1,0 +1,31 @@
+{
+	"name": "Nihilism",
+	"description": "Rejection of inherent meaning or value in existence",
+	"flavor_text": "If nothing matters, then everything is permitted.",
+	"branch": "philosophy",
+	"requirements": [
+		{
+			"branch": "philosophy",
+			"level": 12.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "philosophy",
+				"level": 11.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/nihilism.png"
+	}
+}

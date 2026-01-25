@@ -1,0 +1,31 @@
+{
+	"name": "Uranium Refining",
+	"description": "Processing uranium ore into nuclear fuel",
+	"flavor_text": "Extracting power from the atom's heart.",
+	"branch": "energy",
+	"requirements": [
+		{
+			"branch": "energy",
+			"level": 9.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "energy",
+				"level": 8.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/uranium_refining.png"
+	}
+}

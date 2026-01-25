@@ -1,0 +1,9 @@
+{
+	"name": "Plant Domestication",
+	"description": "Understanding how to cultivate wild plants for reliable food sources.",
+	"branch": "agriculture",
+	"requirements": [{ "branch": "agriculture", "level": 1.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": true },
+	"visual": { "icon": "res://assets/icons/milestones/plant_domestication.png" }
+}

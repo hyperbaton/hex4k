@@ -1,0 +1,31 @@
+{
+	"name": "Regular Army",
+	"description": "Professional standing military forces",
+	"flavor_text": "War becomes a profession, soldiers a class.",
+	"branch": "warfare",
+	"requirements": [
+		{
+			"branch": "warfare",
+			"level": 12.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "warfare",
+				"level": 11.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/regular_army.png"
+	}
+}

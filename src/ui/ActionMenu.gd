@@ -28,15 +28,21 @@ var current_city: City  # Reference to current city for checking build limits
 
 var menu_state := MenuState.CLOSED
 
+# Building info panel
+var info_panel: PanelContainer
+var selected_building_id: String = ""
+
 enum MenuState {
 	CLOSED,
 	ACTIONS_OPEN,
 	CATEGORIES_OPEN,
-	BUILDINGS_OPEN
+	BUILDINGS_OPEN,
+	INFO_PANEL_OPEN
 }
 
 func _ready():
 	setup_action_buttons()
+	_create_info_panel()
 	
 	# Connect to viewport size changes
 	get_viewport().size_changed.connect(_on_viewport_resized)
@@ -127,6 +133,7 @@ func _on_viewport_resized():
 	position_action_buttons()
 	reposition_category_buttons()
 	reposition_building_buttons()
+	_reposition_info_panel()
 
 func setup_action_buttons():
 	# Create main action buttons
@@ -212,7 +219,7 @@ func _on_build_pressed():
 		# First click - show categories
 		menu_state = MenuState.ACTIONS_OPEN
 		show_building_categories()
-	elif menu_state == MenuState.CATEGORIES_OPEN or menu_state == MenuState.BUILDINGS_OPEN:
+	elif menu_state == MenuState.CATEGORIES_OPEN or menu_state == MenuState.BUILDINGS_OPEN or menu_state == MenuState.INFO_PANEL_OPEN:
 		# Already open - close
 		close_all_menus()
 	else:
@@ -226,6 +233,9 @@ func _on_expand_pressed():
 
 func show_building_categories():
 	menu_state = MenuState.CATEGORIES_OPEN
+	
+	# Hide info panel
+	_hide_info_panel()
 	
 	# Clear existing
 	for button in category_buttons:
@@ -267,6 +277,9 @@ func _on_category_pressed(category: String):
 func show_buildings_in_category(category: String):
 	menu_state = MenuState.BUILDINGS_OPEN
 	
+	# Hide info panel when switching categories
+	_hide_info_panel()
+	
 	# Clear existing
 	for button in building_buttons:
 		button.queue_free()
@@ -307,8 +320,15 @@ func show_buildings_in_category(category: String):
 
 func _on_building_pressed(building_id: String):
 	print("Building button pressed: ", building_id)
-	emit_signal("build_requested", building_id)
-	# Keep menu open for now so player can see tile highlights
+	selected_building_id = building_id
+	menu_state = MenuState.INFO_PANEL_OPEN
+	_show_building_info(building_id)
+
+func _on_build_button_in_panel_pressed():
+	"""Called when the Build button in the info panel is pressed"""
+	if selected_building_id != "":
+		emit_signal("build_requested", selected_building_id)
+		_hide_info_panel()
 
 func get_building_categories() -> Array[String]:
 	"""Get categories that have at least one available building"""
@@ -368,6 +388,10 @@ func get_available_buildings_in_category(category: String) -> Array[String]:
 
 func close_all_menus():
 	menu_state = MenuState.CLOSED
+	selected_building_id = ""
+	
+	# Hide info panel
+	_hide_info_panel()
 	
 	# Clear category buttons
 	for button in category_buttons:
@@ -417,4 +441,234 @@ func is_mouse_over() -> bool:
 		if is_instance_valid(button) and button.is_point_inside(mouse_pos):
 			return true
 	
+	# Check info panel
+	if info_panel and info_panel.visible:
+		var panel_rect = Rect2(info_panel.global_position, info_panel.size)
+		if panel_rect.has_point(mouse_pos):
+			return true
+	
 	return false
+
+# ============== Building Info Panel ==============
+
+func _create_info_panel():
+	"""Create the building info panel (initially hidden)"""
+	info_panel = PanelContainer.new()
+	info_panel.name = "BuildingInfoPanel"
+	info_panel.visible = false
+	info_panel.custom_minimum_size = Vector2(320, 200)
+	
+	# Add a stylebox for better visibility
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.15, 0.15, 0.2, 0.95)
+	style.border_color = Color(0.4, 0.4, 0.5)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(8)
+	style.set_content_margin_all(16)
+	info_panel.add_theme_stylebox_override("panel", style)
+	
+	var vbox = VBoxContainer.new()
+	vbox.name = "VBox"
+	vbox.add_theme_constant_override("separation", 8)
+	info_panel.add_child(vbox)
+	
+	# Building name
+	var name_label = Label.new()
+	name_label.name = "NameLabel"
+	name_label.add_theme_font_size_override("font_size", 20)
+	name_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.6))
+	vbox.add_child(name_label)
+	
+	# Separator
+	var sep1 = HSeparator.new()
+	vbox.add_child(sep1)
+	
+	# Costs section
+	var costs_label = Label.new()
+	costs_label.name = "CostsLabel"
+	costs_label.add_theme_font_size_override("font_size", 14)
+	costs_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	vbox.add_child(costs_label)
+	
+	# Production section
+	var production_label = Label.new()
+	production_label.name = "ProductionLabel"
+	production_label.add_theme_font_size_override("font_size", 14)
+	production_label.add_theme_color_override("font_color", Color(0.7, 1.0, 0.7))
+	vbox.add_child(production_label)
+	
+	# Special info section
+	var special_label = Label.new()
+	special_label.name = "SpecialLabel"
+	special_label.add_theme_font_size_override("font_size", 13)
+	special_label.add_theme_color_override("font_color", Color(0.8, 0.8, 1.0))
+	vbox.add_child(special_label)
+	
+	# Spacer
+	var spacer = Control.new()
+	spacer.custom_minimum_size = Vector2(0, 8)
+	vbox.add_child(spacer)
+	
+	# Build button
+	var build_btn = Button.new()
+	build_btn.name = "BuildButton"
+	build_btn.text = "Build"
+	build_btn.custom_minimum_size = Vector2(100, 36)
+	build_btn.pressed.connect(_on_build_button_in_panel_pressed)
+	
+	var btn_container = HBoxContainer.new()
+	btn_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	btn_container.add_child(build_btn)
+	vbox.add_child(btn_container)
+	
+	add_child(info_panel)
+
+func _show_building_info(building_id: String):
+	"""Populate and show the building info panel"""
+	if not info_panel:
+		return
+	
+	var building = Registry.buildings.get_building(building_id)
+	if building.is_empty():
+		return
+	
+	var vbox = info_panel.get_node("VBox")
+	
+	# Set building name
+	var name_label = vbox.get_node("NameLabel") as Label
+	name_label.text = Registry.get_name_label("building", building_id)
+	
+	# Build costs text
+	var costs_label = vbox.get_node("CostsLabel") as Label
+	var costs_text = ""
+	
+	# Initial cost
+	var initial_cost = Registry.buildings.get_initial_construction_cost(building_id)
+	if not initial_cost.is_empty():
+		var cost_parts = []
+		for resource in initial_cost:
+			cost_parts.append("%s: %d" % [resource.capitalize(), initial_cost[resource]])
+		costs_text += "Initial Cost: " + ", ".join(cost_parts) + "\n"
+	
+	# Per-turn construction cost
+	var per_turn_cost = Registry.buildings.get_construction_cost(building_id)
+	if not per_turn_cost.is_empty():
+		var cost_parts = []
+		for resource in per_turn_cost:
+			cost_parts.append("%s: %d" % [resource.capitalize(), per_turn_cost[resource]])
+		costs_text += "Per Turn: " + ", ".join(cost_parts) + "\n"
+	
+	# Construction time
+	var turns = Registry.buildings.get_construction_turns(building_id)
+	costs_text += "Build Time: %d turns" % turns
+	
+	# Admin cost
+	var admin_base = building.get("admin_cost", {}).get("base", 0.0)
+	if admin_base > 0:
+		costs_text += "\nAdmin Cost: %.1f" % admin_base
+	
+	costs_label.text = costs_text
+	
+	# Production text
+	var production_label = vbox.get_node("ProductionLabel") as Label
+	var prod_text = ""
+	
+	var produces = Registry.buildings.get_production_per_turn(building_id)
+	if not produces.is_empty():
+		var prod_parts = []
+		for resource in produces:
+			prod_parts.append("+%s %s" % [str(produces[resource]), resource.capitalize()])
+		prod_text += "Produces: " + ", ".join(prod_parts) + "\n"
+	
+	var consumes = Registry.buildings.get_consumption_per_turn(building_id)
+	if not consumes.is_empty():
+		var cons_parts = []
+		for resource in consumes:
+			cons_parts.append("-%s %s" % [str(consumes[resource]), resource.capitalize()])
+		prod_text += "Consumes: " + ", ".join(cons_parts)
+	
+	if prod_text == "":
+		prod_text = "No production"
+	
+	production_label.text = prod_text.strip_edges()
+	
+	# Special info
+	var special_label = vbox.get_node("SpecialLabel") as Label
+	var special_parts = []
+	
+	# Max per city
+	var max_per_city = Registry.buildings.get_max_per_city(building_id)
+	if max_per_city > 0:
+		special_parts.append("Max per city: %d" % max_per_city)
+	
+	# Admin capacity provided
+	var admin_cap = Registry.buildings.get_admin_capacity(building_id)
+	if admin_cap > 0:
+		special_parts.append("Provides Admin: +%.1f" % admin_cap)
+	
+	# Population capacity
+	var pop_cap = Registry.buildings.get_population_capacity(building_id)
+	if pop_cap > 0:
+		special_parts.append("Housing: +%d" % pop_cap)
+	
+	# Storage
+	var storage = Registry.buildings.get_storage_provided(building_id)
+	if not storage.is_empty():
+		for resource in storage:
+			special_parts.append("Storage %s: +%d" % [resource.capitalize(), storage[resource]])
+	
+	# Adjacency bonuses
+	var adj_bonuses = Registry.buildings.get_adjacency_bonuses(building_id)
+	if not adj_bonuses.is_empty():
+		special_parts.append("Has adjacency bonuses")
+	
+	# Terrain requirements
+	if building.has("requirements"):
+		var reqs = building.requirements
+		if reqs.has("terrain_types") and not reqs.terrain_types.is_empty():
+			var terrain_names = []
+			for t in reqs.terrain_types:
+				terrain_names.append(t.capitalize())
+			special_parts.append("Terrain: " + ", ".join(terrain_names))
+	
+	if special_parts.is_empty():
+		special_label.visible = false
+	else:
+		special_label.visible = true
+		special_label.text = "\n".join(special_parts)
+	
+	# Position and show panel
+	_reposition_info_panel()
+	info_panel.visible = true
+	
+	# Animate appearance
+	info_panel.modulate.a = 0
+	var tween = create_tween()
+	tween.tween_property(info_panel, "modulate:a", 1.0, 0.2)
+
+func _hide_info_panel():
+	"""Hide the building info panel"""
+	if info_panel and info_panel.visible:
+		var tween = create_tween()
+		tween.tween_property(info_panel, "modulate:a", 0.0, 0.15)
+		tween.tween_callback(func(): info_panel.visible = false)
+
+func _reposition_info_panel():
+	"""Position the info panel to the right of the building buttons"""
+	if not info_panel:
+		return
+	
+	var viewport_size = get_viewport_rect().size
+	
+	# Position to the right side of the screen, vertically centered with the building buttons
+	var bottom_y = viewport_size.y - 80
+	var buttons_row_y = bottom_y - BUTTON_RADIUS * 6
+	
+	# Calculate position - right side with some margin
+	var panel_x = viewport_size.x - info_panel.custom_minimum_size.x - 40
+	var panel_y = buttons_row_y - info_panel.custom_minimum_size.y / 2
+	
+	# Ensure panel stays on screen
+	panel_y = clamp(panel_y, 20, viewport_size.y - info_panel.custom_minimum_size.y - 20)
+	
+	info_panel.position = Vector2(panel_x, panel_y)

@@ -1,0 +1,9 @@
+{
+	"name": "Alphabet",
+	"description": "A standardized set of symbols representing sounds for efficient writing.",
+	"branch": "communication",
+	"requirements": [{ "branch": "communication", "level": 5.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "communication", "level": 4.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/alphabet.png" }
+}

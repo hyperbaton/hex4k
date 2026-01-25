@@ -1,0 +1,25 @@
+{
+	"name": "Burial Rites",
+	"description": "Ceremonial treatment of the dead",
+	"flavor_text": "The first acknowledgment of something beyond death.",
+	"branch": "mysticism",
+	"requirements": [
+		{
+			"branch": "mysticism",
+			"level": 1.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": true
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/burial_rites.png"
+	}
+}

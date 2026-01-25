@@ -1,0 +1,31 @@
+{
+	"name": "Wheel",
+	"description": "Circular device rotating on an axle",
+	"flavor_text": "Perhaps the most transformative invention in human history.",
+	"branch": "engineering",
+	"requirements": [
+		{
+			"branch": "engineering",
+			"level": 9.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "engineering",
+				"level": 7.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/wheel.png"
+	}
+}

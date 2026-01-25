@@ -1,0 +1,9 @@
+{
+	"name": "Livestock Domestication",
+	"description": "Raising animals for food, milk, and other products.",
+	"branch": "animal_husbandry",
+	"requirements": [{ "branch": "animal_husbandry", "level": 2.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "animal_husbandry", "level": 1.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/livestock_domestication.png" }
+}

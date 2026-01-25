@@ -1,0 +1,31 @@
+{
+	"name": "Arsenical Bronze",
+	"description": "Copper alloyed with arsenic for improved hardness",
+	"flavor_text": "A dangerous craft yields deadly blades.",
+	"branch": "material_science",
+	"requirements": [
+		{
+			"branch": "material_science",
+			"level": 9.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": ["bronze"],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "material_science",
+				"level": 7.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/arsenical_bronze.png"
+	}
+}

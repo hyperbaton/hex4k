@@ -1,0 +1,31 @@
+{
+	"name": "Chainmail",
+	"description": "Interlocking metal rings for flexible armor",
+	"flavor_text": "Protection that moves with the warrior.",
+	"branch": "warfare",
+	"requirements": [
+		{
+			"branch": "warfare",
+			"level": 8.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "warfare",
+				"level": 7.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/chainmail.png"
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"name": "Standardisation",
+	"description": "Uniform specifications for interchangeable parts.",
+	"branch": "gathering_and_crafting",
+	"requirements": [{ "branch": "gathering_and_crafting", "level": 25.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "gathering_and_crafting", "level": 20.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/standardisation.png" }
+}

@@ -23,7 +23,7 @@ func _ready():
 			generator = TileGenerator.new(noise_seed)
 			load_world(GameState.save_id)
 
-func _input(event):
+func _unhandled_input(event):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		# Check if click is not on UI
 		var ui_root = get_node("../UI/Root")

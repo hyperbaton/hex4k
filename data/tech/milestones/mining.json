@@ -1,0 +1,31 @@
+{
+	"name": "Mining",
+	"description": "Systematic extraction of minerals from the earth",
+	"flavor_text": "Delving into the earth for its hidden treasures.",
+	"branch": "engineering",
+	"requirements": [
+		{
+			"branch": "engineering",
+			"level": 7.0
+		}
+	],
+	"unlocks": {
+		"buildings": ["mine"],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "engineering",
+				"level": 5.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/mining.png"
+	}
+}

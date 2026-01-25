@@ -1,0 +1,31 @@
+{
+	"name": "Tributary Systems",
+	"description": "Hierarchical relationships between states",
+	"flavor_text": "The strong protect, the weak contribute.",
+	"branch": "diplomacy",
+	"requirements": [
+		{
+			"branch": "diplomacy",
+			"level": 6.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "diplomacy",
+				"level": 5.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/tributary_systems.png"
+	}
+}

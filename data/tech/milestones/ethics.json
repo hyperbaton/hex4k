@@ -1,0 +1,9 @@
+{
+	"name": "Ethics",
+	"description": "Systematic study of right and wrong conduct.",
+	"branch": "philosophy",
+	"requirements": [{ "branch": "philosophy", "level": 7.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "philosophy", "level": 6.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/ethics.png" }
+}

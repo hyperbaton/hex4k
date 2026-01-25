@@ -1,0 +1,9 @@
+{
+	"name": "Oral Tradition",
+	"description": "Transmission of knowledge and wisdom through spoken word.",
+	"branch": "philosophy",
+	"requirements": [{ "branch": "philosophy", "level": 1.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": true },
+	"visual": { "icon": "res://assets/icons/milestones/oral_tradition.png" }
+}

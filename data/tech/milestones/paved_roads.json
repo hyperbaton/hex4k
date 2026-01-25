@@ -1,0 +1,10 @@
+{
+	"name": "Paved Roads",
+	"description": "Durable road surfaces for reliable travel",
+	"flavor_text": "All roads lead somewhere important.",
+	"branch": "transportation",
+	"requirements": [{"branch": "transportation", "level": 2.0}],
+	"unlocks": {"buildings": ["road_stone"], "units": [], "modifiers": [], "resources": [], "perks": []},
+	"visibility": {"always_visible": true},
+	"visual": {"icon": "res://assets/icons/milestones/paved_roads.png"}
+}

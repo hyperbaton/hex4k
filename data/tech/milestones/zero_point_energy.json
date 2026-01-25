@@ -1,0 +1,9 @@
+{
+	"name": "Zero Point Energy",
+	"description": "Extracting energy from quantum vacuum fluctuations.",
+	"branch": "energy",
+	"requirements": [{ "branch": "energy", "level": 30.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "energy", "level": 26.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/zero_point_energy.png" }
+}

@@ -1,0 +1,31 @@
+{
+	"name": "Masonry",
+	"description": "Advanced stone construction techniques",
+	"flavor_text": "Buildings that will stand for millennia.",
+	"branch": "construction",
+	"requirements": [
+		{
+			"branch": "construction",
+			"level": 12.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "construction",
+				"level": 8.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/masonry.png"
+	}
+}

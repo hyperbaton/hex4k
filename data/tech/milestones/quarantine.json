@@ -1,0 +1,31 @@
+{
+	"name": "Quarantine",
+	"description": "Isolation practices to prevent spread of disease",
+	"flavor_text": "Sometimes the best cure is separation.",
+	"branch": "medicine",
+	"requirements": [
+		{
+			"branch": "medicine",
+			"level": 7.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "medicine",
+				"level": 6.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/quarantine.png"
+	}
+}

@@ -1,0 +1,25 @@
+{
+	"name": "Inclined Plane",
+	"description": "Using slopes to reduce the force needed to lift objects",
+	"flavor_text": "The first step in conquering gravity.",
+	"branch": "engineering",
+	"requirements": [
+		{
+			"branch": "engineering",
+			"level": 1.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": true
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/inclined_plane.png"
+	}
+}

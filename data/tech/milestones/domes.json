@@ -1,0 +1,9 @@
+{
+	"name": "Domes",
+	"description": "Curved roofs that span large spaces without supports.",
+	"branch": "construction",
+	"requirements": [{ "branch": "construction", "level": 12.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "construction", "level": 10.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/domes.png" }
+}

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="ns" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#30c2ba"/>
+      <stop offset="100%" style="stop-color:#20928a"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="url(#ns)" stroke="#10625a" stroke-width="2"/>
+  <!-- Atom symbol -->
+  <circle cx="32" cy="32" r="5" fill="#e0f0f0"/>
+  <!-- Electron orbits -->
+  <ellipse cx="32" cy="32" rx="20" ry="8" fill="none" stroke="#e0f0f0" stroke-width="2"/>
+  <ellipse cx="32" cy="32" rx="20" ry="8" fill="none" stroke="#e0f0f0" stroke-width="2" transform="rotate(60 32 32)"/>
+  <ellipse cx="32" cy="32" rx="20" ry="8" fill="none" stroke="#e0f0f0" stroke-width="2" transform="rotate(-60 32 32)"/>
+  <!-- Electrons -->
+  <circle cx="52" cy="32" r="3" fill="#fff"/>
+  <circle cx="22" cy="42" r="3" fill="#fff"/>
+  <circle cx="22" cy="22" r="3" fill="#fff"/>
+</svg>

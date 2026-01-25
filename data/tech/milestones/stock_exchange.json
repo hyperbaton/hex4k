@@ -1,0 +1,9 @@
+{
+	"name": "Stock Exchange",
+	"description": "Markets for trading ownership shares in enterprises.",
+	"branch": "commerce",
+	"requirements": [{ "branch": "commerce", "level": 18.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "commerce", "level": 17.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/stock_exchange.png" }
+}

@@ -1,0 +1,9 @@
+{
+	"name": "Credit Systems",
+	"description": "Formalized lending and debt instruments.",
+	"branch": "commerce",
+	"requirements": [{ "branch": "commerce", "level": 12.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "commerce", "level": 11.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/credit_systems.png" }
+}

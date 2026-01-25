@@ -1,0 +1,9 @@
+{
+	"name": "Draft Animal Domestication",
+	"description": "Training animals to pull ploughs and carts.",
+	"branch": "animal_husbandry",
+	"requirements": [{ "branch": "animal_husbandry", "level": 4.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "animal_husbandry", "level": 2.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/draft_animal_domestication.png" }
+}

@@ -1,0 +1,31 @@
+{
+	"name": "Cosmogony",
+	"description": "Theories about the origin and nature of the universe",
+	"flavor_text": "In the beginning, there was...",
+	"branch": "mysticism",
+	"requirements": [
+		{
+			"branch": "mysticism",
+			"level": 15.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "mysticism",
+				"level": 13.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/cosmogony.png"
+	}
+}

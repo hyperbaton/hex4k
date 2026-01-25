@@ -1,0 +1,9 @@
+{
+	"name": "Electromagnetism",
+	"description": "Understanding of electrical and magnetic phenomena.",
+	"branch": "natural_sciences",
+	"requirements": [{ "branch": "natural_sciences", "level": 12.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "natural_sciences", "level": 11.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/electromagnetism.png" }
+}

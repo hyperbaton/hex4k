@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="my" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a942dc"/>
+      <stop offset="100%" style="stop-color:#7922ac"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="url(#my)" stroke="#59127c" stroke-width="2"/>
+  <!-- Eye symbol -->
+  <ellipse cx="32" cy="32" rx="18" ry="12" fill="none" stroke="#e8d0f0" stroke-width="2.5"/>
+  <circle cx="32" cy="32" r="8" fill="#e8d0f0"/>
+  <circle cx="32" cy="32" r="4" fill="#2a0a3c"/>
+  <!-- Rays/mystical emanations -->
+  <line x1="32" y1="14" x2="32" y2="8" stroke="#e8d0f0" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="56" x2="32" y2="50" stroke="#e8d0f0" stroke-width="2" stroke-linecap="round"/>
+  <line x1="14" y1="32" x2="8" y2="32" stroke="#e8d0f0" stroke-width="2" stroke-linecap="round"/>
+  <line x1="56" y1="32" x2="50" y2="32" stroke="#e8d0f0" stroke-width="2" stroke-linecap="round"/>
+  <!-- Diagonal rays -->
+  <line x1="18" y1="18" x2="14" y2="14" stroke="#e8d0f0" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="46" y1="18" x2="50" y2="14" stroke="#e8d0f0" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="18" y1="46" x2="14" y2="50" stroke="#e8d0f0" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="46" y1="46" x2="50" y2="50" stroke="#e8d0f0" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

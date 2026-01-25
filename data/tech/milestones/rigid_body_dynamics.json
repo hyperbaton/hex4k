@@ -1,0 +1,31 @@
+{
+	"name": "Rigid Body Dynamics",
+	"description": "Study of motion of solid objects that do not deform",
+	"flavor_text": "Understanding how bodies tumble through space.",
+	"branch": "natural_sciences",
+	"requirements": [
+		{
+			"branch": "natural_sciences",
+			"level": 8.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "natural_sciences",
+				"level": 7.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/rigid_body_dynamics.png"
+	}
+}

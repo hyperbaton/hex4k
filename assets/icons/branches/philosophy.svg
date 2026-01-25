@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="ph" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7a6aed"/>
+      <stop offset="100%" style="stop-color:#5a4aad"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="url(#ph)" stroke="#3a2a7d" stroke-width="2"/>
+  <!-- Greek temple/columns representing philosophy -->
+  <rect x="14" y="42" width="36" height="6" fill="#e8e8e8" stroke="#999" stroke-width="1"/>
+  <!-- Pediment (triangular roof) -->
+  <polygon points="12,24 32,10 52,24" fill="#e8e8e8" stroke="#999" stroke-width="1"/>
+  <!-- Columns -->
+  <rect x="16" y="24" width="5" height="18" fill="#f0f0f0" stroke="#999" stroke-width="1"/>
+  <rect x="25" y="24" width="5" height="18" fill="#f0f0f0" stroke="#999" stroke-width="1"/>
+  <rect x="34" y="24" width="5" height="18" fill="#f0f0f0" stroke="#999" stroke-width="1"/>
+  <rect x="43" y="24" width="5" height="18" fill="#f0f0f0" stroke="#999" stroke-width="1"/>
+  <!-- Owl eye in pediment (wisdom symbol) -->
+  <circle cx="32" cy="18" r="4" fill="#5a4aad" stroke="#f0f0f0" stroke-width="1"/>
+  <circle cx="32" cy="18" r="2" fill="#f0f0f0"/>
+</svg>

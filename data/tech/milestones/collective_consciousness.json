@@ -1,0 +1,9 @@
+{
+	"name": "Collective Consciousness",
+	"description": "Unified mental networks transcending individual thought.",
+	"branch": "communication",
+	"requirements": [{ "branch": "communication", "level": 35.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "communication", "level": 32.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/collective_consciousness.png" }
+}

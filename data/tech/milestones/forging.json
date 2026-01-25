@@ -1,0 +1,31 @@
+{
+	"name": "Forging",
+	"description": "Shaping metal through hammering while hot",
+	"flavor_text": "The rhythm of hammer on anvil shapes civilization.",
+	"branch": "material_science",
+	"requirements": [
+		{
+			"branch": "material_science",
+			"level": 11.0
+		}
+	],
+	"unlocks": {
+		"buildings": ["forge"],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "material_science",
+				"level": 9.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/forging.png"
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"name": "Multi-story Framing",
+	"description": "Structural techniques for buildings with multiple floors.",
+	"branch": "construction",
+	"requirements": [{ "branch": "construction", "level": 16.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "construction", "level": 14.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/multi_story_framing.png" }
+}

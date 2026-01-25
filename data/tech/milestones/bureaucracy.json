@@ -1,0 +1,9 @@
+{
+	"name": "Bureaucracy",
+	"description": "Hierarchical administrative organizations with specialized roles.",
+	"branch": "public_administration",
+	"requirements": [{ "branch": "public_administration", "level": 8.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "public_administration", "level": 7.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/bureaucracy.png" }
+}

@@ -1,0 +1,25 @@
+{
+	"name": "Administrative Systems",
+	"description": "Organized management of community affairs",
+	"flavor_text": "Order emerges from chaos through careful administration.",
+	"branch": "governance",
+	"requirements": [
+		{
+			"branch": "governance",
+			"level": 2.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": true
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/administrative_systems.png"
+	}
+}

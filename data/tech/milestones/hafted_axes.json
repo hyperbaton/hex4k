@@ -1,0 +1,9 @@
+{
+	"name": "Hafted Axes",
+	"description": "Stone blades attached to wooden handles for greater power.",
+	"branch": "gathering_and_crafting",
+	"requirements": [{ "branch": "gathering_and_crafting", "level": 5.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "gathering_and_crafting", "level": 4.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/hafted_axes.png" }
+}

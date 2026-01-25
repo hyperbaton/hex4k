@@ -1,0 +1,31 @@
+{
+	"name": "Aviation",
+	"description": "Powered flight through the air",
+	"flavor_text": "Humanity takes to the skies.",
+	"branch": "transportation",
+	"requirements": [
+		{
+			"branch": "transportation",
+			"level": 13.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "transportation",
+				"level": 12.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/aviation.png"
+	}
+}

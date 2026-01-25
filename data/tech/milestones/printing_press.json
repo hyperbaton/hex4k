@@ -1,0 +1,9 @@
+{
+	"name": "Printing Press",
+	"description": "Mechanical reproduction of text enabling mass distribution of knowledge.",
+	"branch": "communication",
+	"requirements": [{ "branch": "communication", "level": 12.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "communication", "level": 10.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/printing_press.png" }
+}

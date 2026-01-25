@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://dygkvii468c7v"]
+[gd_scene load_steps=11 format=3 uid="uid://dygkvii468c7v"]
 
 [ext_resource type="Script" uid="uid://cs824houtmiri" path="res://src/world/World.gd" id="1_7g83o"]
 [ext_resource type="Script" uid="uid://dmm1myogjxbjx" path="res://src/world/Camera.gd" id="2_d1c63"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://kowa1myr1x3l" path="res://src/ui/SaveButton.gd" id="5_1lgw5"]
 [ext_resource type="Script" path="res://src/world/TileHighlighter.gd" id="6_tilehigh"]
 [ext_resource type="PackedScene" path="res://scenes/CityOverlay.tscn" id="8_cityoverlay"]
+[ext_resource type="PackedScene" path="res://scenes/TechTreeScreen.tscn" id="9_techtree"]
 
 [node name="World" type="Node2D"]
 script = ExtResource("1_7g83o")
@@ -71,7 +72,19 @@ offset_bottom = 8.0
 text = "Save world"
 script = ExtResource("5_1lgw5")
 
+[node name="TechTreeButton" type="Button" parent="UI/Root"]
+layout_mode = 1
+offset_left = 100.0
+offset_right = 200.0
+offset_bottom = 40.0
+text = "Tech Tree"
+
 [node name="CityOverlayLayer" type="CanvasLayer" parent="."]
 layer = 10
 
 [node name="CityOverlay" parent="CityOverlayLayer" instance=ExtResource("8_cityoverlay")]
+
+[node name="TechTreeLayer" type="CanvasLayer" parent="."]
+layer = 50
+
+[node name="TechTreeScreen" parent="TechTreeLayer" instance=ExtResource("9_techtree")]

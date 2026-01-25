@@ -1,0 +1,10 @@
+{
+	"name": "Horse Collar",
+	"description": "Harness that allows horses to pull heavy loads efficiently",
+	"flavor_text": "The horse's full strength unleashed.",
+	"branch": "transportation",
+	"requirements": [{"branch": "transportation", "level": 12.0}],
+	"unlocks": {"buildings": [], "units": [], "modifiers": [], "resources": [], "perks": []},
+	"visibility": {"always_visible": false, "show_when": [{"branch": "transportation", "level": 10.0}]},
+	"visual": {"icon": "res://assets/icons/milestones/horse_collar.png"}
+}

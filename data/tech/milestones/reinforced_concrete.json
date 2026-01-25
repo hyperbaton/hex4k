@@ -1,0 +1,9 @@
+{
+	"name": "Reinforced Concrete",
+	"description": "Concrete strengthened with steel reinforcement.",
+	"branch": "construction",
+	"requirements": [{ "branch": "construction", "level": 30.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "construction", "level": 25.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/reinforced_concrete.png" }
+}

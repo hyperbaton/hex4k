@@ -1,35 +1,131 @@
 {
 	"agriculture": {
+		"name": "Agriculture",
 		"color": "#4A9B4A",
-		"icon": "res://assets/icons/tech_agriculture.png",
-		"requires_branches": [],
-		"milestone_ids": [
-			"agriculture_1",
-			"agriculture_2",
-			"agriculture_3"
-		]
+		"icon": "res://assets/icons/branches/agriculture.svg",
+		"starts_from": null
+	},
+	"animal_husbandry": {
+		"name": "Animal Husbandry",
+		"color": "#D2691E",
+		"icon": "res://assets/icons/branches/animal_husbandry.svg",
+		"starts_from": null
+	},
+	"gathering_and_crafting": {
+		"name": "Gathering and Crafting",
+		"color": "#8B4513",
+		"icon": "res://assets/icons/branches/gathering_and_crafting.svg",
+		"starts_from": null
 	},
 	"construction": {
+		"name": "Construction",
 		"color": "#8B7355",
-		"icon": "res://assets/icons/tech_construction.png",
-		"requires_branches": [],
-		"milestone_ids": [
-			"construction_1",
-			"construction_2"
-		]
+		"icon": "res://assets/icons/branches/construction.svg",
+		"starts_from": null
 	},
-	"mining": {
-		"color": "#A0A0A0",
-		"icon": "res://assets/icons/tech_mining.png",
-		"requires_branches": [
-			{
-				"branch": "construction",
-				"level": 5.0
-			}
-		],
-		"milestone_ids": [
-			"mining_1",
-			"mining_2"
-		]
+	"material_science": {
+		"name": "Material Science",
+		"color": "#708090",
+		"icon": "res://assets/icons/branches/material_science.svg",
+		"starts_from": {
+			"branch": "gathering_and_crafting",
+			"milestone": "pyrotechnology"
+		}
+	},
+	"engineering": {
+		"name": "Engineering",
+		"color": "#4682B4",
+		"icon": "res://assets/icons/branches/engineering.svg",
+		"starts_from": {
+			"branch": "construction",
+			"milestone": "masonry"
+		}
+	},
+	"mysticism": {
+		"name": "Mysticism",
+		"color": "#9932CC",
+		"icon": "res://assets/icons/branches/mysticism.svg",
+		"starts_from": null
+	},
+	"governance": {
+		"name": "Governance",
+		"color": "#B8860B",
+		"icon": "res://assets/icons/branches/governance.svg",
+		"starts_from": {
+			"branch": "mysticism",
+			"milestone": "burial_rites"
+		}
+	},
+	"transportation": {
+		"name": "Transportation",
+		"color": "#CD853F",
+		"icon": "res://assets/icons/branches/transportation.svg",
+		"starts_from": null
+	},
+	"communication": {
+		"name": "Communication",
+		"color": "#4169E1",
+		"icon": "res://assets/icons/branches/communication.svg",
+		"starts_from": null
+	},
+	"public_administration": {
+		"name": "Public Administration",
+		"color": "#556B2F",
+		"icon": "res://assets/icons/branches/public_administration.svg",
+		"starts_from": {
+			"branch": "governance",
+			"milestone": "tribal_councils"
+		}
+	},
+	"commerce": {
+		"name": "Commerce",
+		"color": "#DAA520",
+		"icon": "res://assets/icons/branches/commerce.svg",
+		"starts_from": null
+	},
+	"natural_sciences": {
+		"name": "Natural Sciences",
+		"color": "#20B2AA",
+		"icon": "res://assets/icons/branches/natural_sciences.svg",
+		"starts_from": {
+			"branch": "philosophy",
+			"milestone": "empirical_observation"
+		}
+	},
+	"energy": {
+		"name": "Energy",
+		"color": "#FF8C00",
+		"icon": "res://assets/icons/branches/energy.svg",
+		"starts_from": {
+			"branch": "gathering_and_crafting",
+			"milestone": "pyrotechnology"
+		}
+	},
+	"philosophy": {
+		"name": "Philosophy",
+		"color": "#6A5ACD",
+		"icon": "res://assets/icons/branches/philosophy.svg",
+		"starts_from": null
+	},
+	"medicine": {
+		"name": "Medicine",
+		"color": "#DC143C",
+		"icon": "res://assets/icons/branches/medicine.svg",
+		"starts_from": null
+	},
+	"warfare": {
+		"name": "Warfare",
+		"color": "#8B0000",
+		"icon": "res://assets/icons/branches/warfare.svg",
+		"starts_from": null
+	},
+	"diplomacy": {
+		"name": "Diplomacy",
+		"color": "#FFD700",
+		"icon": "res://assets/icons/branches/diplomacy.svg",
+		"starts_from": {
+			"branch": "governance",
+			"milestone": "tribal_councils"
+		}
 	}
 }

@@ -1,0 +1,31 @@
+{
+	"name": "Embassies",
+	"description": "Permanent diplomatic missions in foreign lands",
+	"flavor_text": "A sovereign's voice in distant courts.",
+	"branch": "diplomacy",
+	"requirements": [
+		{
+			"branch": "diplomacy",
+			"level": 8.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "diplomacy",
+				"level": 7.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/embassies.png"
+	}
+}

@@ -1,17 +1,25 @@
 {
-	"required_branches": [
+	"name": "Mudbrick",
+	"description": "Simple sun-dried clay bricks for construction",
+	"flavor_text": "The first building blocks of civilization, literally.",
+	"branch": "construction",
+	"requirements": [
 		{
 			"branch": "construction",
-			"level": 3.0
+			"level": 1.0
 		}
 	],
-	"visibility": {
-		"show_at_branches": [
-			{
-				"branch": "construction",
-				"level": 1.0
-			}
-		]
+	"unlocks": {
+		"buildings": ["house"],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
 	},
-	"icon": "res://assets/icons/construction_1.png"
+	"visibility": {
+		"always_visible": true
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/mudbrick.png"
+	}
 }

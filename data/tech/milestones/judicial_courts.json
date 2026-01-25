@@ -1,0 +1,10 @@
+{
+	"name": "Judicial Courts",
+	"description": "Formal institutions for resolving disputes and administering justice",
+	"flavor_text": "Law requires impartial arbiters.",
+	"branch": "governance",
+	"requirements": [{"branch": "governance", "level": 11.0}],
+	"unlocks": {"buildings": [], "units": [], "modifiers": [], "resources": [], "perks": []},
+	"visibility": {"always_visible": false, "show_when": [{"branch": "governance", "level": 8.0}]},
+	"visual": {"icon": "res://assets/icons/milestones/judicial_courts.png"}
+}

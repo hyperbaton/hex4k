@@ -1,0 +1,10 @@
+{
+	"name": "Cartography",
+	"description": "The science and art of making maps",
+	"flavor_text": "The world reduced to paper.",
+	"branch": "transportation",
+	"requirements": [{"branch": "transportation", "level": 16.0}],
+	"unlocks": {"buildings": [], "units": [], "modifiers": [], "resources": [], "perks": []},
+	"visibility": {"always_visible": false, "show_when": [{"branch": "transportation", "level": 14.0}]},
+	"visual": {"icon": "res://assets/icons/milestones/cartography.png"}
+}

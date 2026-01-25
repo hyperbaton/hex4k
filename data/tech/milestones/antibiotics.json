@@ -1,0 +1,31 @@
+{
+	"name": "Antibiotics",
+	"description": "Medicines that kill or inhibit bacterial growth",
+	"flavor_text": "Weapons forged from mold to fight infection.",
+	"branch": "medicine",
+	"requirements": [
+		{
+			"branch": "medicine",
+			"level": 10.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "medicine",
+				"level": 9.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/antibiotics.png"
+	}
+}

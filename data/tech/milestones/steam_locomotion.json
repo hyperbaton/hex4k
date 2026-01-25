@@ -1,0 +1,10 @@
+{
+	"name": "Steam Locomotion",
+	"description": "Steam-powered vehicles and engines",
+	"flavor_text": "Iron horses that never tire.",
+	"branch": "transportation",
+	"requirements": [{"branch": "transportation", "level": 20.0}],
+	"unlocks": {"buildings": [], "units": [], "modifiers": [], "resources": [], "perks": []},
+	"visibility": {"always_visible": false, "show_when": [{"branch": "transportation", "level": 16.0}]},
+	"visual": {"icon": "res://assets/icons/milestones/steam_locomotion.png"}
+}

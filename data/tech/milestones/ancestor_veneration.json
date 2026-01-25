@@ -1,0 +1,31 @@
+{
+	"name": "Ancestor Veneration",
+	"description": "Rituals honoring and seeking guidance from deceased ancestors",
+	"flavor_text": "The dead watch over us still.",
+	"branch": "mysticism",
+	"requirements": [
+		{
+			"branch": "mysticism",
+			"level": 11.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "mysticism",
+				"level": 9.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/ancestor_veneration.png"
+	}
+}

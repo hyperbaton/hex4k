@@ -1,0 +1,31 @@
+{
+	"name": "Pictographs",
+	"description": "Simple picture-based communication",
+	"flavor_text": "Ideas captured in images, transcending time.",
+	"branch": "writing",
+	"requirements": [
+		{
+			"branch": "writing",
+			"level": 4.0
+		}
+	],
+	"unlocks": {
+		"buildings": [],
+		"units": [],
+		"modifiers": [],
+		"resources": [],
+		"perks": []
+	},
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "writing",
+				"level": 1.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/pictographs.png"
+	}
+}

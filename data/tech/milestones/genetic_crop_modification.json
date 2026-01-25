@@ -1,0 +1,9 @@
+{
+	"name": "Genetic Crop Modification",
+	"description": "Direct manipulation of plant DNA for desired traits.",
+	"branch": "agriculture",
+	"requirements": [{ "branch": "agriculture", "level": 35.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "agriculture", "level": 30.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/genetic_crop_modification.png" }
+}

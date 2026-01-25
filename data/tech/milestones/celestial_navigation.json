@@ -1,0 +1,10 @@
+{
+	"name": "Celestial Navigation",
+	"description": "Using stars and sun to determine position at sea",
+	"flavor_text": "The heavens guide the way.",
+	"branch": "transportation",
+	"requirements": [{"branch": "transportation", "level": 14.0}],
+	"unlocks": {"buildings": [], "units": [], "modifiers": [], "resources": [], "perks": []},
+	"visibility": {"always_visible": false, "show_when": [{"branch": "transportation", "level": 12.0}]},
+	"visual": {"icon": "res://assets/icons/milestones/celestial_navigation.png"}
+}

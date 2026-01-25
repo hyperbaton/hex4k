@@ -1,0 +1,9 @@
+{
+	"name": "Numerical Notation",
+	"description": "Systems for representing quantities and performing calculations.",
+	"branch": "communication",
+	"requirements": [{ "branch": "communication", "level": 6.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "communication", "level": 5.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/numerical_notation.png" }
+}

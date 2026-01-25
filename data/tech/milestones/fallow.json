@@ -1,0 +1,9 @@
+{
+	"name": "Fallow",
+	"description": "Letting fields rest to restore soil nutrients.",
+	"branch": "agriculture",
+	"requirements": [{ "branch": "agriculture", "level": 12.0 }],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "agriculture", "level": 10.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/fallow.png" }
+}
