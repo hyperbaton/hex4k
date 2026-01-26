@@ -1,9 +1,0 @@
-{
-	"name": "Census",
-	"description": "Systematic counting and categorization of the population.",
-	"branch": "public_administration",
-	"requirements": [{ "branch": "public_administration", "level": 6.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "public_administration", "level": 5.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/census.png" }
-}

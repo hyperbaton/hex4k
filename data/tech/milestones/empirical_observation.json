@@ -1,9 +1,0 @@
-{
-	"name": "Empirical Observation",
-	"description": "Systematic observation and recording of natural phenomena.",
-	"branch": "natural_sciences",
-	"requirements": [{ "branch": "natural_sciences", "level": 1.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": true },
-	"visual": { "icon": "res://assets/icons/milestones/empirical_observation.png" }
-}

@@ -2,8 +2,8 @@
 	"name": "Pastoral Management",
 	"description": "Systematic practices for managing grazing herds.",
 	"branch": "animal_husbandry",
-	"requirements": [{ "branch": "animal_husbandry", "level": 6.0 }],
+	"requirements": [{ "branch": "animal_husbandry", "level": 20.0 }],
 	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "animal_husbandry", "level": 4.0 }] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "animal_husbandry", "level": 10.0 }] },
 	"visual": { "icon": "res://assets/icons/milestones/pastoral_management.png" }
 }

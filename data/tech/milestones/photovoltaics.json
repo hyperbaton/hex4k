@@ -1,9 +1,0 @@
-{
-	"name": "Photovoltaics",
-	"description": "Converting sunlight directly into electricity.",
-	"branch": "energy",
-	"requirements": [{ "branch": "energy", "level": 18.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "energy", "level": 16.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/photovoltaics.png" }
-}

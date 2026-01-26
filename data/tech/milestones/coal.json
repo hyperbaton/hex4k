@@ -1,9 +1,0 @@
-{
-	"name": "Coal",
-	"description": "Mining and utilizing coal as an energy source.",
-	"branch": "energy",
-	"requirements": [{ "branch": "energy", "level": 6.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "energy", "level": 5.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/coal.png" }
-}

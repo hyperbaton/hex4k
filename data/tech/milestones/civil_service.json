@@ -1,9 +1,0 @@
-{
-	"name": "Civil Service",
-	"description": "Professional corps of government administrators selected by merit.",
-	"branch": "public_administration",
-	"requirements": [{ "branch": "public_administration", "level": 12.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "public_administration", "level": 11.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/civil_service.png" }
-}

@@ -1,9 +1,0 @@
-{
-	"name": "Crop Rotation",
-	"description": "Systematic alternation of crops to maintain soil health.",
-	"branch": "agriculture",
-	"requirements": [{ "branch": "agriculture", "level": 16.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "agriculture", "level": 14.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/crop_rotation.png" }
-}

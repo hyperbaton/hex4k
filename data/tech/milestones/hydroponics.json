@@ -1,9 +1,0 @@
-{
-	"name": "Hydroponics",
-	"description": "Growing plants in nutrient solutions without soil.",
-	"branch": "agriculture",
-	"requirements": [{ "branch": "agriculture", "level": 40.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "agriculture", "level": 35.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/hydroponics.png" }
-}

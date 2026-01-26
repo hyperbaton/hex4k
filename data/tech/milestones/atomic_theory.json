@@ -1,9 +1,0 @@
-{
-	"name": "Atomic Theory",
-	"description": "Understanding matter as composed of discrete particles.",
-	"branch": "natural_sciences",
-	"requirements": [{ "branch": "natural_sciences", "level": 18.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "natural_sciences", "level": 17.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/atomic_theory.png" }
-}

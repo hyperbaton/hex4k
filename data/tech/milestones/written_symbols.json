@@ -1,9 +1,0 @@
-{
-	"name": "Written Symbols",
-	"description": "Simple picture-based symbols for communication and record-keeping.",
-	"branch": "communication",
-	"requirements": [{ "branch": "communication", "level": 1.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": true },
-	"visual": { "icon": "res://assets/icons/milestones/written_symbols.png" }
-}

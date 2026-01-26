@@ -2,11 +2,11 @@
 	"name": "Wheel",
 	"description": "Circular device rotating on an axle",
 	"flavor_text": "Perhaps the most transformative invention in human history.",
-	"branch": "engineering",
+	"branch": "transportation",
 	"requirements": [
 		{
-			"branch": "engineering",
-			"level": 9.0
+			"branch": "transportation",
+			"level": 1.0
 		}
 	],
 	"unlocks": {
@@ -21,7 +21,7 @@
 		"show_when": [
 			{
 				"branch": "engineering",
-				"level": 7.0
+				"level": 1.0
 			}
 		]
 	},

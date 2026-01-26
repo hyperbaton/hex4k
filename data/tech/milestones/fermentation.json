@@ -1,9 +1,0 @@
-{
-	"name": "Fermentation",
-	"description": "Using microorganisms to transform food and drink.",
-	"branch": "gathering_and_crafting",
-	"requirements": [{ "branch": "gathering_and_crafting", "level": 10.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "gathering_and_crafting", "level": 8.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/fermentation.png" }
-}

@@ -1,9 +1,0 @@
-{
-	"name": "Record Keeping",
-	"description": "Systematic documentation of administrative transactions and inventories.",
-	"branch": "public_administration",
-	"requirements": [{ "branch": "public_administration", "level": 2.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "public_administration", "level": 1.5 }] },
-	"visual": { "icon": "res://assets/icons/milestones/record_keeping.png" }
-}

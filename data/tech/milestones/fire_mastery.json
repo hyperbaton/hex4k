@@ -1,9 +1,9 @@
 {
-	"name": "Metallurgy",
-	"description": "Extracting and working metals from ore using heat.",
+	"name": "Fire Mastery",
+	"description": "Controlled use of fire for light, warmth, and cooking.",
 	"branch": "gathering_and_crafting",
-	"requirements": [{ "branch": "gathering_and_crafting", "level": 12.0 }],
+	"requirements": [{ "branch": "gathering_and_crafting", "level": 20.0 }],
 	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
 	"visibility": { "always_visible": false, "show_when": [{ "branch": "gathering_and_crafting", "level": 10.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/metallurgy.png" }
+	"visual": { "icon": "res://assets/icons/milestones/pyrotechnology.png" }
 }

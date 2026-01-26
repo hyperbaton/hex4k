@@ -2,7 +2,7 @@
 	"name": "Digging Sticks",
 	"description": "Simple pointed tools for breaking soil and planting seeds.",
 	"branch": "agriculture",
-	"requirements": [{ "branch": "agriculture", "level": 2.0 }],
+	"requirements": [{ "branch": "agriculture", "level": 5.0 }],
 	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
 	"visibility": { "always_visible": false, "show_when": [{ "branch": "agriculture", "level": 1.0 }] },
 	"visual": { "icon": "res://assets/icons/milestones/digging_sticks.png" }

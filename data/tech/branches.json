@@ -60,7 +60,10 @@
 		"name": "Transportation",
 		"color": "#CD853F",
 		"icon": "res://assets/icons/branches/transportation.svg",
-		"starts_from": null
+		"starts_from": {
+			"branch": "engineering",
+			"milestone": "inclined_plane"
+		}
 	},
 	"communication": {
 		"name": "Communication",
@@ -98,14 +101,17 @@
 		"icon": "res://assets/icons/branches/energy.svg",
 		"starts_from": {
 			"branch": "gathering_and_crafting",
-			"milestone": "pyrotechnology"
+			"milestone": "fire_mastery"
 		}
 	},
 	"philosophy": {
 		"name": "Philosophy",
 		"color": "#6A5ACD",
 		"icon": "res://assets/icons/branches/philosophy.svg",
-		"starts_from": null
+		"starts_from": {
+			"branch": "gathering_and_crafting",
+			"milestone": "fire_mastery"
+		}
 	},
 	"medicine": {
 		"name": "Medicine",

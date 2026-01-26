@@ -1,9 +1,0 @@
-{
-	"name": "Tractor Mechanisation",
-	"description": "Powered machinery for large-scale farming operations.",
-	"branch": "agriculture",
-	"requirements": [{ "branch": "agriculture", "level": 30.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "agriculture", "level": 25.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/tractor_mechanisation.png" }
-}

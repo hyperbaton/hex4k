@@ -2,8 +2,8 @@
 	"name": "Mudbrick",
 	"description": "Sun-dried clay bricks for simple construction.",
 	"branch": "construction",
-	"requirements": [{ "branch": "construction", "level": 3.0 }],
+	"requirements": [{ "branch": "construction", "level": 20.0 }],
 	"unlocks": { "buildings": ["house"], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "construction", "level": 2.0 }] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "construction", "level": 10.0 }] },
 	"visual": { "icon": "res://assets/icons/milestones/mudbrick.png" }
 }

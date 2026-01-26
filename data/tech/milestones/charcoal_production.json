@@ -1,9 +1,0 @@
-{
-	"name": "Charcoal Production",
-	"description": "Creating concentrated fuel through controlled burning of wood.",
-	"branch": "energy",
-	"requirements": [{ "branch": "energy", "level": 1.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": true },
-	"visual": { "icon": "res://assets/icons/milestones/charcoal_production.png" }
-}

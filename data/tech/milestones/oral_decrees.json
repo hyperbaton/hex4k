@@ -1,9 +1,0 @@
-{
-	"name": "Oral Decrees",
-	"description": "Formal spoken proclamations of rules and decisions by authorities.",
-	"branch": "public_administration",
-	"requirements": [{ "branch": "public_administration", "level": 1.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": true },
-	"visual": { "icon": "res://assets/icons/milestones/oral_decrees.png" }
-}

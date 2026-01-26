@@ -1,9 +1,0 @@
-{
-	"name": "Public Contracts",
-	"description": "Formalized agreements between the state and private parties.",
-	"branch": "public_administration",
-	"requirements": [{ "branch": "public_administration", "level": 10.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "public_administration", "level": 9.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/public_contracts.png" }
-}

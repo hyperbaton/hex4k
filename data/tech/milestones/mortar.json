@@ -1,9 +1,0 @@
-{
-	"name": "Mortar",
-	"description": "Binding agents that join masonry units together.",
-	"branch": "construction",
-	"requirements": [{ "branch": "construction", "level": 14.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "construction", "level": 12.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/mortar.png" }
-}

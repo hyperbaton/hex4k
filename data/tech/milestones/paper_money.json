@@ -1,9 +1,0 @@
-{
-	"name": "Paper Money",
-	"description": "Currency notes representing value without intrinsic worth.",
-	"branch": "commerce",
-	"requirements": [{ "branch": "commerce", "level": 14.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "commerce", "level": 13.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/paper_money.png" }
-}

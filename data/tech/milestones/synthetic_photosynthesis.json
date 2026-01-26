@@ -1,9 +1,0 @@
-{
-	"name": "Synthetic Photosynthesis",
-	"description": "Artificial systems that replicate plant energy conversion.",
-	"branch": "agriculture",
-	"requirements": [{ "branch": "agriculture", "level": 50.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "agriculture", "level": 40.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/synthetic_photosynthesis.png" }
-}

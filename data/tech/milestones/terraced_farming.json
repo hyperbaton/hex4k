@@ -2,8 +2,8 @@
 	"name": "Terraced Farming",
 	"description": "Creating level planting areas on hillsides to prevent erosion.",
 	"branch": "agriculture",
-	"requirements": [{ "branch": "agriculture", "level": 8.0 }],
+	"requirements": [{ "branch": "agriculture", "level": 100.0 }],
 	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "agriculture", "level": 6.0 }] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "agriculture", "level": 40.0 }] },
 	"visual": { "icon": "res://assets/icons/milestones/terraced_farming.png" }
 }

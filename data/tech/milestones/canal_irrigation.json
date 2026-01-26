@@ -2,8 +2,8 @@
 	"name": "Canal Irrigation",
 	"description": "Channeling water to crops through constructed waterways.",
 	"branch": "agriculture",
-	"requirements": [{ "branch": "agriculture", "level": 6.0 }],
+	"requirements": [{ "branch": "agriculture", "level": 40.0 }],
 	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "agriculture", "level": 4.0 }] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "agriculture", "level": 20.0 }] },
 	"visual": { "icon": "res://assets/icons/milestones/canal_irrigation.png" }
 }

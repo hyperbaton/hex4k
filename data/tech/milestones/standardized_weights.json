@@ -1,9 +1,0 @@
-{
-	"name": "Standardized Weights",
-	"description": "Uniform measurement systems for fair trade.",
-	"branch": "commerce",
-	"requirements": [{ "branch": "commerce", "level": 4.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "commerce", "level": 3.5 }] },
-	"visual": { "icon": "res://assets/icons/milestones/standardized_weights.png" }
-}

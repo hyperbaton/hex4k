@@ -1,9 +1,0 @@
-{
-	"name": "Harnesses",
-	"description": "Equipment to efficiently transfer animal power to tasks.",
-	"branch": "animal_husbandry",
-	"requirements": [{ "branch": "animal_husbandry", "level": 10.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "animal_husbandry", "level": 8.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/harnesses.png" }
-}

@@ -1,9 +1,0 @@
-{
-	"name": "Urban Planning",
-	"description": "Systematic design and organization of cities.",
-	"branch": "construction",
-	"requirements": [{ "branch": "construction", "level": 18.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "construction", "level": 16.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/urban_planning.png" }
-}

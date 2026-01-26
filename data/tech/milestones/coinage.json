@@ -1,9 +1,0 @@
-{
-	"name": "Coinage",
-	"description": "Metal currency with guaranteed weight and purity.",
-	"branch": "commerce",
-	"requirements": [{ "branch": "commerce", "level": 6.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "commerce", "level": 5.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/coinage.png" }
-}

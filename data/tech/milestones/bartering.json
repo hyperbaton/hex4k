@@ -1,9 +1,0 @@
-{
-	"name": "Bartering",
-	"description": "Direct exchange of goods and services without currency.",
-	"branch": "commerce",
-	"requirements": [{ "branch": "commerce", "level": 1.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": true },
-	"visual": { "icon": "res://assets/icons/milestones/bartering.png" }
-}

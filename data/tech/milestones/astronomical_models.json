@@ -1,9 +1,0 @@
-{
-	"name": "Astronomical Models",
-	"description": "Mathematical representations of celestial movements.",
-	"branch": "natural_sciences",
-	"requirements": [{ "branch": "natural_sciences", "level": 5.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "natural_sciences", "level": 4.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/astronomical_models.png" }
-}

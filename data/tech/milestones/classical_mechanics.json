@@ -1,9 +1,0 @@
-{
-	"name": "Classical Mechanics",
-	"description": "Laws governing motion and forces in physical systems.",
-	"branch": "natural_sciences",
-	"requirements": [{ "branch": "natural_sciences", "level": 8.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "natural_sciences", "level": 6.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/classical_mechanics.png" }
-}

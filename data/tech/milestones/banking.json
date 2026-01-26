@@ -1,9 +1,0 @@
-{
-	"name": "Banking",
-	"description": "Institutions for deposits, loans, and financial services.",
-	"branch": "commerce",
-	"requirements": [{ "branch": "commerce", "level": 10.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "commerce", "level": 9.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/banking.png" }
-}

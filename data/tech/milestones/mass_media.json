@@ -1,9 +1,0 @@
-{
-	"name": "Mass Media",
-	"description": "Broadcast systems reaching large populations simultaneously.",
-	"branch": "communication",
-	"requirements": [{ "branch": "communication", "level": 22.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "communication", "level": 21.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/mass_media.png" }
-}

@@ -5,6 +5,6 @@
 	"branch": "transportation",
 	"requirements": [{"branch": "transportation", "level": 2.0}],
 	"unlocks": {"buildings": ["road_stone"], "units": [], "modifiers": [], "resources": [], "perks": []},
-	"visibility": {"always_visible": true},
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "transportation", "level": 1.0 }] },
 	"visual": {"icon": "res://assets/icons/milestones/paved_roads.png"}
 }

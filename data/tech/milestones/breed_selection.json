@@ -1,9 +1,0 @@
-{
-	"name": "Breed Selection",
-	"description": "Choosing animals with desirable traits for reproduction.",
-	"branch": "animal_husbandry",
-	"requirements": [{ "branch": "animal_husbandry", "level": 12.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "animal_husbandry", "level": 10.0 }] },
-	"visual": { "icon": "res://assets/icons/milestones/breed_selection.png" }
-}
