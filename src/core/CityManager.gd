@@ -60,7 +60,15 @@ func found_city(city_name: String, center_coord: Vector2i, owner_id: String, cit
 	
 	# Add city center tile
 	var center_tile = city.add_tile(center_coord, true)
-	center_tile.set_building(city_center_building)
+	center_tile.building_id = city_center_building
+	
+	# Create BuildingInstance for city center (already built, active)
+	var center_instance = BuildingInstance.new(city_center_building, center_coord)
+	center_instance.set_active()  # City center starts active
+	city.building_instances[center_coord] = center_instance
+	
+	# Give starting resources
+	_give_starting_resources(city)
 	
 	# Register city
 	cities[city_id] = city
@@ -74,6 +82,14 @@ func found_city(city_name: String, center_coord: Vector2i, owner_id: String, cit
 	print("Founded city: %s at %v" % [city_name, center_coord])
 	
 	return city
+
+func _give_starting_resources(city: City):
+	"""Give a newly founded city starting resources"""
+	# Store initial resources in the city center's storage
+	city.store_resource("food", 50)
+	city.store_resource("wood", 30)
+	city.store_resource("stone", 20)
+	city.total_population = 5  # Starting population
 
 func destroy_city(city_id: String):
 	"""Destroy a city and remove all its tiles from ownership"""

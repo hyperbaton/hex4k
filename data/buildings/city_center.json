@@ -1,8 +1,9 @@
 {
 	"category": "city_center",
 	"construction": {
+		"initial_cost": {},
 		"cost_per_turn": {},
-		"total_turns": 5
+		"total_turns": 0
 	},
 	"admin_cost": {
 		"base": 0.0,
@@ -28,11 +29,15 @@
 	},
 	"production": {
 		"per_turn_produces": {
-			"population": 2,
-			"admin_capacity": 50
+			"population": 2
 		},
-		"per_turn_consumes": {},
+		"per_turn_consumes": {
+			"food": 2
+		},
 		"branch_specific_research": {}
+	},
+	"per_turn_penalty": {
+		"population": 3
 	},
 	"adjacency_bonuses": [],
 	"provides": {
@@ -40,12 +45,16 @@
 		"resource_storage": {
 			"food": 100,
 			"wood": 100,
-			"stone": 100
+			"stone": 100,
+			"population": 10
 		},
-		"admin_capacity": 20,
+		"admin_capacity": 20.0,
 		"caravan_capacity": 1,
-		"decay_reduction": {}
+		"decay_reduction": {
+			"food": 0.5
+		}
 	},
+	"disabled_admin_cost": 0.0,
 	"upgrades_to": null,
 	"max_per_city": 1,
 	"can_units_stand": true,

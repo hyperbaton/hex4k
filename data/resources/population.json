@@ -1,5 +1,11 @@
 {
-	"type": "flow",
+	"type": "storable",
+	"category": "population",
+	"flags": {
+		"population": true,
+		"decaying": false,
+		"tradeable": false
+	},
 	"storage": {
 		"max_stack": 0,
 		"decay": {

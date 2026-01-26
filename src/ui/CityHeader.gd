@@ -44,16 +44,13 @@ func update_resources():
 	for child in resources_container.get_children():
 		child.queue_free()
 	
-	# Get all resources with storage or flow
-	var all_resources = current_city.resources.get_all_resources()
-	
-	# Add display for each resource
-	for resource_id in all_resources:
+	# Display resources that have storage in this city
+	for resource_id in Registry.resources.get_all_resource_ids():
 		if not Registry.resources.is_storable(resource_id):
-			continue  # Skip flow resources for header
+			continue  # Skip non-storable resources for header
 		
-		var stored = current_city.resources.get_stored(resource_id)
-		var capacity = current_city.resources.get_storage_capacity(resource_id)
+		var stored = current_city.get_total_resource(resource_id)
+		var capacity = current_city.get_total_storage_capacity(resource_id)
 		
 		if capacity > 0 or stored > 0:
 			add_resource_display(resource_id, stored, capacity)

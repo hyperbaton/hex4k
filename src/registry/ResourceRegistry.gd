@@ -60,3 +60,44 @@ func is_storable(id: String) -> bool:
 func is_flow(id: String) -> bool:
 	var res = get_resource(id)
 	return res.get("type", "") == "flow"
+
+func has_flag(id: String, flag_name: String) -> bool:
+	"""Check if a resource has a specific flag enabled"""
+	var res = get_resource(id)
+	var flags = res.get("flags", {})
+	return flags.get(flag_name, false)
+
+func is_population_resource(id: String) -> bool:
+	"""Check if this resource contributes to population count"""
+	return has_flag(id, "population")
+
+func is_decaying(id: String) -> bool:
+	"""Check if this resource decays over time"""
+	return has_flag(id, "decaying")
+
+func is_tradeable(id: String) -> bool:
+	"""Check if this resource can be traded"""
+	return has_flag(id, "tradeable")
+
+func get_decay_rate(id: String) -> float:
+	"""Get the base decay rate per turn for a resource"""
+	var res = get_resource(id)
+	if not res.has("storage"):
+		return 0.0
+	var decay_data = res.storage.get("decay", {})
+	if not decay_data.get("enabled", false):
+		return 0.0
+	return decay_data.get("base_rate_per_turn", 0.0)
+
+func get_category(id: String) -> String:
+	"""Get the category of a resource"""
+	var res = get_resource(id)
+	return res.get("category", "")
+
+func get_all_population_resources() -> Array[String]:
+	"""Get all resources that have the population flag"""
+	var result: Array[String] = []
+	for res_id in resources.keys():
+		if is_population_resource(res_id):
+			result.append(res_id)
+	return result

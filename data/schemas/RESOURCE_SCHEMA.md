@@ -7,19 +7,19 @@ Defines resources that can be produced, stored, and consumed.
 ```json
 {
   "resource_id": {
-    "name": "string",
-    "description": "string",
-    "type": "storable|flow",
-    "category": "material|food|abstract|population",
-    "storage": {
-      "decay_rate": float,
-      "base_capacity": int
-    },
-    "visual": {
-      "icon": "path/to/icon.png",
-      "color": "#RRGGBB"
-    },
-    "milestones_required": ["milestone_id"]
+	"name": "string",
+	"description": "string",
+	"type": "storable|flow",
+	"category": "material|food|abstract|population",
+	"storage": {
+	  "decay_rate": float,
+	  "base_capacity": int
+	},
+	"visual": {
+	  "icon": "path/to/icon.png",
+	  "color": "#RRGGBB"
+	},
+	"milestones_required": ["milestone_id"]
   }
 }
 ```

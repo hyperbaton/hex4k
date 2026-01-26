@@ -17,8 +17,8 @@ This document summarizes the JSON-based data system implemented for Hex4k. All g
 ```gdscript
 # Check if player can build something
 if Registry.can_build("farm", "grassland"):
-    # Build the farm
-    pass
+	# Build the farm
+	pass
 
 # Get resource info
 var decay = Registry.resources.get_decay_rate("food")
@@ -28,8 +28,8 @@ Registry.tech.add_research("Agriculture", 5.0)
 
 # Check milestone unlock
 if Registry.has_milestone("Agriculture_1"):
-    # Enable farms in UI
-    pass
+	# Enable farms in UI
+	pass
 ```
 
 ## Data File Structure
@@ -50,8 +50,8 @@ data/
 ├── modifiers.json          # Tile modifier definitions
 │
 └── tech/
-    ├── branches.json       # Tech branch definitions
-    └── milestones.json     # Tech milestone definitions
+	├── branches.json       # Tech branch definitions
+	└── milestones.json     # Tech milestone definitions
 ```
 
 ## Key Design Principles
@@ -140,18 +140,18 @@ Create entry in `buildings.json`:
 ```json
 {
   "bakery": {
-    "name": "Bakery",
-    "description": "Transforms grain into bread",
-    "category": "production",
-    "construction": {
-      "cost": {"wood": 25, "production": 35},
-      "turns": 3
-    },
-    "production": {
-      "per_turn": {"food": 5.0},
-      "requires": {"grain": 2.0, "population": 1.0}
-    },
-    "milestones_required": ["Agriculture_2"]
+	"name": "Bakery",
+	"description": "Transforms grain into bread",
+	"category": "production",
+	"construction": {
+	  "cost": {"wood": 25, "production": 35},
+	  "turns": 3
+	},
+	"production": {
+	  "per_turn": {"food": 5.0},
+	  "requires": {"grain": 2.0, "population": 1.0}
+	},
+	"milestones_required": ["Agriculture_2"]
   }
 }
 ```

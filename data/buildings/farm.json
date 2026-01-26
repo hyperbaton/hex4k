@@ -31,7 +31,7 @@
 			"min_distance": 0
 		},
 		"requires_city_center_connection": true,
-		"milestones_required": ["agriculture_1"]
+		"milestones_required": []
 	},
 	"production": {
 		"per_turn_produces": {
@@ -44,6 +44,7 @@
 			"agriculture": 0.1
 		}
 	},
+	"per_turn_penalty": {},
 	"adjacency_bonuses": [
 		{
 			"source_type": "terrain",
@@ -77,6 +78,7 @@
 		"caravan_capacity": 0,
 		"decay_reduction": {}
 	},
+	"disabled_admin_cost": 0.0,
 	"upgrades_to": "improved_farm",
 	"can_units_stand": true,
 	"has_orientation": false,

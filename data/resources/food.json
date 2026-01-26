@@ -1,5 +1,11 @@
 {
 	"type": "storable",
+	"category": "basic",
+	"flags": {
+		"population": false,
+		"decaying": true,
+		"tradeable": true
+	},
 	"storage": {
 		"max_stack": 1000,
 		"decay": {

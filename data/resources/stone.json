@@ -1,7 +1,13 @@
 {
 	"type": "storable",
+	"category": "basic",
+	"flags": {
+		"population": false,
+		"decaying": false,
+		"tradeable": true
+	},
 	"storage": {
-		"max_stack": 5000,
+		"max_stack": 1000,
 		"decay": {
 			"enabled": false,
 			"base_rate_per_turn": 0.0
@@ -9,7 +15,7 @@
 	},
 	"visual": {
 		"icon": "res://assets/icons/stone.svg",
-		"color": "#A0A0A0"
+		"color": "#808080"
 	},
 	"milestones_required": []
 }

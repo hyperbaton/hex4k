@@ -12,26 +12,27 @@ var tiles: Dictionary = {}  # Vector2i -> CityTile
 var city_center_coord: Vector2i
 var frontier_tiles: Array[Vector2i] = []  # Tiles at the edge of the city
 
-# Resources
-var resources: ResourceLedger
+# Buildings (using BuildingInstance for status tracking)
+var building_instances: Dictionary = {}  # Vector2i -> BuildingInstance
 
 # Population
-var population_stored: float = 0.0  # Current workforce available
-var population_capacity: float = 0.0  # Max population (from housing)
-var total_population: int = 0  # Actual population count
+var total_population: int = 0  # Current population count
+var population_capacity: int = 0  # Max population (from housing)
 
 # Administrative capacity
-var admin_capacity_available: float = 0.0  # Per-turn flow
+var admin_capacity_available: float = 0.0
 var admin_capacity_used: float = 0.0
 
-# Buildings under construction
-var construction_queue: Array[Dictionary] = []  # [{tile_coord, building_id, turns_remaining, progress}]
+# Legacy resource ledger (for compatibility, will be phased out)
+var resources: ResourceLedger
 
 func _init(id: String, name: String, center_coord: Vector2i):
 	city_id = id
 	city_name = name
 	city_center_coord = center_coord
 	resources = ResourceLedger.new()
+
+# === Tile Management ===
 
 func add_tile(coord: Vector2i, is_center: bool = false) -> CityTile:
 	"""Add a tile to the city"""
@@ -122,57 +123,49 @@ func is_contiguous(new_coord: Vector2i) -> bool:
 			return true
 	return false
 
+func calculate_tile_claim_cost(distance: int) -> float:
+	"""Calculate the admin cost to claim/maintain a tile based on distance"""
+	var base_cost = 1.0
+	var distance_multiplier = 0.5
+	return base_cost + (distance * distance_multiplier)
+
 # === Building Management ===
 
+func get_building_instance(coord: Vector2i) -> BuildingInstance:
+	"""Get the building instance at a coordinate"""
+	return building_instances.get(coord)
+
+func has_building(coord: Vector2i) -> bool:
+	"""Check if there's a building at the coordinate"""
+	return building_instances.has(coord)
+
 func count_buildings(building_id: String) -> int:
-	"""Count how many of a specific building exist in this city (built + under construction)"""
+	"""Count how many of a specific building exist (any status)"""
 	var count = 0
-	
-	# Count completed buildings
-	for tile in tiles.values():
-		if tile.building_id == building_id:
+	for instance in building_instances.values():
+		if instance.building_id == building_id:
 			count += 1
-	
-	# Count buildings under construction
-	for project in construction_queue:
-		if project.building_id == building_id:
-			count += 1
-	
 	return count
 
 func is_tile_under_construction(coord: Vector2i) -> bool:
 	"""Check if a tile has a building under construction"""
-	for project in construction_queue:
-		if project.tile_coord == coord:
-			return true
+	var instance = building_instances.get(coord)
+	if instance:
+		return instance.is_under_construction()
 	return false
-
-func get_construction_at_tile(coord: Vector2i) -> Dictionary:
-	"""Get the construction project at a tile, or empty dict if none"""
-	for project in construction_queue:
-		if project.tile_coord == coord:
-			return project
-	return {}
 
 func can_place_building(coord: Vector2i, building_id: String) -> Dictionary:
 	"""
 	Check if a building can be placed at the given coordinate.
 	Returns {can_place: bool, reason: String}
-	Note: Terrain checks should be done by WorldQuery before calling this.
 	"""
 	# Check if tile exists in city
 	if not has_tile(coord):
 		return {can_place = false, reason = "Tile not in city"}
 	
-	var tile = get_tile(coord)
-	
 	# Check if tile already has a building
-	if tile.has_building():
+	if has_building(coord):
 		return {can_place = false, reason = "Tile already has a building"}
-	
-	# Check if tile has construction in progress
-	if is_tile_under_construction(coord):
-		return {can_place = false, reason = "Construction already in progress"}
 	
 	# Check max per city limit
 	var max_per_city = Registry.buildings.get_max_per_city(building_id)
@@ -182,15 +175,13 @@ func can_place_building(coord: Vector2i, building_id: String) -> Dictionary:
 			var building_name = Registry.get_name_label("building", building_id)
 			return {can_place = false, reason = "Maximum %s reached (%d)" % [building_name, max_per_city]}
 	
-	# Note: Terrain compatibility is checked by WorldQuery.can_build_here()
-	# which has access to terrain data. We skip it here.
-	
 	# Check tech requirements
 	var required_milestones = Registry.buildings.get_required_milestones(building_id)
 	if not Registry.has_all_milestones(required_milestones):
 		return {can_place = false, reason = "Missing technology"}
 	
 	# Check admin capacity
+	var tile = get_tile(coord)
 	var admin_cost = Registry.buildings.get_admin_cost(building_id, tile.distance_from_center)
 	if admin_cost > get_available_admin_capacity():
 		return {can_place = false, reason = "Insufficient administrative capacity"}
@@ -199,7 +190,7 @@ func can_place_building(coord: Vector2i, building_id: String) -> Dictionary:
 	var initial_cost = Registry.buildings.get_initial_construction_cost(building_id)
 	for resource_id in initial_cost.keys():
 		var cost = initial_cost[resource_id]
-		if not resources.has_resource(resource_id, cost):
+		if get_total_resource(resource_id) < cost:
 			var resource_name = Registry.get_name_label("resource", resource_id)
 			return {can_place = false, reason = "Insufficient %s (need %d)" % [resource_name, cost]}
 	
@@ -216,196 +207,159 @@ func start_construction(coord: Vector2i, building_id: String) -> bool:
 	var initial_cost = Registry.buildings.get_initial_construction_cost(building_id)
 	for resource_id in initial_cost.keys():
 		var cost = initial_cost[resource_id]
-		resources.add_stored(resource_id, -cost)
+		consume_resource(resource_id, cost)
 		print("  Deducted initial cost: ", resource_id, " x", cost)
 	
-	# Add to construction queue
-	construction_queue.append({
-		tile_coord = coord,
-		building_id = building_id,
-		turns_remaining = Registry.buildings.get_construction_turns(building_id),
-		cost_per_turn = Registry.buildings.get_construction_cost(building_id)
-	})
+	# Create building instance
+	var instance = BuildingInstance.new(building_id, coord)
+	instance.start_construction(
+		Registry.buildings.get_construction_turns(building_id),
+		Registry.buildings.get_construction_cost(building_id)
+	)
+	
+	building_instances[coord] = instance
+	
+	# Update tile reference (for visual compatibility)
+	var tile = get_tile(coord)
+	if tile:
+		tile.building_id = building_id
 	
 	return true
 
-func complete_building(coord: Vector2i, building_id: String):
-	"""Complete a building and add it to the tile"""
-	var tile = get_tile(coord)
-	if tile:
-		tile.set_building(building_id)
-		recalculate_city_stats()
-
 func demolish_building(coord: Vector2i):
 	"""Demolish a building at the given tile"""
+	if not has_building(coord):
+		return
+	
+	building_instances.erase(coord)
+	
 	var tile = get_tile(coord)
-	if tile and tile.has_building():
-		tile.remove_building()
-		recalculate_city_stats()
+	if tile:
+		tile.building_id = ""
 
-# === Resource Management ===
+# === Resource Management (Per-Building Storage) ===
 
-func get_terrain_at_tile(coord: Vector2i) -> String:
-	"""Get terrain type at tile coordinates - must be implemented via World"""
-	# This will need to query the world's tile data
-	# For now, return empty string
-	return ""
+func get_total_resource(resource_id: String) -> float:
+	"""Get total amount of a resource across all storage buildings"""
+	var total: float = 0.0
+	for instance in building_instances.values():
+		total += instance.get_stored_amount(resource_id)
+	return total
 
-func recalculate_city_stats():
-	"""Recalculate all city statistics (call after any building changes)"""
-	resources.clear_flows()
-	population_capacity = 0.0
-	admin_capacity_available = 0.0
-	admin_capacity_used = 0.0
+func get_total_storage_capacity(resource_id: String) -> float:
+	"""Get total storage capacity for a resource across all buildings"""
+	var total: float = 0.0
+	for instance in building_instances.values():
+		total += instance.get_storage_capacity(resource_id)
+	return total
+
+func get_available_storage(resource_id: String) -> float:
+	"""Get available storage space for a resource"""
+	var total: float = 0.0
+	for instance in building_instances.values():
+		total += instance.get_available_space(resource_id)
+	return total
+
+func store_resource(resource_id: String, amount: float) -> float:
+	"""
+	Store resources in available storage buildings.
+	Returns the amount actually stored. Excess is not stored (spillage).
+	"""
+	var remaining = amount
 	
-	# Reset storage capacity
-	for resource_id in Registry.resources.get_all_resource_ids():
-		resources.set_storage_capacity(resource_id, 0.0)
+	for instance in building_instances.values():
+		if remaining <= 0:
+			break
+		
+		if instance.can_store(resource_id):
+			var stored = instance.add_resource(resource_id, remaining)
+			remaining -= stored
 	
-	# Calculate from each tile
-	for tile in get_all_tiles():
-		# Admin cost for claiming the tile (non-center tiles)
-		if not tile.is_city_center:
-			var tile_admin_cost = calculate_tile_claim_cost(tile.distance_from_center)
-			admin_capacity_used += tile_admin_cost
-		
-		if not tile.has_building():
-			continue
-		
-		var building_id = tile.building_id
-		print("  Processing building: ", building_id, " at ", tile.tile_coord)
-		
-		# Production
-		var produces = Registry.buildings.get_production_per_turn(building_id)
-		for resource_id in produces.keys():
-			resources.add_production(resource_id, produces[resource_id])
-		
-		# Consumption
-		var consumes = Registry.buildings.get_consumption_per_turn(building_id)
-		for resource_id in consumes.keys():
-			resources.add_consumption(resource_id, consumes[resource_id])
-		
-		# Storage capacity
-		var storage = Registry.buildings.get_storage_provided(building_id)
-		for resource_id in storage.keys():
-			var current_capacity = resources.get_storage_capacity(resource_id)
-			resources.set_storage_capacity(resource_id, current_capacity + storage[resource_id])
-		
-		# Population capacity
-		population_capacity += Registry.buildings.get_population_capacity(building_id)
-		
-		# Admin capacity
-		var admin_cap = Registry.buildings.get_admin_capacity(building_id)
-		print("    Admin capacity from building: ", admin_cap)
-		admin_capacity_available += admin_cap
-		
-		# Admin cost for the building
-		var admin_cost = Registry.buildings.get_admin_cost(building_id, tile.distance_from_center)
-		admin_capacity_used += admin_cost
-	
-	print("  Final admin capacity: ", admin_capacity_available, " / used: ", admin_capacity_used)
-	
-	# Calculate decay for perishable resources
-	calculate_decay()
+	return amount - remaining  # Return amount stored
 
-func calculate_tile_claim_cost(distance: int) -> float:
-	"""Calculate the admin cost to claim/maintain a tile based on distance"""
-	var base_cost = 1.0
-	var distance_multiplier = 0.5
-	return base_cost + (distance * distance_multiplier)
+func consume_resource(resource_id: String, amount: float) -> float:
+	"""
+	Consume resources from storage buildings.
+	Returns the amount actually consumed.
+	"""
+	var remaining = amount
+	
+	for instance in building_instances.values():
+		if remaining <= 0:
+			break
+		
+		var removed = instance.remove_resource(resource_id, remaining)
+		remaining -= removed
+	
+	return amount - remaining  # Return amount consumed
 
-func calculate_decay():
-	"""Calculate decay for perishable resources"""
-	for resource_id in resources.total_stored.keys():
-		if not Registry.resources.is_storable(resource_id):
-			continue
-		
-		var resource_data = Registry.resources.get_resource(resource_id)
-		if not resource_data.has("storage"):
-			continue
-		
-		var decay_data = resource_data.storage.get("decay", {})
-		if not decay_data.get("enabled", false):
-			continue
-		
-		var base_decay_rate = decay_data.get("base_rate_per_turn", 0.0)
-		
-		# TODO: Apply decay reduction from storage buildings
-		var actual_decay_rate = base_decay_rate
-		
-		var stored = resources.get_stored(resource_id)
-		var decay_amount = stored * actual_decay_rate
-		
-		resources.add_decay(resource_id, decay_amount)
+func has_resources(requirements: Dictionary) -> bool:
+	"""Check if the city has all required resources"""
+	for resource_id in requirements.keys():
+		if get_total_resource(resource_id) < requirements[resource_id]:
+			return false
+	return true
+
+func get_missing_resources(requirements: Dictionary) -> Dictionary:
+	"""Get dictionary of missing resources {resource_id: amount_missing}"""
+	var missing: Dictionary = {}
+	for resource_id in requirements.keys():
+		var needed = requirements[resource_id]
+		var available = get_total_resource(resource_id)
+		if available < needed:
+			missing[resource_id] = needed - available
+	return missing
+
+# === Admin Capacity ===
 
 func get_available_admin_capacity() -> float:
 	return max(0.0, admin_capacity_available - admin_capacity_used)
 
-func process_turn():
-	"""Process end-of-turn for this city"""
-	# 1. Process construction
-	process_construction()
-	
-	# 2. Calculate production/consumption
-	recalculate_city_stats()
-	
-	# 3. Check if buildings can consume (disable if not)
-	check_building_consumption()
-	
-	# 4. Apply resource changes
-	apply_resource_changes()
-	
-	# 5. Update population
-	update_population()
+# === Statistics Recalculation ===
 
-func process_construction():
-	"""Advance construction projects"""
-	var completed = []
+func recalculate_city_stats():
+	"""Recalculate all city statistics (call after building changes during player turn)"""
+	population_capacity = 0
+	admin_capacity_available = 0.0
+	admin_capacity_used = 0.0
 	
-	for i in range(construction_queue.size()):
-		var project = construction_queue[i]
+	# Calculate admin cost for all tiles
+	for coord in tiles.keys():
+		var tile: CityTile = tiles[coord]
+		if not tile.is_city_center:
+			admin_capacity_used += calculate_tile_claim_cost(tile.distance_from_center)
+	
+	# Calculate from each building
+	for coord in building_instances.keys():
+		var instance: BuildingInstance = building_instances[coord]
+		var tile: CityTile = tiles.get(coord)
+		var distance = tile.distance_from_center if tile else 0
 		
-		# Try to pay this turn's cost
-		var can_afford = true
-		for resource_id in project.cost_per_turn.keys():
-			var cost = project.cost_per_turn[resource_id]
-			if not resources.has_resource(resource_id, cost):
-				can_afford = false
-				break
+		# Admin capacity provided
+		if instance.is_operational() or instance.is_under_construction():
+			admin_capacity_available += Registry.buildings.get_admin_capacity(instance.building_id)
 		
-		if can_afford:
-			# Deduct costs
-			for resource_id in project.cost_per_turn.keys():
-				var cost = project.cost_per_turn[resource_id]
-				resources.add_stored(resource_id, -cost)
-			
-			# Advance construction
-			project.turns_remaining -= 1
-			
-			if project.turns_remaining <= 0:
-				complete_building(project.tile_coord, project.building_id)
-				completed.append(i)
+		# Admin cost
+		admin_capacity_used += instance.get_admin_cost(distance)
+		
+		# Population capacity (only from operational buildings)
+		if instance.is_operational():
+			population_capacity += Registry.buildings.get_population_capacity(instance.building_id)
 	
-	# Remove completed projects (reverse order to maintain indices)
-	completed.reverse()
-	for idx in completed:
-		construction_queue.remove_at(idx)
+	print("City stats: admin %.1f/%.1f, pop capacity %d" % [admin_capacity_used, admin_capacity_available, population_capacity])
 
-func check_building_consumption():
-	"""Check if buildings can consume resources, disable if not"""
-	# This will be implemented when we add building states
-	pass
+# === Legacy Compatibility ===
 
-func apply_resource_changes():
-	"""Apply all resource changes from production, consumption, trade, decay"""
-	for resource_id in resources.get_all_resources():
-		var change = resources.get_net_change(resource_id)
-		resources.add_stored(resource_id, change)
+# These methods maintain compatibility with existing code that uses ResourceLedger
 
-func update_population():
-	"""Update population based on production/consumption"""
-	var pop_change = resources.get_internal_change("population")
-	population_stored = clamp(population_stored + pop_change, 0.0, population_capacity)
-	
-	# Update total population count (integer representation)
-	total_population = int(population_stored)
+func get_construction_at_tile(coord: Vector2i) -> Dictionary:
+	"""Get construction info at a tile (legacy compatibility)"""
+	var instance = building_instances.get(coord)
+	if instance and instance.is_under_construction():
+		return {
+			tile_coord = coord,
+			building_id = instance.building_id,
+			turns_remaining = instance.turns_remaining,
+			cost_per_turn = instance.cost_per_turn
+		}
+	return {}
