@@ -88,6 +88,8 @@ class CityTurnReport extends RefCounted:
 	var constructions_progressed: Array[Dictionary] = []  # [{coord, building_id, turns_remaining}]
 	var constructions_completed: Array[Dictionary] = []  # [{coord, building_id}]
 	var constructions_paused: Array[Dictionary] = []  # [{coord, building_id, missing_resources}]
+	var completion_rewards: Dictionary = {}  # resource_id -> amount from building completion
+	var completion_research_rewards: Dictionary = {}  # branch_id -> points from building completion
 	
 	# Decay
 	var decay_summary: Dictionary = {}  # resource_id -> total decayed
@@ -138,6 +140,14 @@ class CityTurnReport extends RefCounted:
 	func add_construction_paused(coord: Vector2i, building_id: String, missing: Dictionary):
 		constructions_paused.append({"coord": coord, "building_id": building_id, "missing_resources": missing})
 	
+	func add_completion_reward(resource_id: String, amount: float):
+		"""Track resources granted when a building completes construction"""
+		completion_rewards[resource_id] = completion_rewards.get(resource_id, 0.0) + amount
+	
+	func add_completion_research_reward(branch_id: String, points: float):
+		"""Track research granted when a building completes construction"""
+		completion_research_rewards[branch_id] = completion_research_rewards.get(branch_id, 0.0) + points
+	
 	func add_decay(resource_id: String, amount: float):
 		decay_summary[resource_id] = decay_summary.get(resource_id, 0.0) + amount
 	
@@ -182,6 +192,19 @@ class CityTurnReport extends RefCounted:
 		# Buildings
 		if not constructions_completed.is_empty():
 			lines.append("  Completed: %d buildings" % constructions_completed.size())
+		
+		# Completion rewards
+		if not completion_rewards.is_empty():
+			var reward_parts: Array[String] = []
+			for res_id in completion_rewards.keys():
+				reward_parts.append("%s: +%.1f" % [res_id, completion_rewards[res_id]])
+			lines.append("  Completion rewards: " + ", ".join(reward_parts))
+		
+		if not completion_research_rewards.is_empty():
+			var research_parts: Array[String] = []
+			for branch_id in completion_research_rewards.keys():
+				research_parts.append("%s: +%.2f" % [branch_id, completion_research_rewards[branch_id]])
+			lines.append("  Completion research: " + ", ".join(research_parts))
 		
 		if not buildings_waiting.is_empty():
 			lines.append("  Waiting for resources: %d buildings" % buildings_waiting.size())

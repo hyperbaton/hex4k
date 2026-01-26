@@ -3,7 +3,7 @@
 	"description": "Taming animals to carry loads and goods.",
 	"branch": "animal_husbandry",
 	"requirements": [{ "branch": "animal_husbandry", "level": 0.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"unlocks": { "buildings": ["hunters_lodge", "fishing_hut"], "units": [], "modifiers": [], "resources": [], "perks": [] },
 	"visibility": { "always_visible": true },
 	"visual": { "icon": "res://assets/icons/milestones/pack_animal_domestication.png" }
 }

@@ -98,10 +98,56 @@ func can_build_here(coord: Vector2i, building_id: String) -> Dictionary:
 	if not Registry.buildings.can_place_on_terrain(building_id, terrain_id):
 		return {can_build = false, reason = "Invalid terrain for this building"}
 	
+	# Check terrain adjacency requirements
+	var adj_check = check_terrain_adjacency_requirements(coord, building_id)
+	if not adj_check.met:
+		return {can_build = false, reason = adj_check.reason}
+	
 	# Delegate to city for full check (admin, existing building, tech, etc.)
 	var city_check = city.can_place_building(coord, building_id)
 	# Normalize the response key from can_place to can_build
 	return {can_build = city_check.get("can_place", false), reason = city_check.get("reason", "")}
+
+func check_terrain_adjacency_requirements(coord: Vector2i, building_id: String) -> Dictionary:
+	"""
+	Check if terrain adjacency requirements are met for a building.
+	Returns {met: bool, reason: String}
+	"""
+	var building = Registry.buildings.get_building(building_id)
+	if not building.has("requirements"):
+		return {met = true, reason = ""}
+	
+	var reqs = building.requirements
+	if not reqs.has("required_adjacent"):
+		return {met = true, reason = ""}
+	
+	var adj_reqs = reqs.required_adjacent
+	
+	# Check terrain type adjacency
+	if adj_reqs.has("terrain_types") and adj_reqs.terrain_types.size() > 0:
+		var min_count = adj_reqs.get("min_count", 1)
+		var max_distance = adj_reqs.get("max_distance", 1)
+		var required_terrains = adj_reqs.terrain_types
+		
+		# Count matching adjacent terrains
+		var matching_count = 0
+		var neighbors = get_tiles_in_range(coord, 1, max_distance)
+		
+		print("  [Adjacency Check] %s at %v needs %s (min %d)" % [building_id, coord, required_terrains, min_count])
+		
+		for neighbor_coord in neighbors:
+			var neighbor_terrain = get_terrain_id(neighbor_coord)
+			if neighbor_terrain in required_terrains:
+				matching_count += 1
+				print("    Found: %s at %v" % [neighbor_terrain, neighbor_coord])
+		
+		print("    Total matching: %d" % matching_count)
+		
+		if matching_count < min_count:
+			var terrain_names = ", ".join(required_terrains)
+			return {met = false, reason = "Requires adjacent %s (found %d, need %d)" % [terrain_names, matching_count, min_count]}
+	
+	return {met = true, reason = ""}
 
 func get_buildable_buildings(coord: Vector2i) -> Array[String]:
 	"""Get list of building IDs that can be built at this location"""

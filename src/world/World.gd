@@ -324,8 +324,8 @@ func setup_test_city():
 	# Find a suitable location (on land)
 	var test_coord = Vector2i(-12, 15)
 	
-	# Found city
-	var city = city_manager.found_city("Test City", test_coord, current_player_id)
+	# Found city with longhouse as city center
+	var city = city_manager.found_city("Test City", test_coord, current_player_id, "longhouse")
 	
 	if city:
 		print("✓ Test city founded at ", test_coord)
@@ -336,11 +336,11 @@ func setup_test_city():
 		])
 		print("  Population: %d" % city.total_population)
 		
-		# Update the visual for the city center building
+		# Update the visual for the longhouse building
 		var center_tile = chunk_manager.get_tile_at_coord(test_coord)
 		if center_tile:
-			center_tile.set_building("city_center")
-			print("  Set city_center building visual on tile")
+			center_tile.set_building("longhouse")
+			print("  Set longhouse building visual on tile")
 		
 		print("  Click the city center to open the city overlay!")
 	else:

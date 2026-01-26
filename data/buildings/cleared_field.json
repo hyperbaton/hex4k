@@ -1,21 +1,19 @@
 {
-	"category": "road",
+	"category": "storage",
 	"construction": {
 		"initial_cost": {
-			"wood": 3
+			"wood": 5
 		},
-		"cost_per_turn": {
-			"wood": 1
-		},
-		"total_turns": 2
+		"cost_per_turn": {},
+		"total_turns": 1
 	},
 	"admin_cost": {
-		"base": 0.5,
+		"base": 0.2,
 		"distance_multiplier": 0.05
 	},
 	"requirements": {
-		"terrain_types": ["grassland", "plains", "forest"],
-		"terrain_exclude": ["ocean", "mountain"],
+		"terrain_types": ["grassland", "plains", "forest", "hills"],
+		"terrain_exclude": ["ocean", "mountain", "lake"],
 		"required_modifiers": [],
 		"required_adjacent": {
 			"building_ids": [],
@@ -29,27 +27,39 @@
 			"min_distance": 0
 		},
 		"requires_city_center_connection": true,
-		"milestones_required": []
+		"milestones_required": ["natural_shelter"]
 	},
 	"production": {
 		"per_turn_produces": {},
 		"per_turn_consumes": {},
 		"branch_specific_research": {}
 	},
+	"per_turn_penalty": {},
 	"adjacency_bonuses": [],
 	"provides": {
 		"population_storage": 0,
-		"resource_storage": {},
+		"resource_storage": {
+			"wood": 30,
+			"stone": 30,
+			"tools": 20
+		},
 		"admin_capacity": 0,
 		"caravan_capacity": 0,
 		"decay_reduction": {}
 	},
-	"upgrades_to": "paved_road",
-	"can_units_stand": true,
+	"on_construction_complete": {
+		"research": {
+			"construction": 0.3
+		}
+	},
+	"disabled_admin_cost": 0.0,
+	"upgrades_to": null,
+	"max_per_city": 0,
+	"can_units_stand": false,
 	"has_orientation": false,
 	"is_city_center": false,
 	"visual": {
-		"sprite": "res://assets/buildings/road_dirt.svg",
+		"sprite": "res://assets/buildings/cleared_field.svg",
 		"color": "#8B7355"
 	}
 }

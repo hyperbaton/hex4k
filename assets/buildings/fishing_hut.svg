@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Fishing Hut - small hut with fishing net and pier -->
+  <defs>
+    <linearGradient id="fishRoofGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB"/>
+      <stop offset="100%" style="stop-color:#5F9EA0"/>
+    </linearGradient>
+    <linearGradient id="fishWallGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B7355"/>
+      <stop offset="100%" style="stop-color:#5C4D3A"/>
+    </linearGradient>
+    <linearGradient id="waterGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#4682B4"/>
+      <stop offset="100%" style="stop-color:#5F9EA0"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Water indication at bottom -->
+  <ellipse cx="32" cy="58" rx="28" ry="6" fill="url(#waterGrad)" opacity="0.4"/>
+  
+  <!-- Small pier/dock -->
+  <rect x="44" y="48" width="16" height="4" fill="#8B6914" stroke="#5C4A10" stroke-width="0.5"/>
+  <rect x="46" y="52" width="3" height="6" fill="#6B5210"/>
+  <rect x="54" y="52" width="3" height="6" fill="#6B5210"/>
+  
+  <!-- Hut walls -->
+  <rect x="14" y="34" width="32" height="18" rx="1" fill="url(#fishWallGrad)" stroke="#3D3428" stroke-width="1"/>
+  
+  <!-- Roof -->
+  <polygon points="30,16 8,36 52,36" fill="url(#fishRoofGrad)" stroke="#3D6070" stroke-width="1"/>
+  
+  <!-- Door -->
+  <rect x="24" y="40" width="10" height="12" rx="1" fill="#2C1810" stroke="#1A0F0A" stroke-width="0.5"/>
+  <circle cx="32" cy="46" r="1" fill="#8B6914"/>
+  
+  <!-- Window -->
+  <rect x="36" y="38" width="6" height="6" rx="0.5" fill="#1A0F0A" stroke="#3D3428" stroke-width="0.5"/>
+  
+  <!-- Fishing net hanging -->
+  <g transform="translate(10, 30)">
+    <path d="M0,0 Q2,8 0,16" stroke="#C4A35A" stroke-width="0.8" fill="none"/>
+    <path d="M0,4 L4,6 M0,8 L4,10 M0,12 L4,14" stroke="#C4A35A" stroke-width="0.5" fill="none"/>
+  </g>
+  
+  <!-- Fish hanging to dry -->
+  <g transform="translate(48, 32)">
+    <ellipse cx="0" cy="0" rx="3" ry="1.5" fill="#708090" stroke="#4A5A68" stroke-width="0.3"/>
+    <polygon points="3,0 6,-1 6,1" fill="#708090"/>
+    <circle cx="-2" cy="-0.5" r="0.5" fill="#2F4F4F"/>
+  </g>
+  
+  <!-- Fishing pole leaning -->
+  <line x1="52" y1="20" x2="58" y2="48" stroke="#8B6914" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M52,20 Q54,18 56,22" stroke="#A0A0A0" stroke-width="0.5" fill="none"/>
+</svg>

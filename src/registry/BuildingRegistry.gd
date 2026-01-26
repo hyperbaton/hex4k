@@ -181,3 +181,8 @@ func get_buildings_by_category(category: String) -> Array:
 		if building.get("category", "") == category:
 			result.append(id)
 	return result
+
+func get_on_construction_complete(building_id: String) -> Dictionary:
+	"""Get resources/research granted when construction completes"""
+	var building = get_building(building_id)
+	return building.get("on_construction_complete", {})

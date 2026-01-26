@@ -3,7 +3,7 @@
 	"description": "Using caves and natural formations for protection.",
 	"branch": "construction",
 	"requirements": [{ "branch": "construction", "level": 0.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"unlocks": { "buildings": ["food_cache", "cleared_field"], "units": [], "modifiers": [], "resources": [], "perks": [] },
 	"visibility": { "always_visible": true },
 	"visual": { "icon": "res://assets/icons/milestones/natural_shelter.png" }
 }

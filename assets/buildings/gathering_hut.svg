@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Gathering Hut - simple hut with baskets and foraged goods -->
+  <defs>
+    <linearGradient id="gatherRoofGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#9ACD32"/>
+      <stop offset="100%" style="stop-color:#6B8E23"/>
+    </linearGradient>
+    <linearGradient id="gatherWallGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#A08060"/>
+      <stop offset="100%" style="stop-color:#6B5540"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Shadow -->
+  <ellipse cx="32" cy="56" rx="18" ry="5" fill="rgba(0,0,0,0.2)"/>
+  
+  <!-- Hut walls -->
+  <rect x="16" y="34" width="32" height="18" rx="1" fill="url(#gatherWallGrad)" stroke="#4A3A30" stroke-width="1"/>
+  
+  <!-- Wattle texture on walls -->
+  <path d="M16,38 Q24,40 32,38 Q40,36 48,38" stroke="#5A4A40" stroke-width="0.5" fill="none" opacity="0.5"/>
+  <path d="M16,44 Q24,46 32,44 Q40,42 48,44" stroke="#5A4A40" stroke-width="0.5" fill="none" opacity="0.5"/>
+  
+  <!-- Thatched roof with greenery -->
+  <polygon points="32,14 10,36 54,36" fill="url(#gatherRoofGrad)" stroke="#4A6020" stroke-width="1"/>
+  
+  <!-- Roof texture -->
+  <line x1="32" y1="16" x2="16" y2="34" stroke="#5A7025" stroke-width="1" opacity="0.5"/>
+  <line x1="32" y1="16" x2="32" y2="34" stroke="#5A7025" stroke-width="1" opacity="0.5"/>
+  <line x1="32" y1="16" x2="48" y2="34" stroke="#5A7025" stroke-width="1" opacity="0.5"/>
+  
+  <!-- Door -->
+  <rect x="26" y="40" width="10" height="12" rx="1" fill="#2C1810" stroke="#1A0F0A" stroke-width="0.5"/>
+  <circle cx="34" cy="46" r="1" fill="#8B6914"/>
+  
+  <!-- Baskets outside -->
+  <g transform="translate(8, 44)">
+    <!-- Basket 1 -->
+    <path d="M0,8 Q0,0 4,0 Q8,0 8,8 Z" fill="#C4A35A" stroke="#8B7340" stroke-width="0.5"/>
+    <ellipse cx="4" cy="0" rx="4" ry="1.5" fill="#D4B36A" stroke="#8B7340" stroke-width="0.3"/>
+    <!-- Berries in basket -->
+    <circle cx="2" cy="-1" r="1.2" fill="#8B0000"/>
+    <circle cx="4" cy="-1.5" r="1" fill="#8B0000"/>
+    <circle cx="6" cy="-1" r="1.2" fill="#8B0000"/>
+  </g>
+  
+  <g transform="translate(50, 42)">
+    <!-- Basket 2 -->
+    <path d="M0,10 Q0,0 5,0 Q10,0 10,10 Z" fill="#B8956A" stroke="#7A6340" stroke-width="0.5"/>
+    <ellipse cx="5" cy="0" rx="5" ry="2" fill="#C8A57A" stroke="#7A6340" stroke-width="0.3"/>
+    <!-- Leaves/herbs sticking out -->
+    <path d="M3,-2 Q2,-6 4,-8" stroke="#228B22" stroke-width="1" fill="none"/>
+    <path d="M5,-2 Q5,-7 6,-9" stroke="#228B22" stroke-width="1" fill="none"/>
+    <path d="M7,-2 Q8,-6 6,-8" stroke="#228B22" stroke-width="1" fill="none"/>
+  </g>
+  
+  <!-- Drying herbs hanging from roof -->
+  <g transform="translate(14, 34)">
+    <line x1="0" y1="0" x2="0" y2="4" stroke="#8B7340" stroke-width="0.5"/>
+    <path d="M-2,4 Q0,8 2,4" fill="#556B2F" stroke="#3B4B1F" stroke-width="0.3"/>
+  </g>
+  <g transform="translate(18, 35)">
+    <line x1="0" y1="0" x2="0" y2="3" stroke="#8B7340" stroke-width="0.5"/>
+    <path d="M-1.5,3 Q0,6 1.5,3" fill="#6B8E23" stroke="#4A6018" stroke-width="0.3"/>
+  </g>
+</svg>

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Longhouse - elongated building with pitched roof -->
+  <defs>
+    <linearGradient id="roofGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B6914"/>
+      <stop offset="100%" style="stop-color:#5C4A0A"/>
+    </linearGradient>
+    <linearGradient id="wallGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#A0522D"/>
+      <stop offset="100%" style="stop-color:#6B3A1F"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Shadow -->
+  <ellipse cx="32" cy="56" rx="26" ry="6" fill="rgba(0,0,0,0.2)"/>
+  
+  <!-- Building base/walls -->
+  <rect x="6" y="32" width="52" height="20" rx="2" fill="url(#wallGrad)" stroke="#4A2F1A" stroke-width="1"/>
+  
+  <!-- Wood texture lines on walls -->
+  <line x1="6" y1="38" x2="58" y2="38" stroke="#4A2F1A" stroke-width="0.5" opacity="0.5"/>
+  <line x1="6" y1="44" x2="58" y2="44" stroke="#4A2F1A" stroke-width="0.5" opacity="0.5"/>
+  
+  <!-- Roof -->
+  <polygon points="32,12 4,32 60,32" fill="url(#roofGrad)" stroke="#3D3008" stroke-width="1"/>
+  
+  <!-- Roof thatch texture -->
+  <line x1="18" y1="22" x2="8" y2="30" stroke="#6B5410" stroke-width="1" opacity="0.6"/>
+  <line x1="32" y1="14" x2="20" y2="28" stroke="#6B5410" stroke-width="1" opacity="0.6"/>
+  <line x1="46" y1="22" x2="56" y2="30" stroke="#6B5410" stroke-width="1" opacity="0.6"/>
+  <line x1="32" y1="14" x2="44" y2="28" stroke="#6B5410" stroke-width="1" opacity="0.6"/>
+  
+  <!-- Door -->
+  <rect x="27" y="38" width="10" height="14" rx="1" fill="#2C1810" stroke="#1A0F0A" stroke-width="0.5"/>
+  <circle cx="35" cy="45" r="1" fill="#8B6914"/>
+  
+  <!-- Windows -->
+  <rect x="12" y="38" width="8" height="6" rx="1" fill="#1A0F0A" stroke="#4A2F1A" stroke-width="0.5"/>
+  <rect x="44" y="38" width="8" height="6" rx="1" fill="#1A0F0A" stroke="#4A2F1A" stroke-width="0.5"/>
+  
+  <!-- Smoke from roof -->
+  <ellipse cx="32" cy="8" rx="4" ry="2" fill="rgba(150,150,150,0.4)"/>
+  <ellipse cx="34" cy="5" rx="3" ry="1.5" fill="rgba(150,150,150,0.3)"/>
+</svg>

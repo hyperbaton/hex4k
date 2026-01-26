@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Herding Grounds - pastoral grazing area with simple fencing -->
+  <defs>
+    <linearGradient id="grassGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#9ACD32"/>
+      <stop offset="100%" style="stop-color:#6B8E23"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Grass/ground base -->
+  <ellipse cx="32" cy="44" rx="28" ry="16" fill="url(#grassGrad)" stroke="#4A6A20" stroke-width="1"/>
+  
+  <!-- Grass tufts -->
+  <path d="M14,42 Q15,38 16,42" stroke="#4A6A20" stroke-width="0.5" fill="none"/>
+  <path d="M20,46 Q21,42 22,46" stroke="#4A6A20" stroke-width="0.5" fill="none"/>
+  <path d="M44,44 Q45,40 46,44" stroke="#4A6A20" stroke-width="0.5" fill="none"/>
+  <path d="M50,48 Q51,44 52,48" stroke="#4A6A20" stroke-width="0.5" fill="none"/>
+  
+  <!-- Simple wooden fence (back) -->
+  <g stroke="#8B6914" fill="#8B6914">
+    <!-- Posts -->
+    <rect x="8" y="24" width="3" height="16"/>
+    <rect x="24" y="22" width="3" height="14"/>
+    <rect x="40" y="22" width="3" height="14"/>
+    <rect x="56" y="24" width="3" height="16"/>
+    <!-- Rails -->
+    <line x1="9" y1="28" x2="58" y2="26" stroke-width="2"/>
+    <line x1="9" y1="34" x2="58" y2="32" stroke-width="2"/>
+  </g>
+  
+  <!-- Sheep/goats (simplified) -->
+  <g transform="translate(18, 38)">
+    <!-- Body -->
+    <ellipse cx="6" cy="4" rx="6" ry="4" fill="#F5F5DC" stroke="#D2B48C" stroke-width="0.5"/>
+    <!-- Head -->
+    <ellipse cx="12" cy="2" rx="3" ry="2" fill="#F5F5DC" stroke="#D2B48C" stroke-width="0.5"/>
+    <!-- Legs -->
+    <line x1="2" y1="8" x2="2" y2="12" stroke="#8B8B7A" stroke-width="1"/>
+    <line x1="10" y1="8" x2="10" y2="12" stroke="#8B8B7A" stroke-width="1"/>
+  </g>
+  
+  <g transform="translate(36, 42)">
+    <!-- Body -->
+    <ellipse cx="5" cy="3" rx="5" ry="3" fill="#E8E8D8" stroke="#C4B49C" stroke-width="0.5"/>
+    <!-- Head -->
+    <ellipse cx="10" cy="1" rx="2.5" ry="1.5" fill="#E8E8D8" stroke="#C4B49C" stroke-width="0.5"/>
+    <!-- Legs -->
+    <line x1="2" y1="6" x2="2" y2="9" stroke="#8B8B7A" stroke-width="1"/>
+    <line x1="8" y1="6" x2="8" y2="9" stroke="#8B8B7A" stroke-width="1"/>
+  </g>
+  
+  <!-- Water trough -->
+  <g transform="translate(46, 34)">
+    <rect x="0" y="0" width="10" height="4" rx="1" fill="#8B6914" stroke="#5C4510" stroke-width="0.5"/>
+    <rect x="1" y="1" width="8" height="2" fill="#4682B4" opacity="0.7"/>
+  </g>
+  
+  <!-- Shepherd's crook leaning -->
+  <path d="M8,16 L12,50 M8,16 Q4,12 8,8 Q12,8 12,12" stroke="#6B5210" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>

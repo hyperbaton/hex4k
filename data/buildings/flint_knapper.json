@@ -1,0 +1,73 @@
+{
+	"category": "production",
+	"construction": {
+		"initial_cost": {
+			"wood": 10,
+			"stone": 5
+		},
+		"cost_per_turn": {},
+		"total_turns": 2
+	},
+	"admin_cost": {
+		"base": 1.0,
+		"distance_multiplier": 0.1
+	},
+	"requirements": {
+		"terrain_types": ["grassland", "plains", "forest", "hills"],
+		"terrain_exclude": ["ocean", "mountain", "lake"],
+		"required_modifiers": [],
+		"required_adjacent": {
+			"building_ids": [],
+			"building_categories": [],
+			"min_count": 0,
+			"max_distance": 1
+		},
+		"prohibited_adjacent": {
+			"building_ids": [],
+			"building_categories": [],
+			"min_distance": 0
+		},
+		"requires_city_center_connection": true,
+		"milestones_required": ["lithic_reduction"]
+	},
+	"production": {
+		"per_turn_produces": {
+			"tools": 2
+		},
+		"per_turn_consumes": {
+			"population": 1,
+			"wood": 1,
+			"stone": 1
+		},
+		"branch_specific_research": {
+			"gathering_and_crafting": 0.1
+		}
+	},
+	"per_turn_penalty": {},
+	"adjacency_bonuses": [],
+	"provides": {
+		"population_storage": 0,
+		"resource_storage": {},
+		"admin_capacity": 0,
+		"caravan_capacity": 0,
+		"decay_reduction": {}
+	},
+	"on_construction_complete": {
+		"resources": {
+			"tools": 2
+		},
+		"research": {
+			"gathering_and_crafting": 1.0
+		}
+	},
+	"disabled_admin_cost": 0.0,
+	"upgrades_to": null,
+	"max_per_city": 0,
+	"can_units_stand": false,
+	"has_orientation": false,
+	"is_city_center": false,
+	"visual": {
+		"sprite": "res://assets/buildings/flint_knapper.svg",
+		"color": "#696969"
+	}
+}

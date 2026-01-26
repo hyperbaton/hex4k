@@ -3,7 +3,7 @@
 	"description": "Collecting wild plants and resources for survival.",
 	"branch": "gathering_and_crafting",
 	"requirements": [{ "branch": "gathering_and_crafting", "level": 0.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"unlocks": { "buildings": ["gathering_hut"], "units": [], "modifiers": [], "resources": [], "perks": [] },
 	"visibility": { "always_visible": true },
 	"visual": { "icon": "res://assets/icons/milestones/foraging.png" }
 }

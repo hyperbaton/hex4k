@@ -1,23 +1,19 @@
 {
-	"category": "housing",
+	"category": "production",
 	"construction": {
 		"initial_cost": {
-			"wood": 10,
-			"stone": 5
+			"wood": 10
 		},
-		"cost_per_turn": {
-			"wood": 5,
-			"stone": 2
-		},
-		"total_turns": 3
+		"cost_per_turn": {},
+		"total_turns": 1
 	},
 	"admin_cost": {
-		"base": 1.0,
+		"base": 0.5,
 		"distance_multiplier": 0.1
 	},
 	"requirements": {
 		"terrain_types": ["grassland", "plains", "forest"],
-		"terrain_exclude": ["ocean", "mountain"],
+		"terrain_exclude": ["ocean", "mountain", "lake"],
 		"required_modifiers": [],
 		"required_adjacent": {
 			"building_ids": [],
@@ -31,31 +27,47 @@
 			"min_distance": 0
 		},
 		"requires_city_center_connection": true,
-		"milestones_required": []
+		"milestones_required": ["foraging"]
 	},
 	"production": {
 		"per_turn_produces": {
-			"population": 3
+			"food": 2,
+			"wood": 1
 		},
 		"per_turn_consumes": {
-			"food": 2
+			"population": 1
 		},
-		"branch_specific_research": {}
+		"branch_specific_research": {
+			"agriculture": 0.05,
+			"gathering_and_crafting": 0.05
+		}
 	},
-	"adjacency_bonuses": [],
+	"per_turn_penalty": {},
+	"adjacency_bonuses": [
+		{
+			"source_type": "terrain",
+			"source_id": "forest",
+			"radius": 1,
+			"yields": {
+				"wood": 0.5
+			}
+		}
+	],
 	"provides": {
-		"population_storage": 5,
+		"population_storage": 0,
 		"resource_storage": {},
 		"admin_capacity": 0,
 		"caravan_capacity": 0,
 		"decay_reduction": {}
 	},
-	"upgrades_to": "apartment",
+	"disabled_admin_cost": 0.0,
+	"upgrades_to": null,
+	"max_per_city": 0,
 	"can_units_stand": false,
 	"has_orientation": false,
 	"is_city_center": false,
 	"visual": {
-		"sprite": "res://assets/buildings/house.svg",
-		"color": "#D4A574"
+		"sprite": "res://assets/buildings/gathering_hut.svg",
+		"color": "#6B8E23"
 	}
 }

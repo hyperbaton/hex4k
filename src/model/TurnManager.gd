@@ -264,8 +264,7 @@ func _phase_construction(city: City, report: TurnReport.CityTurnReport):
 			var completed = instance.advance_construction()
 			
 			if completed:
-				report.add_construction_completed(coord, instance.building_id)
-				print("    Construction completed: %s at %v" % [instance.building_id, coord])
+				_on_construction_completed(city, instance, report)
 			else:
 				report.add_construction_progressed(coord, instance.building_id, instance.turns_remaining)
 			continue
@@ -291,8 +290,7 @@ func _phase_construction(city: City, report: TurnReport.CityTurnReport):
 			var completed = instance.advance_construction()
 			
 			if completed:
-				report.add_construction_completed(coord, instance.building_id)
-				print("    Construction completed: %s at %v" % [instance.building_id, coord])
+				_on_construction_completed(city, instance, report)
 			else:
 				report.add_construction_progressed(coord, instance.building_id, instance.turns_remaining)
 		else:
@@ -300,6 +298,36 @@ func _phase_construction(city: City, report: TurnReport.CityTurnReport):
 			instance.set_construction_paused()
 			report.add_construction_paused(coord, instance.building_id, missing)
 			print("    Construction paused: %s at %v (missing resources)" % [instance.building_id, coord])
+
+func _on_construction_completed(city: City, instance: BuildingInstance, report: TurnReport.CityTurnReport):
+	"""Handle building construction completion and apply rewards"""
+	var coord = instance.tile_coord
+	var building_id = instance.building_id
+	
+	report.add_construction_completed(coord, building_id)
+	print("    Construction completed: %s at %v" % [building_id, coord])
+	
+	# Apply on_construction_complete rewards
+	var rewards = Registry.buildings.get_on_construction_complete(building_id)
+	if rewards.is_empty():
+		return
+	
+	# Apply resource rewards - store in city
+	if rewards.has("resources"):
+		for resource_id in rewards.resources.keys():
+			var amount = rewards.resources[resource_id]
+			var stored = city.store_resource(resource_id, amount)
+			report.add_completion_reward(resource_id, stored)
+			if stored > 0:
+				print("      Reward: +%.1f %s" % [stored, resource_id])
+	
+	# Apply research rewards - add directly to tech tree
+	if rewards.has("research"):
+		for branch_id in rewards.research.keys():
+			var points = rewards.research[branch_id]
+			Registry.tech.add_research(branch_id, points)
+			report.add_completion_research_reward(branch_id, points)
+			print("      Research reward: +%.2f %s" % [points, branch_id])
 
 # === Phase 5: Population ===
 

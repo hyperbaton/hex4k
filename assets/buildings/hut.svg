@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Hut - small conical thatched hut -->
+  <defs>
+    <linearGradient id="thatchGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#C4A35A"/>
+      <stop offset="100%" style="stop-color:#8B7340"/>
+    </linearGradient>
+    <linearGradient id="hutWallGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#A0522D"/>
+      <stop offset="100%" style="stop-color:#704020"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Shadow -->
+  <ellipse cx="32" cy="56" rx="18" ry="5" fill="rgba(0,0,0,0.2)"/>
+  
+  <!-- Hut base/walls (cylindrical shape shown as rectangle) -->
+  <path d="M16,40 L16,52 Q16,54 18,54 L46,54 Q48,54 48,52 L48,40 Z" fill="url(#hutWallGrad)" stroke="#4A2510" stroke-width="1"/>
+  
+  <!-- Conical thatched roof -->
+  <polygon points="32,10 10,42 54,42" fill="url(#thatchGrad)" stroke="#5C4A20" stroke-width="1"/>
+  
+  <!-- Thatch texture lines -->
+  <line x1="32" y1="12" x2="14" y2="40" stroke="#7A6030" stroke-width="1" opacity="0.5"/>
+  <line x1="32" y1="12" x2="22" y2="40" stroke="#7A6030" stroke-width="1" opacity="0.5"/>
+  <line x1="32" y1="12" x2="32" y2="40" stroke="#7A6030" stroke-width="1" opacity="0.5"/>
+  <line x1="32" y1="12" x2="42" y2="40" stroke="#7A6030" stroke-width="1" opacity="0.5"/>
+  <line x1="32" y1="12" x2="50" y2="40" stroke="#7A6030" stroke-width="1" opacity="0.5"/>
+  
+  <!-- Door -->
+  <path d="M26,42 L26,54 L38,54 L38,42 Q32,36 26,42" fill="#2C1810" stroke="#1A0F0A" stroke-width="0.5"/>
+  
+  <!-- Door detail -->
+  <circle cx="35" cy="48" r="1" fill="#8B6914"/>
+</svg>

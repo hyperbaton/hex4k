@@ -15,6 +15,50 @@
 		"ocean": {
 			"name": "Ocean",
 			"description": "Deep waters impassable by land units."
+		},
+		"coast": {
+			"name": "Coast",
+			"description": "Shallow waters along the shoreline, rich in fish."
+		},
+		"river": {
+			"name": "River",
+			"description": "Flowing freshwater providing irrigation and fish."
+		},
+		"lake": {
+			"name": "Lake",
+			"description": "Still freshwater bodies supporting diverse wildlife."
+		},
+		"plains": {
+			"name": "Plains",
+			"description": "Open flatlands suitable for settlement and grazing."
+		},
+		"beach": {
+			"name": "Beach",
+			"description": "Sandy shores between land and sea."
+		},
+		"floodplains": {
+			"name": "Floodplains",
+			"description": "Fertile lowlands enriched by seasonal flooding, ideal for agriculture."
+		},
+		"meadow": {
+			"name": "Meadow",
+			"description": "Open grasslands with wildflowers, good for grazing."
+		},
+		"rolling_hills": {
+			"name": "Rolling Hills",
+			"description": "Gentle slopes suitable for herding and light farming."
+		},
+		"sharp_hills": {
+			"name": "Sharp Hills",
+			"description": "Rugged terrain with steep slopes, good for grazing hardy livestock."
+		},
+		"steppe": {
+			"name": "Steppe",
+			"description": "Vast semi-arid grasslands ideal for pastoral herding."
+		},
+		"savannah": {
+			"name": "Savannah",
+			"description": "Tropical grasslands with scattered trees, supporting diverse wildlife."
 		}
 	},
 	"resource": {
@@ -29,6 +73,10 @@
 		"stone": {
 			"name": "Stone",
 			"description": "Durable building material for advanced structures."
+		},
+		"tools": {
+			"name": "Tools",
+			"description": "Crafted implements that improve work efficiency and enable new activities."
 		},
 		"population": {
 			"name": "Population",
@@ -54,6 +102,46 @@
 		}
 	},
 	"building": {
+		"longhouse": {
+			"name": "Longhouse",
+			"description": "A large communal dwelling serving as the center of your settlement. Provides basic storage, housing, and administration."
+		},
+		"hut": {
+			"name": "Hut",
+			"description": "A simple thatched dwelling providing basic shelter for a small family."
+		},
+		"hunters_lodge": {
+			"name": "Hunter's Lodge",
+			"description": "A base for hunting expeditions into nearby forests. Produces food from game and contributes to animal husbandry knowledge."
+		},
+		"fishing_hut": {
+			"name": "Fishing Hut",
+			"description": "A small shelter near water for fishermen. Harvests fish from nearby coasts, rivers, and lakes."
+		},
+		"gathering_hut": {
+			"name": "Gathering Hut",
+			"description": "A shelter for foragers who collect wild plants, berries, and wood from the surrounding land."
+		},
+		"food_cache": {
+			"name": "Food Cache",
+			"description": "A protected storage pit for preserving food supplies. Reduces spoilage through cool, dry conditions."
+		},
+		"cleared_field": {
+			"name": "Cleared Field",
+			"description": "An organized area for storing wood, stone, and tools. Keeps materials dry and accessible."
+		},
+		"flint_knapper": {
+			"name": "Flint Knapper",
+			"description": "A workshop where skilled craftsmen shape stone into useful tools through precise flaking techniques."
+		},
+		"cultivated_plot": {
+			"name": "Cultivated Plot",
+			"description": "Tilled soil prepared for planting crops. More productive than foraging, especially near water sources."
+		},
+		"herding_grounds": {
+			"name": "Herding Grounds",
+			"description": "Fenced pastures for raising livestock. Best suited for hilly terrain with good grazing."
+		},
 		"city_center": {
 			"name": "City Center",
 			"description": "The heart of your city, providing basic resources and administration."
@@ -87,9 +175,45 @@
 		"mining": {
 			"name": "Mining",
 			"description": "Extracting valuable minerals from the earth."
+		},
+		"animal_husbandry": {
+			"name": "Animal Husbandry",
+			"description": "The breeding and care of domesticated animals."
+		},
+		"gathering_and_crafting": {
+			"name": "Gathering & Crafting",
+			"description": "Skills in collecting natural resources and crafting useful items."
 		}
 	},
 	"milestone": {
+		"timber_framing": {
+			"name": "Timber Framing",
+			"description": "Wooden structural frameworks enabling larger and more durable buildings."
+		},
+		"pack_animal_domestication": {
+			"name": "Pack Animal Domestication",
+			"description": "Taming animals to carry loads and assist in hunting."
+		},
+		"foraging": {
+			"name": "Foraging",
+			"description": "Systematic knowledge of gathering edible plants and useful materials from the wild."
+		},
+		"natural_shelter": {
+			"name": "Natural Shelter",
+			"description": "Using caves and natural formations for protection and storage."
+		},
+		"lithic_reduction": {
+			"name": "Lithic Reduction",
+			"description": "Shaping stone through controlled flaking techniques to create tools."
+		},
+		"digging_sticks": {
+			"name": "Digging Sticks",
+			"description": "Simple pointed tools for breaking soil and planting seeds."
+		},
+		"livestock_domestication": {
+			"name": "Livestock Domestication",
+			"description": "Raising animals for food, milk, and other products."
+		},
 		"agriculture_1": {
 			"name": "Plant Domestication",
 			"description": "Understanding which plants can be cultivated. Unlocks basic farms."
