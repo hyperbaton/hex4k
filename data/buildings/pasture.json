@@ -2,19 +2,19 @@
 	"category": "production",
 	"construction": {
 		"initial_cost": {
-			"wood": 8,
-			"tools": 2
+			"wood": 15,
+			"tools": 3
 		},
 		"cost_per_turn": {},
-		"total_turns": 2
+		"total_turns": 3
 	},
 	"admin_cost": {
-		"base": 0.8,
+		"base": 1.2,
 		"distance_multiplier": 0.1
 	},
 	"requirements": {
-		"terrain_types": ["plains", "meadow", "floodplains", "grassland"],
-		"terrain_exclude": ["ocean", "mountain", "lake", "forest"],
+		"terrain_types": ["rolling_hills", "sharp_hills", "steppe", "meadow"],
+		"terrain_exclude": ["ocean", "mountain", "lake", "forest", "marsh"],
 		"required_modifiers": [],
 		"required_adjacent": {
 			"building_ids": [],
@@ -28,18 +28,18 @@
 			"min_distance": 0
 		},
 		"requires_city_center_connection": true,
-		"milestones_required": ["digging_sticks"]
+		"milestones_required": ["pastoral_management"]
 	},
 	"production": {
 		"per_turn_produces": {
-			"food": 5
+			"food": 6
 		},
 		"per_turn_consumes": {
 			"population": 1,
 			"tools": 0.5
 		},
 		"branch_specific_research": {
-			"agriculture": 0.15
+			"animal_husbandry": 0.25
 		}
 	},
 	"per_turn_penalty": {},
@@ -62,8 +62,11 @@
 		}
 	],
 	"terrain_bonuses": {
-		"floodplains": {
-			"food": 2
+		"steppe": {
+			"food": 1.5
+		},
+		"meadow": {
+			"food": 1
 		}
 	},
 	"provides": {
@@ -75,17 +78,18 @@
 	},
 	"on_construction_complete": {
 		"research": {
-			"agriculture": 1.0
+			"animal_husbandry": 2.0
 		}
 	},
 	"disabled_admin_cost": 0.0,
-	"upgrades_to": "crop_field",
+	"upgrades_from": "herding_grounds",
+	"upgrades_to": null,
 	"max_per_city": 0,
 	"can_units_stand": false,
 	"has_orientation": false,
 	"is_city_center": false,
 	"visual": {
-		"sprite": "res://assets/buildings/cultivated_plot.svg",
-		"color": "#9ACD32"
+		"sprite": "res://assets/buildings/pasture.svg",
+		"color": "#8FBC8F"
 	}
 }

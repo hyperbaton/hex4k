@@ -1,20 +1,21 @@
 {
-	"category": "production",
+	"category": "civic",
 	"construction": {
 		"initial_cost": {
-			"wood": 8,
-			"tools": 2
+			"wood": 18,
+			"stone": 8,
+			"fiber": 5
 		},
 		"cost_per_turn": {},
-		"total_turns": 2
+		"total_turns": 3
 	},
 	"admin_cost": {
-		"base": 0.8,
-		"distance_multiplier": 0.1
+		"base": 1.0,
+		"distance_multiplier": 0.05
 	},
 	"requirements": {
-		"terrain_types": ["plains", "meadow", "floodplains", "grassland"],
-		"terrain_exclude": ["ocean", "mountain", "lake", "forest"],
+		"terrain_types": ["grassland", "plains", "rolling_hills", "meadow"],
+		"terrain_exclude": ["ocean", "mountain", "lake", "marsh"],
 		"required_modifiers": [],
 		"required_adjacent": {
 			"building_ids": [],
@@ -28,64 +29,59 @@
 			"min_distance": 0
 		},
 		"requires_city_center_connection": true,
-		"milestones_required": ["digging_sticks"]
+		"milestones_required": ["oral_tradition"]
 	},
 	"production": {
 		"per_turn_produces": {
-			"food": 5
+			"research": 3
 		},
 		"per_turn_consumes": {
-			"population": 1,
-			"tools": 0.5
+			"food": 1,
+			"wood": 0.5,
+			"clothing": 0.5,
+			"honey": 0.3
 		},
 		"branch_specific_research": {
-			"agriculture": 0.15
+			"oral_tradition": 0.3,
+			"philosophy": 0.2
 		}
 	},
 	"per_turn_penalty": {},
 	"adjacency_bonuses": [
 		{
-			"source_type": "terrain",
-			"source_id": "river",
-			"radius": 1,
+			"source_type": "building",
+			"source_id": "storytellers_fire",
+			"radius": 2,
 			"yields": {
-				"food": 1
-			}
-		},
-		{
-			"source_type": "terrain",
-			"source_id": "lake",
-			"radius": 1,
-			"yields": {
-				"food": 1
+				"research": 0.5
 			}
 		}
 	],
-	"terrain_bonuses": {
-		"floodplains": {
-			"food": 2
-		}
-	},
+	"terrain_bonuses": {},
 	"provides": {
-		"population_storage": 0,
-		"resource_storage": {},
+		"population_storage": 2,
+		"resource_storage": {
+			"clothing": 10,
+			"honey": 10
+		},
 		"admin_capacity": 0,
 		"caravan_capacity": 0,
 		"decay_reduction": {}
 	},
 	"on_construction_complete": {
 		"research": {
-			"agriculture": 1.0
+			"oral_tradition": 2.0,
+			"philosophy": 1.0
 		}
 	},
 	"disabled_admin_cost": 0.0,
-	"upgrades_to": "crop_field",
-	"max_per_city": 0,
+	"upgrades_to": null,
+	"max_per_city": 1,
 	"can_units_stand": false,
 	"has_orientation": false,
 	"is_city_center": false,
 	"visual": {
-		"sprite": "res://assets/buildings/cultivated_plot.svg",
-		"color": "#9ACD32"
+		"sprite": "res://assets/buildings/elders_dwelling.svg",
+		"color": "#8B7355"
 	}
 }

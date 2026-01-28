@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Reed Marsh - managed marsh area for fiber harvesting -->
+  <defs>
+    <linearGradient id="waterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4A7C8C"/>
+      <stop offset="100%" style="stop-color:#2E5A5C"/>
+    </linearGradient>
+    <linearGradient id="reedGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#6B8E23"/>
+      <stop offset="50%" style="stop-color:#9ACD32"/>
+      <stop offset="100%" style="stop-color:#D2B48C"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Marsh water base -->
+  <rect x="4" y="30" width="56" height="30" rx="3" fill="url(#waterGrad)" stroke="#2E5A5C" stroke-width="1"/>
+  
+  <!-- Water ripples -->
+  <path d="M10,45 Q15,43 20,45 Q25,47 30,45" stroke="#5A9AA0" stroke-width="0.8" fill="none" opacity="0.6"/>
+  <path d="M35,50 Q40,48 45,50 Q50,52 55,50" stroke="#5A9AA0" stroke-width="0.8" fill="none" opacity="0.6"/>
+  
+  <!-- Reed clusters - tall -->
+  <g transform="translate(8, 0)">
+    <line x1="4" y1="50" x2="4" y2="18" stroke="#6B8E23" stroke-width="2"/>
+    <line x1="8" y1="50" x2="8" y2="14" stroke="#7CB342" stroke-width="2"/>
+    <line x1="12" y1="50" x2="12" y2="20" stroke="#6B8E23" stroke-width="2"/>
+    <!-- Cattail heads -->
+    <ellipse cx="8" cy="12" rx="2" ry="5" fill="#8B4513"/>
+  </g>
+  
+  <g transform="translate(22, 0)">
+    <line x1="4" y1="50" x2="4" y2="16" stroke="#7CB342" stroke-width="2"/>
+    <line x1="8" y1="50" x2="8" y2="12" stroke="#6B8E23" stroke-width="2"/>
+    <line x1="12" y1="50" x2="12" y2="18" stroke="#7CB342" stroke-width="2"/>
+    <ellipse cx="8" cy="10" rx="2" ry="5" fill="#8B4513"/>
+  </g>
+  
+  <g transform="translate(38, 0)">
+    <line x1="4" y1="50" x2="4" y2="20" stroke="#6B8E23" stroke-width="2"/>
+    <line x1="8" y1="50" x2="8" y2="16" stroke="#7CB342" stroke-width="2"/>
+    <line x1="12" y1="50" x2="12" y2="22" stroke="#6B8E23" stroke-width="2"/>
+    <ellipse cx="8" cy="14" rx="2" ry="5" fill="#8B4513"/>
+  </g>
+  
+  <!-- Shorter reeds in background -->
+  <line x1="6" y1="50" x2="6" y2="30" stroke="#558B2F" stroke-width="1.5" opacity="0.7"/>
+  <line x1="58" y1="50" x2="58" y2="32" stroke="#558B2F" stroke-width="1.5" opacity="0.7"/>
+  <line x1="54" y1="50" x2="54" y2="28" stroke="#6B8E23" stroke-width="1.5" opacity="0.7"/>
+  
+  <!-- Harvested reed bundle on bank -->
+  <g transform="translate(2, 52)">
+    <path d="M0,6 L4,0 L8,0 L12,6 Z" fill="#C4A67A" stroke="#8B7355" stroke-width="0.5"/>
+    <line x1="4" y1="1" x2="4" y2="5" stroke="#D2B48C" stroke-width="1"/>
+    <line x1="6" y1="1" x2="6" y2="5" stroke="#D2B48C" stroke-width="1"/>
+    <line x1="8" y1="1" x2="8" y2="5" stroke="#D2B48C" stroke-width="1"/>
+    <!-- Binding -->
+    <ellipse cx="6" cy="3" rx="4" ry="1" fill="none" stroke="#8B6914" stroke-width="1"/>
+  </g>
+  
+  <!-- Harvesting tool (reed cutter) -->
+  <line x1="52" y1="56" x2="58" y2="40" stroke="#8B6914" stroke-width="2" stroke-linecap="round"/>
+  <path d="M58,38 L62,36 L60,42 Z" fill="#708090" stroke="#404040" stroke-width="0.5"/>
+  
+  <!-- Wading path markers -->
+  <rect x="26" y="54" width="4" height="6" rx="1" fill="#6B5230" opacity="0.6"/>
+  <rect x="34" y="54" width="4" height="6" rx="1" fill="#6B5230" opacity="0.6"/>
+  
+  <!-- Lily pads -->
+  <ellipse cx="18" cy="52" rx="3" ry="2" fill="#228B22" opacity="0.7"/>
+  <ellipse cx="48" cy="48" rx="2.5" ry="1.5" fill="#228B22" opacity="0.7"/>
+</svg>

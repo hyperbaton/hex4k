@@ -1,0 +1,66 @@
+{
+	"category": "storage",
+	"construction": {
+		"initial_cost": {
+			"wood": 15,
+			"stone": 8
+		},
+		"cost_per_turn": {},
+		"total_turns": 3
+	},
+	"admin_cost": {
+		"base": 0.5,
+		"distance_multiplier": 0.05
+	},
+	"requirements": {
+		"terrain_types": ["grassland", "plains", "forest", "rolling_hills"],
+		"terrain_exclude": ["ocean", "mountain", "lake", "marsh"],
+		"required_modifiers": [],
+		"required_adjacent": {
+			"building_ids": [],
+			"building_categories": [],
+			"min_count": 0,
+			"max_distance": 1
+		},
+		"prohibited_adjacent": {
+			"building_ids": [],
+			"building_categories": [],
+			"min_distance": 0
+		},
+		"requires_city_center_connection": true,
+		"milestones_required": ["seed_selection"]
+	},
+	"production": {
+		"per_turn_produces": {},
+		"per_turn_consumes": {},
+		"branch_specific_research": {}
+	},
+	"per_turn_penalty": {},
+	"adjacency_bonuses": [],
+	"provides": {
+		"population_storage": 0,
+		"resource_storage": {
+			"food": 80
+		},
+		"admin_capacity": 0,
+		"caravan_capacity": 0,
+		"decay_reduction": {
+			"food": 0.35
+		}
+	},
+	"on_construction_complete": {
+		"research": {
+			"agriculture": 1.5
+		}
+	},
+	"disabled_admin_cost": 0.0,
+	"upgrades_to": null,
+	"max_per_city": 0,
+	"can_units_stand": false,
+	"has_orientation": false,
+	"is_city_center": false,
+	"visual": {
+		"sprite": "res://assets/buildings/granary.svg",
+		"color": "#D4A574"
+	}
+}

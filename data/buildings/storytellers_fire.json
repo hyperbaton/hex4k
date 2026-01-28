@@ -1,20 +1,20 @@
 {
-	"category": "production",
+	"category": "civic",
 	"construction": {
 		"initial_cost": {
-			"wood": 8,
-			"tools": 2
+			"wood": 12,
+			"stone": 4
 		},
 		"cost_per_turn": {},
 		"total_turns": 2
 	},
 	"admin_cost": {
-		"base": 0.8,
-		"distance_multiplier": 0.1
+		"base": 0.6,
+		"distance_multiplier": 0.05
 	},
 	"requirements": {
-		"terrain_types": ["plains", "meadow", "floodplains", "grassland"],
-		"terrain_exclude": ["ocean", "mountain", "lake", "forest"],
+		"terrain_types": ["grassland", "plains", "forest", "rolling_hills", "meadow"],
+		"terrain_exclude": ["ocean", "mountain", "lake", "marsh"],
 		"required_modifiers": [],
 		"required_adjacent": {
 			"building_ids": [],
@@ -28,44 +28,31 @@
 			"min_distance": 0
 		},
 		"requires_city_center_connection": true,
-		"milestones_required": ["digging_sticks"]
+		"milestones_required": ["fire_mastery"]
 	},
 	"production": {
 		"per_turn_produces": {
-			"food": 5
+			"research": 1.5
 		},
 		"per_turn_consumes": {
-			"population": 1,
-			"tools": 0.5
+			"wood": 0.5
 		},
 		"branch_specific_research": {
-			"agriculture": 0.15
+			"oral_tradition": 0.2
 		}
 	},
 	"per_turn_penalty": {},
 	"adjacency_bonuses": [
 		{
-			"source_type": "terrain",
-			"source_id": "river",
+			"source_type": "building_category",
+			"source_id": "housing",
 			"radius": 1,
 			"yields": {
-				"food": 1
-			}
-		},
-		{
-			"source_type": "terrain",
-			"source_id": "lake",
-			"radius": 1,
-			"yields": {
-				"food": 1
+				"research": 0.3
 			}
 		}
 	],
-	"terrain_bonuses": {
-		"floodplains": {
-			"food": 2
-		}
-	},
+	"terrain_bonuses": {},
 	"provides": {
 		"population_storage": 0,
 		"resource_storage": {},
@@ -75,17 +62,17 @@
 	},
 	"on_construction_complete": {
 		"research": {
-			"agriculture": 1.0
+			"oral_tradition": 1.0
 		}
 	},
 	"disabled_admin_cost": 0.0,
-	"upgrades_to": "crop_field",
-	"max_per_city": 0,
+	"upgrades_to": null,
+	"max_per_city": 1,
 	"can_units_stand": false,
 	"has_orientation": false,
 	"is_city_center": false,
 	"visual": {
-		"sprite": "res://assets/buildings/cultivated_plot.svg",
-		"color": "#9ACD32"
+		"sprite": "res://assets/buildings/storytellers_fire.svg",
+		"color": "#FF6B35"
 	}
 }

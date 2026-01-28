@@ -2,14 +2,14 @@
 	"category": "production",
 	"construction": {
 		"initial_cost": {
-			"wood": 8,
-			"tools": 2
+			"wood": 12,
+			"tools": 5
 		},
 		"cost_per_turn": {},
-		"total_turns": 2
+		"total_turns": 3
 	},
 	"admin_cost": {
-		"base": 0.8,
+		"base": 1.0,
 		"distance_multiplier": 0.1
 	},
 	"requirements": {
@@ -28,18 +28,18 @@
 			"min_distance": 0
 		},
 		"requires_city_center_connection": true,
-		"milestones_required": ["digging_sticks"]
+		"milestones_required": ["soil_tillage"]
 	},
 	"production": {
 		"per_turn_produces": {
-			"food": 5
+			"food": 8
 		},
 		"per_turn_consumes": {
 			"population": 1,
-			"tools": 0.5
+			"tools": 1
 		},
 		"branch_specific_research": {
-			"agriculture": 0.15
+			"agriculture": 0.25
 		}
 	},
 	"per_turn_penalty": {},
@@ -49,7 +49,7 @@
 			"source_id": "river",
 			"radius": 1,
 			"yields": {
-				"food": 1
+				"food": 1.5
 			}
 		},
 		{
@@ -57,13 +57,13 @@
 			"source_id": "lake",
 			"radius": 1,
 			"yields": {
-				"food": 1
+				"food": 1.5
 			}
 		}
 	],
 	"terrain_bonuses": {
 		"floodplains": {
-			"food": 2
+			"food": 3
 		}
 	},
 	"provides": {
@@ -75,17 +75,18 @@
 	},
 	"on_construction_complete": {
 		"research": {
-			"agriculture": 1.0
+			"agriculture": 2.0
 		}
 	},
 	"disabled_admin_cost": 0.0,
-	"upgrades_to": "crop_field",
+	"upgrades_from": "cultivated_plot",
+	"upgrades_to": null,
 	"max_per_city": 0,
 	"can_units_stand": false,
 	"has_orientation": false,
 	"is_city_center": false,
 	"visual": {
-		"sprite": "res://assets/buildings/cultivated_plot.svg",
-		"color": "#9ACD32"
+		"sprite": "res://assets/buildings/crop_field.svg",
+		"color": "#7CB342"
 	}
 }

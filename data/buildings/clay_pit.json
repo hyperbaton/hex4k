@@ -2,20 +2,20 @@
 	"category": "production",
 	"construction": {
 		"initial_cost": {
-			"wood": 8,
+			"wood": 6,
 			"tools": 2
 		},
 		"cost_per_turn": {},
 		"total_turns": 2
 	},
 	"admin_cost": {
-		"base": 0.8,
+		"base": 0.7,
 		"distance_multiplier": 0.1
 	},
 	"requirements": {
-		"terrain_types": ["plains", "meadow", "floodplains", "grassland"],
+		"terrain_types": ["grassland", "plains", "floodplains", "rolling_hills"],
 		"terrain_exclude": ["ocean", "mountain", "lake", "forest"],
-		"required_modifiers": [],
+		"required_modifiers": ["clay_deposit"],
 		"required_adjacent": {
 			"building_ids": [],
 			"building_categories": [],
@@ -28,18 +28,18 @@
 			"min_distance": 0
 		},
 		"requires_city_center_connection": true,
-		"milestones_required": ["digging_sticks"]
+		"milestones_required": ["pottery_kiln"]
 	},
 	"production": {
 		"per_turn_produces": {
-			"food": 5
+			"clay": 3
 		},
 		"per_turn_consumes": {
 			"population": 1,
-			"tools": 0.5
+			"tools": 0.3
 		},
 		"branch_specific_research": {
-			"agriculture": 0.15
+			"gathering_and_crafting": 0.1
 		}
 	},
 	"per_turn_penalty": {},
@@ -49,43 +49,40 @@
 			"source_id": "river",
 			"radius": 1,
 			"yields": {
-				"food": 1
-			}
-		},
-		{
-			"source_type": "terrain",
-			"source_id": "lake",
-			"radius": 1,
-			"yields": {
-				"food": 1
+				"clay": 0.5
 			}
 		}
 	],
 	"terrain_bonuses": {
 		"floodplains": {
-			"food": 2
+			"clay": 1
 		}
 	},
 	"provides": {
 		"population_storage": 0,
-		"resource_storage": {},
+		"resource_storage": {
+			"clay": 30
+		},
 		"admin_capacity": 0,
 		"caravan_capacity": 0,
 		"decay_reduction": {}
 	},
 	"on_construction_complete": {
+		"resources": {
+			"clay": 5
+		},
 		"research": {
-			"agriculture": 1.0
+			"gathering_and_crafting": 1.0
 		}
 	},
 	"disabled_admin_cost": 0.0,
-	"upgrades_to": "crop_field",
+	"upgrades_to": null,
 	"max_per_city": 0,
 	"can_units_stand": false,
 	"has_orientation": false,
 	"is_city_center": false,
 	"visual": {
-		"sprite": "res://assets/buildings/cultivated_plot.svg",
-		"color": "#9ACD32"
+		"sprite": "res://assets/buildings/clay_pit.svg",
+		"color": "#CD853F"
 	}
 }

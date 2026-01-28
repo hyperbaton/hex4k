@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Weaver - workshop with loom for cloth production -->
+  <defs>
+    <linearGradient id="weaverWoodGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#A0845C"/>
+      <stop offset="100%" style="stop-color:#6B5230"/>
+    </linearGradient>
+    <linearGradient id="weaverThatchGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#C4A67A"/>
+      <stop offset="100%" style="stop-color:#8B7355"/>
+    </linearGradient>
+    <linearGradient id="clothGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F5DEB3"/>
+      <stop offset="100%" style="stop-color:#DAA520"/>
+    </linearGradient>
+    <pattern id="weaveTexture" width="3" height="3" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="3" y2="0" stroke="#C4A67A" stroke-width="0.5"/>
+      <line x1="0" y1="1.5" x2="3" y2="1.5" stroke="#C4A67A" stroke-width="0.5"/>
+      <line x1="0" y1="0" x2="0" y2="3" stroke="#B8956C" stroke-width="0.3"/>
+      <line x1="1.5" y1="0" x2="1.5" y2="3" stroke="#B8956C" stroke-width="0.3"/>
+    </pattern>
+  </defs>
+  
+  <!-- Workshop structure -->
+  <rect x="6" y="32" width="52" height="26" rx="2" fill="url(#weaverWoodGrad)" stroke="#4A3520" stroke-width="1"/>
+  
+  <!-- Thatched roof -->
+  <path d="M2,32 L32,12 L62,32 Z" fill="url(#weaverThatchGrad)" stroke="#6B5230" stroke-width="1"/>
+  <!-- Roof texture -->
+  <line x1="18" y1="28" x2="24" y2="20" stroke="#A0845C" stroke-width="0.5" opacity="0.5"/>
+  <line x1="32" y1="26" x2="32" y2="14" stroke="#A0845C" stroke-width="0.5" opacity="0.5"/>
+  <line x1="46" y1="28" x2="40" y2="20" stroke="#A0845C" stroke-width="0.5" opacity="0.5"/>
+  
+  <!-- Open front (workshop style) -->
+  <rect x="12" y="36" width="40" height="22" fill="#3D2B1F"/>
+  
+  <!-- Vertical loom frame -->
+  <rect x="16" y="38" width="2" height="18" fill="#6B5230"/>
+  <rect x="44" y="38" width="2" height="18" fill="#6B5230"/>
+  <rect x="16" y="38" width="30" height="2" fill="#6B5230"/>
+  <rect x="16" y="52" width="30" height="2" fill="#6B5230"/>
+  
+  <!-- Warp threads on loom -->
+  <line x1="20" y1="40" x2="20" y2="52" stroke="#D2B48C" stroke-width="0.8"/>
+  <line x1="24" y1="40" x2="24" y2="52" stroke="#D2B48C" stroke-width="0.8"/>
+  <line x1="28" y1="40" x2="28" y2="52" stroke="#D2B48C" stroke-width="0.8"/>
+  <line x1="32" y1="40" x2="32" y2="52" stroke="#D2B48C" stroke-width="0.8"/>
+  <line x1="36" y1="40" x2="36" y2="52" stroke="#D2B48C" stroke-width="0.8"/>
+  <line x1="40" y1="40" x2="40" y2="52" stroke="#D2B48C" stroke-width="0.8"/>
+  
+  <!-- Weft (horizontal weave in progress) -->
+  <rect x="19" y="44" width="24" height="6" fill="url(#weaveTexture)" stroke="none"/>
+  
+  <!-- Heddle bar -->
+  <rect x="18" y="42" width="26" height="1.5" fill="#8B7355" rx="0.5"/>
+  
+  <!-- Shuttle -->
+  <ellipse cx="38" cy="47" rx="4" ry="1" fill="#A0845C" stroke="#6B5230" stroke-width="0.5"/>
+  <line x1="34" y1="47" x2="42" y2="47" stroke="#D2B48C" stroke-width="0.5"/>
+  
+  <!-- Fiber bundles on ground -->
+  <g transform="translate(50, 50)">
+    <ellipse cx="4" cy="4" rx="4" ry="3" fill="#D2B48C" stroke="#B8956C" stroke-width="0.5"/>
+    <line x1="2" y1="2" x2="2" y2="6" stroke="#C4A67A" stroke-width="0.5"/>
+    <line x1="4" y1="1" x2="4" y2="7" stroke="#C4A67A" stroke-width="0.5"/>
+    <line x1="6" y1="2" x2="6" y2="6" stroke="#C4A67A" stroke-width="0.5"/>
+  </g>
+  
+  <!-- Finished cloth roll -->
+  <g transform="translate(4, 48)">
+    <ellipse cx="3" cy="5" rx="3" ry="5" fill="url(#clothGrad)" stroke="#B8956C" stroke-width="0.5"/>
+    <ellipse cx="3" cy="5" rx="1" ry="3" fill="#6B5230"/>
+  </g>
+  
+  <!-- Spindle whorl nearby -->
+  <circle cx="8" cy="44" r="2" fill="#8B7355" stroke="#6B5230" stroke-width="0.5"/>
+  <line x1="8" y1="40" x2="8" y2="48" stroke="#6B5230" stroke-width="1"/>
+  <path d="M6,41 Q8,40 10,41" stroke="#D2B48C" stroke-width="1" fill="none"/>
+  
+  <!-- Support post -->
+  <rect x="30" y="28" width="4" height="6" fill="#6B5230"/>
+</svg>

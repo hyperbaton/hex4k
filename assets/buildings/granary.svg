@@ -1,29 +1,58 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-  <!-- Granary - Storage building for grain -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Granary - elevated grain storage structure -->
   <defs>
-    <linearGradient id="granary_wall" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#E8D8B0"/>
-      <stop offset="100%" style="stop-color:#C8B890"/>
+    <linearGradient id="woodGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#A0845C"/>
+      <stop offset="100%" style="stop-color:#6B5230"/>
     </linearGradient>
-    <linearGradient id="granary_roof" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#D0A050"/>
-      <stop offset="100%" style="stop-color:#A07830"/>
+    <linearGradient id="thatchGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#D4A574"/>
+      <stop offset="100%" style="stop-color:#A67B4A"/>
+    </linearGradient>
+    <linearGradient id="basketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C4A67A"/>
+      <stop offset="100%" style="stop-color:#8B7355"/>
     </linearGradient>
   </defs>
-  <!-- Main building -->
-  <rect x="10" y="30" width="44" height="30" fill="url(#granary_wall)" stroke="#A09060" stroke-width="1"/>
-  <!-- Roof -->
-  <polygon points="6,30 32,10 58,30" fill="url(#granary_roof)" stroke="#806020" stroke-width="1"/>
-  <!-- Roof texture (thatched look) -->
-  <path d="M12,28 L20,18 M22,28 L28,20 M32,28 L32,14 M42,28 L36,20 M52,28 L44,18" stroke="#B08840" stroke-width="1" opacity="0.6"/>
-  <!-- Large door -->
-  <rect x="22" y="40" width="20" height="20" fill="#705030" stroke="#503020" stroke-width="1"/>
-  <!-- Door cross beams -->
-  <line x1="22" y1="50" x2="42" y2="50" stroke="#503020" stroke-width="2"/>
-  <line x1="32" y1="40" x2="32" y2="60" stroke="#503020" stroke-width="2"/>
-  <!-- Small window/vent -->
-  <rect x="28" y="32" width="8" height="6" fill="#404040" stroke="#303030" stroke-width="1"/>
-  <!-- Grain sacks visible -->
-  <ellipse cx="15" cy="55" rx="4" ry="5" fill="#C8B070" stroke="#A08850" stroke-width="1"/>
-  <ellipse cx="49" cy="55" rx="4" ry="5" fill="#C8B070" stroke="#A08850" stroke-width="1"/>
+  
+  <!-- Support posts (elevated to prevent moisture/pests) -->
+  <rect x="14" y="40" width="4" height="18" fill="url(#woodGrad)" stroke="#4A3520" stroke-width="0.5"/>
+  <rect x="26" y="40" width="4" height="18" fill="url(#woodGrad)" stroke="#4A3520" stroke-width="0.5"/>
+  <rect x="34" y="40" width="4" height="18" fill="url(#woodGrad)" stroke="#4A3520" stroke-width="0.5"/>
+  <rect x="46" y="40" width="4" height="18" fill="url(#woodGrad)" stroke="#4A3520" stroke-width="0.5"/>
+  
+  <!-- Platform -->
+  <rect x="10" y="36" width="44" height="6" fill="url(#woodGrad)" stroke="#4A3520" stroke-width="1"/>
+  <line x1="10" y1="39" x2="54" y2="39" stroke="#4A3520" stroke-width="0.5" opacity="0.5"/>
+  
+  <!-- Storage bin/basket body -->
+  <path d="M12,36 L12,18 Q32,14 52,18 L52,36 Z" fill="url(#basketGrad)" stroke="#6B5230" stroke-width="1"/>
+  
+  <!-- Woven texture on basket -->
+  <line x1="12" y1="22" x2="52" y2="22" stroke="#8B7355" stroke-width="0.5" opacity="0.6"/>
+  <line x1="12" y1="28" x2="52" y2="28" stroke="#8B7355" stroke-width="0.5" opacity="0.6"/>
+  <line x1="12" y1="34" x2="52" y2="34" stroke="#8B7355" stroke-width="0.5" opacity="0.6"/>
+  <line x1="22" y1="18" x2="22" y2="36" stroke="#8B7355" stroke-width="0.5" opacity="0.5"/>
+  <line x1="32" y1="16" x2="32" y2="36" stroke="#8B7355" stroke-width="0.5" opacity="0.5"/>
+  <line x1="42" y1="18" x2="42" y2="36" stroke="#8B7355" stroke-width="0.5" opacity="0.5"/>
+  
+  <!-- Thatched roof -->
+  <path d="M8,18 L32,6 L56,18 L52,20 L32,10 L12,20 Z" fill="url(#thatchGrad)" stroke="#8B6914" stroke-width="1"/>
+  
+  <!-- Thatch texture -->
+  <line x1="20" y1="16" x2="24" y2="12" stroke="#C4A67A" stroke-width="0.5"/>
+  <line x1="32" y1="14" x2="32" y2="8" stroke="#C4A67A" stroke-width="0.5"/>
+  <line x1="44" y1="16" x2="40" y2="12" stroke="#C4A67A" stroke-width="0.5"/>
+  
+  <!-- Grain peeking out -->
+  <circle cx="26" cy="24" r="2" fill="#F4D03F" opacity="0.7"/>
+  <circle cx="34" cy="22" r="2.5" fill="#F4D03F" opacity="0.7"/>
+  <circle cx="42" cy="25" r="2" fill="#F4D03F" opacity="0.7"/>
+  
+  <!-- Ladder -->
+  <line x1="56" y1="56" x2="50" y2="36" stroke="#6B5230" stroke-width="2" stroke-linecap="round"/>
+  <line x1="60" y1="56" x2="54" y2="36" stroke="#6B5230" stroke-width="2" stroke-linecap="round"/>
+  <line x1="56.5" y1="52" x2="59.5" y2="52" stroke="#6B5230" stroke-width="1.5"/>
+  <line x1="55" y1="46" x2="58" y2="46" stroke="#6B5230" stroke-width="1.5"/>
+  <line x1="53.5" y1="40" x2="56.5" y2="40" stroke="#6B5230" stroke-width="1.5"/>
 </svg>

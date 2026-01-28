@@ -2,19 +2,18 @@
 	"category": "production",
 	"construction": {
 		"initial_cost": {
-			"wood": 8,
-			"tools": 2
+			"wood": 6
 		},
 		"cost_per_turn": {},
 		"total_turns": 2
 	},
 	"admin_cost": {
-		"base": 0.8,
-		"distance_multiplier": 0.1
+		"base": 0.5,
+		"distance_multiplier": 0.08
 	},
 	"requirements": {
-		"terrain_types": ["plains", "meadow", "floodplains", "grassland"],
-		"terrain_exclude": ["ocean", "mountain", "lake", "forest"],
+		"terrain_types": ["marsh"],
+		"terrain_exclude": ["ocean", "mountain", "lake"],
 		"required_modifiers": [],
 		"required_adjacent": {
 			"building_ids": [],
@@ -28,18 +27,17 @@
 			"min_distance": 0
 		},
 		"requires_city_center_connection": true,
-		"milestones_required": ["digging_sticks"]
+		"milestones_required": ["cordage_and_weaving"]
 	},
 	"production": {
 		"per_turn_produces": {
-			"food": 5
+			"fiber": 3
 		},
 		"per_turn_consumes": {
-			"population": 1,
-			"tools": 0.5
+			"population": 1
 		},
 		"branch_specific_research": {
-			"agriculture": 0.15
+			"gathering_and_crafting": 0.1
 		}
 	},
 	"per_turn_penalty": {},
@@ -49,7 +47,7 @@
 			"source_id": "river",
 			"radius": 1,
 			"yields": {
-				"food": 1
+				"fiber": 0.5
 			}
 		},
 		{
@@ -57,15 +55,11 @@
 			"source_id": "lake",
 			"radius": 1,
 			"yields": {
-				"food": 1
+				"fiber": 0.5
 			}
 		}
 	],
-	"terrain_bonuses": {
-		"floodplains": {
-			"food": 2
-		}
-	},
+	"terrain_bonuses": {},
 	"provides": {
 		"population_storage": 0,
 		"resource_storage": {},
@@ -74,18 +68,21 @@
 		"decay_reduction": {}
 	},
 	"on_construction_complete": {
+		"resources": {
+			"fiber": 5
+		},
 		"research": {
-			"agriculture": 1.0
+			"gathering_and_crafting": 1.0
 		}
 	},
 	"disabled_admin_cost": 0.0,
-	"upgrades_to": "crop_field",
+	"upgrades_to": null,
 	"max_per_city": 0,
 	"can_units_stand": false,
 	"has_orientation": false,
 	"is_city_center": false,
 	"visual": {
-		"sprite": "res://assets/buildings/cultivated_plot.svg",
-		"color": "#9ACD32"
+		"sprite": "res://assets/buildings/reed_marsh.svg",
+		"color": "#6B8E23"
 	}
 }

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Tribal Camp - settlement with multiple structures and central gathering area -->
+  <defs>
+    <linearGradient id="campWoodGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#A0845C"/>
+      <stop offset="100%" style="stop-color:#6B5230"/>
+    </linearGradient>
+    <linearGradient id="campThatchGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#C4A67A"/>
+      <stop offset="100%" style="stop-color:#8B7355"/>
+    </linearGradient>
+    <linearGradient id="fireGrad" x1="50%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF4500"/>
+      <stop offset="50%" style="stop-color:#FFA500"/>
+      <stop offset="100%" style="stop-color:#FFD700"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Ground/clearing -->
+  <ellipse cx="32" cy="40" rx="28" ry="18" fill="#8B7355" opacity="0.3"/>
+  
+  <!-- Main longhouse (larger) -->
+  <rect x="8" y="28" width="22" height="14" rx="1" fill="url(#campWoodGrad)" stroke="#4A3520" stroke-width="1"/>
+  <path d="M6,28 L19,18 L32,28 Z" fill="url(#campThatchGrad)" stroke="#6B5230" stroke-width="1"/>
+  <!-- Longhouse door -->
+  <rect x="16" y="34" width="6" height="8" rx="1" fill="#3D2B1F"/>
+  <!-- Longhouse smoke hole -->
+  <ellipse cx="19" cy="20" rx="2" ry="1" fill="#4A3520"/>
+  
+  <!-- Storage hut (right) -->
+  <rect x="38" y="32" width="14" height="10" rx="1" fill="url(#campWoodGrad)" stroke="#4A3520" stroke-width="1"/>
+  <path d="M36,32 L45,24 L54,32 Z" fill="url(#campThatchGrad)" stroke="#6B5230" stroke-width="1"/>
+  <rect x="43" y="36" width="4" height="6" rx="0.5" fill="#3D2B1F"/>
+  
+  <!-- Small shelter (back) -->
+  <path d="M44,16 L52,10 L60,16 L60,24 L44,24 Z" fill="url(#campThatchGrad)" stroke="#6B5230" stroke-width="1"/>
+  <rect x="50" y="18" width="4" height="6" rx="0.5" fill="#3D2B1F"/>
+  
+  <!-- Central fire pit with stones -->
+  <ellipse cx="32" cy="48" rx="6" ry="3" fill="#505050" stroke="#2D2D2D" stroke-width="1"/>
+  <ellipse cx="32" cy="47" rx="4" ry="2" fill="#2D2D2D"/>
+  <!-- Fire -->
+  <path d="M30,47 Q28,42 32,40 Q36,42 34,47" fill="url(#fireGrad)" opacity="0.9"/>
+  <path d="M31,46 Q30,44 32,42 Q34,44 33,46" fill="#FFD700"/>
+  
+  <!-- Smoke wisps -->
+  <path d="M32,38 Q30,34 32,30 Q34,26 32,22" stroke="#A0A0A0" stroke-width="1" fill="none" opacity="0.5"/>
+  <path d="M19,18 Q17,14 19,10 Q21,6 19,2" stroke="#A0A0A0" stroke-width="1" fill="none" opacity="0.4"/>
+  
+  <!-- Drying rack -->
+  <line x1="4" y1="50" x2="4" y2="58" stroke="#6B5230" stroke-width="2"/>
+  <line x1="14" y1="50" x2="14" y2="58" stroke="#6B5230" stroke-width="2"/>
+  <line x1="3" y1="52" x2="15" y2="52" stroke="#6B5230" stroke-width="1.5"/>
+  <line x1="3" y1="56" x2="15" y2="56" stroke="#6B5230" stroke-width="1.5"/>
+  <!-- Hanging items -->
+  <path d="M6,52 L6,55" stroke="#C4A67A" stroke-width="1.5"/>
+  <path d="M9,52 L9,55" stroke="#CD853F" stroke-width="1.5"/>
+  <path d="M12,52 L12,55" stroke="#C4A67A" stroke-width="1.5"/>
+  
+  <!-- Wooden posts marking boundary -->
+  <rect x="2" y="22" width="2" height="8" fill="#6B5230"/>
+  <rect x="60" y="26" width="2" height="8" fill="#6B5230"/>
+  
+  <!-- Pottery near fire -->
+  <ellipse cx="24" cy="52" rx="2.5" ry="2" fill="#CD853F" stroke="#8B4513" stroke-width="0.5"/>
+  <ellipse cx="40" cy="50" rx="2" ry="1.5" fill="#CD853F" stroke="#8B4513" stroke-width="0.5"/>
+</svg>

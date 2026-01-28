@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Elder's Dwelling - respected elder's house with ceremonial elements -->
+  <defs>
+    <linearGradient id="elderWoodGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#A0845C"/>
+      <stop offset="100%" style="stop-color:#6B5230"/>
+    </linearGradient>
+    <linearGradient id="elderThatchGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#C4A67A"/>
+      <stop offset="100%" style="stop-color:#8B7355"/>
+    </linearGradient>
+    <linearGradient id="clothGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#DAA520"/>
+      <stop offset="100%" style="stop-color:#B8860B"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Main dwelling structure - larger and more elaborate -->
+  <rect x="10" y="32" width="36" height="24" rx="2" fill="url(#elderWoodGrad)" stroke="#4A3520" stroke-width="1.5"/>
+  
+  <!-- Decorated doorframe -->
+  <rect x="22" y="40" width="12" height="16" rx="1" fill="#3D2B1F" stroke="#6B5230" stroke-width="1"/>
+  <!-- Doorframe decoration -->
+  <rect x="20" y="38" width="16" height="2" fill="#8B6914"/>
+  <line x1="22" y1="40" x2="22" y2="56" stroke="#8B6914" stroke-width="1.5"/>
+  <line x1="34" y1="40" x2="34" y2="56" stroke="#8B6914" stroke-width="1.5"/>
+  
+  <!-- Thatched roof - higher peaked -->
+  <path d="M6,32 L28,10 L50,32 Z" fill="url(#elderThatchGrad)" stroke="#6B5230" stroke-width="1"/>
+  
+  <!-- Roof texture -->
+  <line x1="16" y1="28" x2="22" y2="18" stroke="#A0845C" stroke-width="0.5"/>
+  <line x1="28" y1="24" x2="28" y2="12" stroke="#A0845C" stroke-width="0.5"/>
+  <line x1="40" y1="28" x2="34" y2="18" stroke="#A0845C" stroke-width="0.5"/>
+  
+  <!-- Smoke hole with smoke -->
+  <ellipse cx="28" cy="14" rx="3" ry="1.5" fill="#4A3520"/>
+  <path d="M28,12 Q26,6 28,2 Q30,-2 28,-6" stroke="#808080" stroke-width="1.5" fill="none" opacity="0.4"/>
+  
+  <!-- Cloth/banner hanging by door (sign of status) -->
+  <rect x="18" y="34" width="3" height="10" fill="url(#clothGrad2)" stroke="#8B6914" stroke-width="0.3"/>
+  <rect x="35" y="34" width="3" height="10" fill="url(#clothGrad2)" stroke="#8B6914" stroke-width="0.3"/>
+  
+  <!-- Ceremonial totems/posts -->
+  <rect x="4" y="24" width="3" height="32" fill="#6B5230" stroke="#4A3520" stroke-width="0.5"/>
+  <circle cx="5.5" cy="22" r="3" fill="#8B6914" stroke="#6B5230" stroke-width="0.5"/>
+  <path d="M4,26 L7,26 M4,30 L7,30 M4,34 L7,34" stroke="#4A3520" stroke-width="1"/>
+  
+  <rect x="49" y="24" width="3" height="32" fill="#6B5230" stroke="#4A3520" stroke-width="0.5"/>
+  <circle cx="50.5" cy="22" r="3" fill="#8B6914" stroke="#6B5230" stroke-width="0.5"/>
+  <path d="M49,26 L52,26 M49,30 L52,30 M49,34 L52,34" stroke="#4A3520" stroke-width="1"/>
+  
+  <!-- Window with hide covering -->
+  <rect x="12" y="38" width="6" height="6" fill="#3D2B1F"/>
+  <rect x="38" y="38" width="6" height="6" fill="#3D2B1F"/>
+  
+  <!-- Sitting area/bench outside -->
+  <rect x="52" y="48" width="10" height="3" rx="0.5" fill="#8B7355" stroke="#5C4A10" stroke-width="0.5"/>
+  <rect x="52" y="51" width="2" height="5" fill="#6B5230"/>
+  <rect x="60" y="51" width="2" height="5" fill="#6B5230"/>
+  
+  <!-- Scroll/knowledge symbols -->
+  <g transform="translate(54, 38)">
+    <rect x="0" y="0" width="6" height="8" rx="1" fill="#F5F5DC" stroke="#8B7355" stroke-width="0.5"/>
+    <line x1="1" y1="2" x2="5" y2="2" stroke="#4A3520" stroke-width="0.5"/>
+    <line x1="1" y1="4" x2="5" y2="4" stroke="#4A3520" stroke-width="0.5"/>
+    <line x1="1" y1="6" x2="4" y2="6" stroke="#4A3520" stroke-width="0.5"/>
+  </g>
+  
+  <!-- Elder figure sitting -->
+  <ellipse cx="58" cy="46" rx="3" ry="4" fill="#5C4530"/>
+  <circle cx="58" cy="40" r="2.5" fill="#5C4530"/>
+  <!-- Staff -->
+  <line x1="62" y1="36" x2="62" y2="56" stroke="#6B5230" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="62" cy="34" r="2" fill="#8B6914"/>
+  
+  <!-- Offering bowls -->
+  <ellipse cx="8" cy="54" rx="3" ry="1.5" fill="#CD853F" stroke="#8B6914" stroke-width="0.5"/>
+  <ellipse cx="8" cy="54" rx="2" ry="1" fill="#228B22" opacity="0.6"/>
+</svg>

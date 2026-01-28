@@ -1,0 +1,74 @@
+{
+	"category": "housing",
+	"construction": {
+		"initial_cost": {
+			"wood": 12,
+			"stone": 8
+		},
+		"cost_per_turn": {},
+		"total_turns": 3
+	},
+	"admin_cost": {
+		"base": 0.6,
+		"distance_multiplier": 0.08
+	},
+	"requirements": {
+		"terrain_types": ["grassland", "plains", "rolling_hills"],
+		"terrain_exclude": ["ocean", "mountain", "lake", "marsh"],
+		"required_modifiers": [],
+		"required_adjacent": {
+			"building_ids": [],
+			"building_categories": [],
+			"min_count": 0,
+			"max_distance": 1
+		},
+		"prohibited_adjacent": {
+			"building_ids": [],
+			"building_categories": [],
+			"min_distance": 0
+		},
+		"requires_city_center_connection": true,
+		"milestones_required": ["mudbrick"]
+	},
+	"production": {
+		"per_turn_produces": {
+			"population": 1.5
+		},
+		"per_turn_consumes": {
+			"food": 1.5,
+			"clothing": 0.5
+		},
+		"branch_specific_research": {
+			"construction": 0.1
+		}
+	},
+	"per_turn_penalty": {
+		"population": 2
+	},
+	"adjacency_bonuses": [],
+	"provides": {
+		"population_storage": 8,
+		"resource_storage": {
+			"food": 15,
+			"clothing": 10
+		},
+		"admin_capacity": 0,
+		"caravan_capacity": 0,
+		"decay_reduction": {}
+	},
+	"on_construction_complete": {
+		"research": {
+			"construction": 1.5
+		}
+	},
+	"disabled_admin_cost": 0.0,
+	"upgrades_to": null,
+	"max_per_city": 0,
+	"can_units_stand": false,
+	"has_orientation": false,
+	"is_city_center": false,
+	"visual": {
+		"sprite": "res://assets/buildings/pit_house.svg",
+		"color": "#CD853F"
+	}
+}

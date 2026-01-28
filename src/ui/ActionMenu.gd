@@ -654,21 +654,25 @@ func _hide_info_panel():
 		tween.tween_callback(func(): info_panel.visible = false)
 
 func _reposition_info_panel():
-	"""Position the info panel to the right of the building buttons"""
+	"""Position the info panel above the building buttons"""
 	if not info_panel:
 		return
 	
 	var viewport_size = get_viewport_rect().size
-	
-	# Position to the right side of the screen, vertically centered with the building buttons
 	var bottom_y = viewport_size.y - 80
-	var buttons_row_y = bottom_y - BUTTON_RADIUS * 6
 	
-	# Calculate position - right side with some margin
-	var panel_x = viewport_size.x - info_panel.custom_minimum_size.x - 40
-	var panel_y = buttons_row_y - info_panel.custom_minimum_size.y / 2
+	# Position panel well above the building buttons row
+	# Building buttons are at roughly bottom_y - BUTTON_RADIUS * 6
+	# Use a larger offset to ensure no overlap
+	var panel_bottom_y = bottom_y - BUTTON_RADIUS * 10
+	
+	var panel_width = info_panel.custom_minimum_size.x
+	var panel_height = info_panel.custom_minimum_size.y
+	var panel_x = (viewport_size.x - panel_width) / 2
+	var panel_y = panel_bottom_y - panel_height
 	
 	# Ensure panel stays on screen
-	panel_y = clamp(panel_y, 20, viewport_size.y - info_panel.custom_minimum_size.y - 20)
+	panel_x = clamp(panel_x, 20, viewport_size.x - panel_width - 20)
+	panel_y = clamp(panel_y, 20, viewport_size.y - panel_height - 20)
 	
 	info_panel.position = Vector2(panel_x, panel_y)

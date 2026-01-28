@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Clay Pit - excavated area for harvesting clay -->
+  <defs>
+    <linearGradient id="clayPitGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#B8956C"/>
+      <stop offset="100%" style="stop-color:#8B5A2B"/>
+    </linearGradient>
+    <linearGradient id="wetClayGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#CD853F"/>
+      <stop offset="100%" style="stop-color:#8B4513"/>
+    </linearGradient>
+    <linearGradient id="dirtGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#6B5230"/>
+      <stop offset="100%" style="stop-color:#4A3520"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Ground surface -->
+  <rect x="0" y="8" width="64" height="20" fill="url(#dirtGrad)"/>
+  
+  <!-- Excavated pit -->
+  <path d="M8,28 L8,20 Q12,16 20,16 L44,16 Q52,16 56,20 L56,28 Q52,48 44,52 L20,52 Q12,48 8,28 Z" 
+        fill="url(#clayPitGrad)" stroke="#5C4530" stroke-width="1"/>
+  
+  <!-- Pit edge/lip -->
+  <path d="M6,20 Q10,14 20,14 L44,14 Q54,14 58,20" fill="none" stroke="#4A3520" stroke-width="2"/>
+  
+  <!-- Wet clay layer at bottom -->
+  <ellipse cx="32" cy="44" rx="20" ry="8" fill="url(#wetClayGrad)" stroke="#6B4226" stroke-width="1"/>
+  
+  <!-- Water pooling -->
+  <ellipse cx="28" cy="42" rx="8" ry="3" fill="#4A7C8C" opacity="0.5"/>
+  <ellipse cx="38" cy="46" rx="6" ry="2" fill="#4A7C8C" opacity="0.4"/>
+  
+  <!-- Clay texture/layers visible on walls -->
+  <path d="M12,24 Q20,22 28,24" stroke="#CD853F" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M36,24 Q44,22 52,24" stroke="#CD853F" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M10,30 Q18,28 26,30" stroke="#B8956C" stroke-width="1.5" fill="none" opacity="0.5"/>
+  <path d="M38,30 Q46,28 54,30" stroke="#B8956C" stroke-width="1.5" fill="none" opacity="0.5"/>
+  
+  <!-- Extracted clay balls -->
+  <circle cx="48" cy="38" r="4" fill="url(#wetClayGrad)" stroke="#6B4226" stroke-width="0.5"/>
+  <circle cx="16" cy="36" r="3" fill="url(#wetClayGrad)" stroke="#6B4226" stroke-width="0.5"/>
+  
+  <!-- Digging tools -->
+  <line x1="58" y1="8" x2="54" y2="32" stroke="#6B5230" stroke-width="2.5" stroke-linecap="round"/>
+  <ellipse cx="54" cy="34" rx="4" ry="2" fill="#6B5230"/>
+  
+  <!-- Wooden bucket with clay -->
+  <path d="M4,50 L4,58 Q4,62 8,62 L16,62 Q20,62 20,58 L20,50 Q16,52 12,52 Q8,52 4,50 Z" 
+        fill="#8B7355" stroke="#5C4A10" stroke-width="1"/>
+  <ellipse cx="12" cy="50" rx="8" ry="3" fill="#6B5230" stroke="#5C4A10" stroke-width="0.5"/>
+  <ellipse cx="12" cy="50" rx="6" ry="2" fill="#CD853F"/>
+  <!-- Handle -->
+  <path d="M6,48 Q12,44 18,48" stroke="#5C4A10" stroke-width="2" fill="none"/>
+  
+  <!-- Clay drying rack -->
+  <rect x="50" y="54" width="12" height="2" fill="#6B5230"/>
+  <rect x="50" y="56" width="4" height="6" fill="#6B5230"/>
+  <rect x="58" y="56" width="4" height="6" fill="#6B5230"/>
+  <!-- Clay on rack -->
+  <ellipse cx="54" cy="53" rx="3" ry="1.5" fill="#CD853F"/>
+  <ellipse cx="58" cy="53" rx="2.5" ry="1.5" fill="#CD853F"/>
+</svg>

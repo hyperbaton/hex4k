@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Pit House - semi-subterranean dwelling with earth and timber roof -->
+  <defs>
+    <linearGradient id="earthGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B7355"/>
+      <stop offset="100%" style="stop-color:#5C4530"/>
+    </linearGradient>
+    <linearGradient id="pitWoodGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#A0845C"/>
+      <stop offset="100%" style="stop-color:#6B5230"/>
+    </linearGradient>
+    <linearGradient id="groundGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#7CB342"/>
+      <stop offset="100%" style="stop-color:#5C4530"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Ground level indicator -->
+  <rect x="0" y="36" width="64" height="28" fill="url(#groundGrad)"/>
+  
+  <!-- Excavated pit walls visible -->
+  <path d="M10,38 L10,54 L54,54 L54,38" fill="url(#earthGrad)" stroke="#4A3520" stroke-width="1"/>
+  
+  <!-- Earth-covered roof mound -->
+  <ellipse cx="32" cy="30" rx="26" ry="14" fill="url(#earthGrad)" stroke="#5C4530" stroke-width="1"/>
+  
+  <!-- Grass on roof -->
+  <path d="M14,26 Q16,22 18,26" stroke="#7CB342" stroke-width="1.5" fill="none"/>
+  <path d="M22,22 Q24,18 26,22" stroke="#558B2F" stroke-width="1.5" fill="none"/>
+  <path d="M38,22 Q40,18 42,22" stroke="#7CB342" stroke-width="1.5" fill="none"/>
+  <path d="M46,26 Q48,22 50,26" stroke="#558B2F" stroke-width="1.5" fill="none"/>
+  <path d="M30,20 Q32,16 34,20" stroke="#7CB342" stroke-width="1.5" fill="none"/>
+  
+  <!-- Timber frame showing through -->
+  <line x1="32" y1="18" x2="32" y2="8" stroke="#6B5230" stroke-width="3" stroke-linecap="round"/>
+  <line x1="20" y1="28" x2="32" y2="14" stroke="#6B5230" stroke-width="2" opacity="0.6"/>
+  <line x1="44" y1="28" x2="32" y2="14" stroke="#6B5230" stroke-width="2" opacity="0.6"/>
+  
+  <!-- Smoke hole at top -->
+  <ellipse cx="32" cy="18" rx="4" ry="2" fill="#3D2B1F" stroke="#2D1F15" stroke-width="0.5"/>
+  <!-- Smoke -->
+  <path d="M32,16 Q30,12 32,8 Q34,4 32,0" stroke="#A0A0A0" stroke-width="1.5" fill="none" opacity="0.5"/>
+  
+  <!-- Entry ramp/stairs -->
+  <path d="M8,38 L2,50 L12,50 L16,40 Z" fill="url(#pitWoodGrad)" stroke="#4A3520" stroke-width="1"/>
+  <!-- Steps indicated -->
+  <line x1="4" y1="46" x2="12" y2="44" stroke="#4A3520" stroke-width="1"/>
+  <line x1="6" y1="42" x2="14" y2="40" stroke="#4A3520" stroke-width="1"/>
+  
+  <!-- Door frame -->
+  <rect x="14" y="36" width="6" height="10" rx="1" fill="#3D2B1F" stroke="#2D1F15" stroke-width="0.5"/>
+  
+  <!-- Interior warmth glow -->
+  <ellipse cx="17" cy="42" rx="2" ry="3" fill="#FFA500" opacity="0.3"/>
+  
+  <!-- Support posts visible at edges -->
+  <rect x="10" y="34" width="2" height="6" fill="#6B5230"/>
+  <rect x="52" y="34" width="2" height="6" fill="#6B5230"/>
+  
+  <!-- Stone ring around base -->
+  <ellipse cx="32" cy="40" rx="24" ry="6" fill="none" stroke="#808080" stroke-width="2" stroke-dasharray="4,2"/>
+  
+  <!-- Clothing hanging on line (shows cloth use) -->
+  <line x1="56" y1="28" x2="62" y2="36" stroke="#6B5230" stroke-width="1"/>
+  <rect x="57" y="30" width="3" height="4" fill="#DAA520" opacity="0.8"/>
+  <rect x="59" y="32" width="2" height="3" fill="#C4A67A" opacity="0.8"/>
+</svg>

@@ -59,6 +59,10 @@
 		"savannah": {
 			"name": "Savannah",
 			"description": "Tropical grasslands with scattered trees, supporting diverse wildlife."
+		},
+		"marsh": {
+			"name": "Marsh",
+			"description": "Waterlogged wetlands rich in reeds and aquatic plants, challenging to traverse but valuable for fiber harvesting."
 		}
 	},
 	"resource": {
@@ -77,6 +81,26 @@
 		"tools": {
 			"name": "Tools",
 			"description": "Crafted implements that improve work efficiency and enable new activities."
+		},
+		"fiber": {
+			"name": "Fiber",
+			"description": "Raw plant material gathered from reeds and grasses, used for weaving cloth and cordage."
+		},
+		"clothing": {
+			"name": "Clothing",
+			"description": "Woven garments that protect against the elements and improve quality of life."
+		},
+		"clay": {
+			"name": "Clay",
+			"description": "Malleable earth extracted from deposits, shaped and fired to create pottery and building materials."
+		},
+		"pottery": {
+			"name": "Pottery",
+			"description": "Fired clay vessels for storage, cooking, and trade. Essential for food preservation and daily life."
+		},
+		"honey": {
+			"name": "Honey",
+			"description": "Sweet golden nectar harvested from managed bee colonies. A precious luxury used for food, medicine, and trade."
 		},
 		"population": {
 			"name": "Population",
@@ -99,6 +123,10 @@
 		"fertile_soil": {
 			"name": "Fertile Soil",
 			"description": "Exceptionally rich earth that increases agricultural yields."
+		},
+		"clay_deposit": {
+			"name": "Clay Deposit",
+			"description": "A site rich in workable clay, ideal for pottery production."
 		}
 	},
 	"building": {
@@ -142,6 +170,58 @@
 			"name": "Herding Grounds",
 			"description": "Fenced pastures for raising livestock. Best suited for hilly terrain with good grazing."
 		},
+		"granary": {
+			"name": "Granary",
+			"description": "An elevated storage structure protecting harvested grain from moisture and pests. Significantly reduces food decay."
+		},
+		"crop_field": {
+			"name": "Crop Field",
+			"description": "Well-tilled agricultural land with proper irrigation and soil management. Produces abundant harvests but requires more tools to maintain."
+		},
+		"pasture": {
+			"name": "Pasture",
+			"description": "Enclosed grazing land with managed rotation and water access. Supports larger herds on highland terrain."
+		},
+		"tribal_camp": {
+			"name": "Tribal Camp",
+			"description": "An organized settlement with multiple structures around a central gathering area. Provides greater administrative capacity for expanding communities."
+		},
+		"pit_house": {
+			"name": "Pit House",
+			"description": "A semi-subterranean dwelling with an earth-covered roof. Maintains stable temperatures and accommodates more residents, but requires clothing for comfort."
+		},
+		"reed_marsh": {
+			"name": "Reed Marsh",
+			"description": "A managed wetland area for harvesting reeds and cattails. The gathered plant fibers are essential for weaving and cordage."
+		},
+		"weaver": {
+			"name": "Weaver",
+			"description": "A workshop equipped with a loom for producing cloth from plant fibers. Skilled weavers transform raw fiber into durable clothing."
+		},
+		"storytellers_fire": {
+			"name": "Storyteller's Fire",
+			"description": "A communal gathering place where elders share knowledge and traditions around a sacred fire. Produces research and gains bonuses from nearby housing."
+		},
+		"woodcutter": {
+			"name": "Woodcutter",
+			"description": "A logging camp where workers harvest timber from nearby forests. Must be built on or adjacent to forest terrain."
+		},
+		"clay_pit": {
+			"name": "Clay Pit",
+			"description": "An excavated site for extracting clay from deposits in the earth. The raw clay is used for pottery and construction."
+		},
+		"pottery_kiln": {
+			"name": "Pottery Kiln",
+			"description": "A domed oven for firing clay into durable pottery. Transforms raw clay into vessels for storage and trade."
+		},
+		"elders_dwelling": {
+			"name": "Elder's Dwelling",
+			"description": "A respected elder's residence where wisdom is preserved and shared. Produces significant research but requires comfort, sustenance, and honey as a luxury."
+		},
+		"apiary": {
+			"name": "Apiary",
+			"description": "A collection of woven skep hives where bees are kept for honey production. Thrives near flowering crops and meadows."
+		},
 		"city_center": {
 			"name": "City Center",
 			"description": "The heart of your city, providing basic resources and administration."
@@ -153,10 +233,6 @@
 		"house": {
 			"name": "House",
 			"description": "Provides housing for your growing population."
-		},
-		"granary": {
-			"name": "Granary",
-			"description": "Stores food and reduces decay."
 		},
 		"road_dirt": {
 			"name": "Dirt Road",
@@ -183,6 +259,14 @@
 		"gathering_and_crafting": {
 			"name": "Gathering & Crafting",
 			"description": "Skills in collecting natural resources and crafting useful items."
+		},
+		"oral_tradition": {
+			"name": "Oral Tradition",
+			"description": "The preservation and transmission of knowledge through spoken word and storytelling."
+		},
+		"philosophy": {
+			"name": "Philosophy",
+			"description": "Abstract reasoning and contemplation about existence, knowledge, and values."
 		}
 	},
 	"milestone": {
@@ -214,6 +298,50 @@
 			"name": "Livestock Domestication",
 			"description": "Raising animals for food, milk, and other products."
 		},
+		"seed_selection": {
+			"name": "Seed Selection",
+			"description": "Choosing and saving the best seeds for planting, improving crop yields over generations."
+		},
+		"soil_tillage": {
+			"name": "Soil Tillage",
+			"description": "Breaking and turning soil to improve aeration and nutrient availability for crops."
+		},
+		"pastoral_management": {
+			"name": "Pastoral Management",
+			"description": "Organized practices for rotating grazing land and maintaining healthy herds."
+		},
+		"post_and_lintel": {
+			"name": "Post and Lintel",
+			"description": "Architectural technique using vertical posts and horizontal beams to create sturdy structures."
+		},
+		"mudbrick": {
+			"name": "Mudbrick",
+			"description": "Creating durable building materials from clay, straw, and water, dried in the sun."
+		},
+		"cordage_and_weaving": {
+			"name": "Cordage and Weaving",
+			"description": "Techniques for twisting fibers into rope and interlacing threads to create cloth."
+		},
+		"fire_mastery": {
+			"name": "Fire Mastery",
+			"description": "Controlled use of fire for warmth, cooking, and protection against predators."
+		},
+		"hafted_axes": {
+			"name": "Hafted Axes",
+			"description": "Stone axe heads bound to wooden handles, enabling efficient woodcutting and construction."
+		},
+		"pottery_kiln": {
+			"name": "Pottery Kiln",
+			"description": "Firing clay at high temperatures to create durable, waterproof vessels."
+		},
+		"oral_tradition": {
+			"name": "Oral Tradition",
+			"description": "Systematic preservation of knowledge through memorized stories, songs, and teachings."
+		},
+		"apiculture": {
+			"name": "Apiculture",
+			"description": "The art of managing bee colonies in woven hives to harvest honey and wax. Requires understanding of both animals and flowering plants."
+		},
 		"agriculture_1": {
 			"name": "Plant Domestication",
 			"description": "Understanding which plants can be cultivated. Unlocks basic farms."
@@ -223,7 +351,7 @@
 			"description": "Controlling water flow to increase yields. Unlocks granaries."
 		},
 		"construction_1": {
-			"name": "Mudbrick",
+			"name": "Mudbrick Construction",
 			"description": "Creating durable building materials from clay and straw."
 		}
 	},

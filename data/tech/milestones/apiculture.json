@@ -1,0 +1,12 @@
+{
+	"name": "Apiculture",
+	"description": "Managing bee colonies to harvest honey and wax.",
+	"branch": "animal_husbandry",
+	"requirements": [
+		{ "branch": "animal_husbandry", "level": 30.0 },
+		{ "branch": "agriculture", "level": 10.0 }
+	],
+	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "animal_husbandry", "level": 20.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/apiculture.png" }
+}

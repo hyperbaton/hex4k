@@ -349,9 +349,9 @@ func setup_test_city():
 func setup_test_tech_progress():
 	"""Set up some test tech progress for development"""
 	# Add progress to some branches to see the visualization
-	Registry.tech.set_branch_progress("agriculture", 5.0)
-	Registry.tech.set_branch_progress("construction", 3.0)
-	Registry.tech.set_branch_progress("gathering_and_crafting", 4.0)
-	Registry.tech.set_branch_progress("mysticism", 1.0)
+	Registry.tech.set_branch_progress("agriculture", 0.0)
+	Registry.tech.set_branch_progress("construction", 0.0)
+	Registry.tech.set_branch_progress("gathering_and_crafting", 0.0)
+	Registry.tech.set_branch_progress("mysticism", 0.0)
 	
 	print("✓ Set test tech progress")

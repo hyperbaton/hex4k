@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Pottery icon - ceramic vessels -->
+  <defs>
+    <linearGradient id="potGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#D4A574"/>
+      <stop offset="50%" style="stop-color:#B8860B"/>
+      <stop offset="100%" style="stop-color:#8B6914"/>
+    </linearGradient>
+    <linearGradient id="potHighlight" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#E8C49A"/>
+      <stop offset="100%" style="stop-color:#B8860B"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Large amphora/jug -->
+  <path d="M20,56 L20,48 Q16,44 16,36 Q16,24 20,18 L22,16 Q26,14 28,14 L28,12 L32,12 L32,14 Q34,14 38,16 L40,18 Q44,24 44,36 Q44,44 40,48 L40,56 Z" 
+        fill="url(#potGrad)" stroke="#6B4226" stroke-width="1"/>
+  
+  <!-- Jug neck -->
+  <rect x="26" y="10" width="8" height="4" rx="1" fill="url(#potGrad)" stroke="#6B4226" stroke-width="0.5"/>
+  
+  <!-- Jug rim -->
+  <ellipse cx="30" cy="10" rx="5" ry="2" fill="#D4A574" stroke="#6B4226" stroke-width="0.5"/>
+  
+  <!-- Jug highlight -->
+  <path d="M22,20 Q20,30 22,40" stroke="#E8C49A" stroke-width="2" fill="none" opacity="0.5"/>
+  
+  <!-- Decorative band -->
+  <path d="M18,32 Q30,30 42,32" stroke="#6B4226" stroke-width="1.5" fill="none"/>
+  <path d="M18,34 Q30,32 42,34" stroke="#6B4226" stroke-width="1" fill="none"/>
+  
+  <!-- Handle -->
+  <path d="M40,22 Q48,26 48,36 Q48,44 40,46" stroke="#8B6914" stroke-width="3" fill="none"/>
+  <path d="M40,22 Q46,26 46,36 Q46,42 40,46" stroke="#D4A574" stroke-width="1" fill="none"/>
+  
+  <!-- Small bowl beside -->
+  <ellipse cx="54" cy="52" rx="8" ry="3" fill="url(#potGrad)" stroke="#6B4226" stroke-width="0.5"/>
+  <path d="M46,52 Q50,60 54,60 Q58,60 62,52" fill="url(#potGrad)" stroke="#6B4226" stroke-width="0.5"/>
+  <ellipse cx="54" cy="52" rx="6" ry="2" fill="#3D2B1F"/>
+  
+  <!-- Small pot/cup -->
+  <path d="M6,50 L6,58 Q6,60 8,60 L14,60 Q16,60 16,58 L16,50 Q16,48 14,48 L8,48 Q6,48 6,50 Z" 
+        fill="url(#potGrad)" stroke="#6B4226" stroke-width="0.5"/>
+  <ellipse cx="11" cy="48" rx="4" ry="1.5" fill="#D4A574" stroke="#6B4226" stroke-width="0.5"/>
+  <ellipse cx="11" cy="48" rx="2.5" ry="1" fill="#3D2B1F"/>
+</svg>

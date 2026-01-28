@@ -1,0 +1,21 @@
+{
+	"type": "storable",
+	"category": "manufactured",
+	"flags": {
+		"population": false,
+		"decaying": false,
+		"tradeable": true
+	},
+	"storage": {
+		"max_stack": 500,
+		"decay": {
+			"enabled": false,
+			"base_rate_per_turn": 0.0
+		}
+	},
+	"visual": {
+		"icon": "res://assets/icons/pottery.svg",
+		"color": "#B8860B"
+	},
+	"milestones_required": ["pottery_kiln"]
+}

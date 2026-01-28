@@ -80,7 +80,7 @@
 		}
 	},
 	"disabled_admin_cost": 0.0,
-	"upgrades_to": null,
+	"upgrades_to": "pasture",
 	"max_per_city": 0,
 	"can_units_stand": false,
 	"has_orientation": false,
