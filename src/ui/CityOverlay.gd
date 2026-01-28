@@ -22,6 +22,7 @@ var is_open := false
 
 var close_button: Button
 var click_catcher: Control  # Invisible control to catch map clicks
+var tile_info_panel: CityTileInfoPanel  # Panel for showing tile/building info
 
 func _ready():
 	hide_overlay()
@@ -38,17 +39,37 @@ func _ready():
 	
 	# Create close button
 	_create_close_button()
+	
+	# Create tile info panel
+	_create_tile_info_panel()
 
 func _create_click_catcher():
 	"""Create an invisible full-screen control to catch map clicks"""
 	click_catcher = Control.new()
 	click_catcher.name = "ClickCatcher"
-	click_catcher.anchors_preset = Control.PRESET_FULL_RECT
+	# Set explicit size to fill viewport (anchors don't work in CanvasLayer)
+	click_catcher.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	click_catcher.mouse_filter = Control.MOUSE_FILTER_STOP
 	click_catcher.gui_input.connect(_on_click_catcher_input)
 	# Add as first child so other UI elements are on top
 	add_child(click_catcher)
 	move_child(click_catcher, 0)
+	
+	# Update size when viewport changes
+	get_viewport().size_changed.connect(_on_viewport_size_changed)
+	_update_click_catcher_size()
+
+func _on_viewport_size_changed():
+	"""Update click catcher size when viewport changes"""
+	_update_click_catcher_size()
+
+func _update_click_catcher_size():
+	"""Set click catcher to fill viewport"""
+	if click_catcher:
+		var viewport_size = get_viewport().get_visible_rect().size
+		click_catcher.position = Vector2.ZERO
+		click_catcher.size = viewport_size
+		print("CityOverlay: click_catcher size set to ", viewport_size)
 
 func _create_close_button():
 	"""Create an X button in the top-right corner"""
@@ -75,6 +96,14 @@ func _on_close_button_pressed():
 	"""Handle close button click"""
 	close_overlay()
 
+func _create_tile_info_panel():
+	"""Create the tile info panel for displaying tile/building info"""
+	tile_info_panel = CityTileInfoPanel.new()
+	tile_info_panel.name = "TileInfoPanel"
+	tile_info_panel.closed.connect(_on_tile_info_panel_closed)
+	add_child(tile_info_panel)
+	print("CityOverlay: tile_info_panel created and added to scene")
+
 func _input(event: InputEvent):
 	"""Handle ESC key to close overlay and close button clicks"""
 	if not is_open:
@@ -82,8 +111,13 @@ func _input(event: InputEvent):
 	
 	# Handle ESC key
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		# If tile info panel is visible, close it first
+		if tile_info_panel and tile_info_panel.visible:
+			tile_info_panel.hide_panel()
+			get_viewport().set_input_as_handled()
+			return
 		# If building is selected, cancel selection first
-		if selected_building_id != "":
+		elif selected_building_id != "":
 			selected_building_id = ""
 			clear_tile_highlights()
 			action_menu.close_all_menus()
@@ -142,6 +176,8 @@ func close_overlay():
 	clear_tile_highlights()
 	selected_building_id = ""
 	is_expand_mode = false
+	if tile_info_panel:
+		tile_info_panel.hide_panel()
 	emit_signal("closed")
 
 func show_overlay():
@@ -167,6 +203,7 @@ func _on_click_catcher_input(event: InputEvent):
 		return
 	
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		print("CityOverlay: click_catcher received click")
 		var click_pos = event.global_position
 		
 		# Check if click is on close button
@@ -177,25 +214,60 @@ func _on_click_catcher_input(event: InputEvent):
 		
 		# Check if click is on action menu buttons - if so, don't process
 		if action_menu.is_mouse_over():
+			print("CityOverlay: click on action menu, ignoring")
 			return
 		
 		# Check if click is on header
 		if city_header.get_global_rect().has_point(click_pos):
+			print("CityOverlay: click on header, ignoring")
+			return
+		
+		# Check if click is on tile info panel
+		if tile_info_panel and tile_info_panel.visible and tile_info_panel.get_global_rect().has_point(click_pos):
+			print("CityOverlay: click on tile info panel, ignoring")
 			return
 		
 		# Click was on the map area
 		if selected_building_id != "":
+			print("CityOverlay: in building mode")
 			# In building mode - try to place or cancel
 			try_place_building_at_mouse()
 		elif is_expand_mode:
+			print("CityOverlay: in expand mode")
 			# In expand mode - try to claim tile or cancel
 			try_expand_at_mouse()
 		else:
-			# Not in any mode - close overlay
-			close_overlay()
+			print("CityOverlay: showing tile info")
+			# Not in any mode - show tile info if clicking on city tile, otherwise close
+			_handle_tile_info_click()
 		
 		# Mark as handled
 		get_viewport().set_input_as_handled()
+
+func _handle_tile_info_click():
+	"""Handle clicking on a tile to show info"""
+	# Get world position
+	var camera = get_viewport().get_camera_2d()
+	var world_pos = camera.get_global_mouse_position()
+	var coord = WorldUtil.pixel_to_axial(world_pos)
+	
+	print("CityOverlay: clicked at ", coord, " (city has tile: ", current_city.has_tile(coord), ")")
+	
+	# Check if this tile belongs to the city
+	if current_city.has_tile(coord):
+		# Show tile info panel
+		if tile_info_panel:
+			print("CityOverlay: showing tile info panel")
+			tile_info_panel.show_tile(coord, current_city, world_query)
+		else:
+			print("CityOverlay: tile_info_panel is null!")
+	else:
+		# Clicked outside city - close overlay
+		close_overlay()
+
+func _on_tile_info_panel_closed():
+	"""Handle tile info panel close"""
+	pass
 
 func is_click_outside_ui(pos: Vector2) -> bool:
 	"""Check if click is outside all UI elements"""
@@ -209,6 +281,10 @@ func is_click_outside_ui(pos: Vector2) -> bool:
 	
 	# Check resource detail panel
 	if resource_detail_panel.visible and resource_detail_panel.get_global_rect().has_point(pos):
+		return false
+	
+	# Check tile info panel
+	if tile_info_panel and tile_info_panel.visible and tile_info_panel.get_global_rect().has_point(pos):
 		return false
 	
 	return true
@@ -290,6 +366,10 @@ func _on_build_requested(building_id: String):
 	"""Player selected a building to place"""
 	selected_building_id = building_id
 	print("Selected building for placement: ", building_id)
+	
+	# Hide tile info panel when entering build mode
+	if tile_info_panel:
+		tile_info_panel.hide_panel()
 	
 	# Show valid placement tiles
 	highlight_valid_tiles(building_id)
@@ -377,6 +457,10 @@ func _on_expand_requested():
 	is_expand_mode = true
 	selected_building_id = ""  # Cancel any building selection
 	print("Entered expand mode")
+	
+	# Hide tile info panel when entering expand mode
+	if tile_info_panel:
+		tile_info_panel.hide_panel()
 	
 	# Show expandable tiles
 	highlight_expandable_tiles()
