@@ -266,26 +266,34 @@ func compute_branch_layout():
 	branch_y_positions.clear()
 	branch_layouts.clear()
 	
-	# Get root branches and assign Y positions
+	# Get all branches and filter to only visible ones
+	var all_branches = Registry.tech.get_all_branch_ids()
+	var visible_branches: Array[String] = []
+	for branch_id in all_branches:
+		if Registry.tech.is_branch_visible(branch_id):
+			visible_branches.append(branch_id)
+	
+	# Get visible root branches and assign Y positions
 	var root_branches = Registry.tech.get_root_branches()
 	var y_pos = 0.0
 	
-	# First pass: assign Y positions to root branches
+	# First pass: assign Y positions to visible root branches
 	for branch_id in root_branches:
+		if not Registry.tech.is_branch_visible(branch_id):
+			continue
 		branch_y_positions[branch_id] = y_pos
 		y_pos += BRANCH_SPACING
 	
-	# Second pass: assign Y positions to child branches (recursively)
+	# Second pass: assign Y positions to visible child branches (recursively)
 	var processed = {}
-	for branch_id in root_branches:
+	for branch_id in branch_y_positions.keys():
 		processed[branch_id] = true
 	
-	# Keep processing until all branches have positions
-	var all_branches = Registry.tech.get_all_branch_ids()
+	# Keep processing until all visible branches have positions
 	var iterations = 0
-	while processed.size() < all_branches.size() and iterations < 100:
+	while processed.size() < visible_branches.size() and iterations < 100:
 		iterations += 1
-		for branch_id in all_branches:
+		for branch_id in visible_branches:
 			if processed.has(branch_id):
 				continue
 			
@@ -303,8 +311,8 @@ func compute_branch_layout():
 			y_pos += BRANCH_SPACING
 			processed[branch_id] = true
 	
-	# Third pass: compute full layout for each branch
-	for branch_id in all_branches:
+	# Third pass: compute full layout for each visible branch
+	for branch_id in visible_branches:
 		_compute_branch_layout(branch_id)
 
 func _compute_branch_layout(branch_id: String):

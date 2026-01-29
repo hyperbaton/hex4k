@@ -267,6 +267,58 @@
 		"philosophy": {
 			"name": "Philosophy",
 			"description": "Abstract reasoning and contemplation about existence, knowledge, and values."
+		},
+		"mysticism": {
+			"name": "Mysticism",
+			"description": "Spiritual practices and beliefs connecting humanity to the divine and the natural world."
+		},
+		"medicine": {
+			"name": "Medicine",
+			"description": "Healing arts using herbs, treatments, and knowledge of the body."
+		},
+		"warfare": {
+			"name": "Warfare",
+			"description": "Military tactics, weapons, and defensive strategies."
+		},
+		"commerce": {
+			"name": "Commerce",
+			"description": "Trade, exchange, and economic systems."
+		},
+		"communication": {
+			"name": "Communication",
+			"description": "Methods of transmitting information across distances and preserving knowledge."
+		},
+		"governance": {
+			"name": "Governance",
+			"description": "Systems of leadership, laws, and social organization."
+		},
+		"diplomacy": {
+			"name": "Diplomacy",
+			"description": "The art of negotiation, alliances, and peaceful relations between peoples."
+		},
+		"engineering": {
+			"name": "Engineering",
+			"description": "Applied sciences for designing and building complex structures and machines."
+		},
+		"material_science": {
+			"name": "Material Science",
+			"description": "Understanding and manipulating materials like metals, ceramics, and alloys."
+		},
+		"transportation": {
+			"name": "Transportation",
+			"description": "Methods of moving people and goods across land and water."
+		},
+		"public_administration": {
+			"name": "Public Administration",
+			"description": "Managing resources, taxation, and public services for larger populations."
+		},
+		"natural_sciences": {
+			"name": "Natural Sciences",
+			"description": "Systematic observation and understanding of the natural world."
+		},
+		"energy": {
+			"name": "Energy",
+			"description": "Harnessing natural forces like fire, water, and wind for productive use."
 		}
 	},
 	"milestone": {

@@ -3,25 +3,29 @@
 		"name": "Agriculture",
 		"color": "#4A9B4A",
 		"icon": "res://assets/icons/branches/agriculture.svg",
-		"starts_from": null
+		"starts_from": null,
+		"visibility": { "always_visible": true }
 	},
 	"animal_husbandry": {
 		"name": "Animal Husbandry",
 		"color": "#D2691E",
 		"icon": "res://assets/icons/branches/animal_husbandry.svg",
-		"starts_from": null
+		"starts_from": null,
+		"visibility": { "always_visible": true }
 	},
 	"gathering_and_crafting": {
 		"name": "Gathering and Crafting",
 		"color": "#8B4513",
 		"icon": "res://assets/icons/branches/gathering_and_crafting.svg",
-		"starts_from": null
+		"starts_from": null,
+		"visibility": { "always_visible": true }
 	},
 	"construction": {
 		"name": "Construction",
 		"color": "#8B7355",
 		"icon": "res://assets/icons/branches/construction.svg",
-		"starts_from": null
+		"starts_from": null,
+		"visibility": { "always_visible": true }
 	},
 	"material_science": {
 		"name": "Material Science",
@@ -30,7 +34,8 @@
 		"starts_from": {
 			"branch": "gathering_and_crafting",
 			"milestone": "pyrotechnology"
-		}
+		},
+		"visibility": { "always_visible": false }
 	},
 	"engineering": {
 		"name": "Engineering",
@@ -39,13 +44,18 @@
 		"starts_from": {
 			"branch": "construction",
 			"milestone": "masonry"
-		}
+		},
+		"visibility": { "always_visible": false }
 	},
 	"mysticism": {
 		"name": "Mysticism",
 		"color": "#9932CC",
 		"icon": "res://assets/icons/branches/mysticism.svg",
-		"starts_from": null
+		"starts_from": null,
+		"visibility": { 
+			"always_visible": false,
+			"show_when": [{ "branch": "gathering_and_crafting", "level": 10.0 }]
+		}
 	},
 	"governance": {
 		"name": "Governance",
@@ -54,7 +64,8 @@
 		"starts_from": {
 			"branch": "mysticism",
 			"milestone": "burial_rites"
-		}
+		},
+		"visibility": { "always_visible": false }
 	},
 	"transportation": {
 		"name": "Transportation",
@@ -63,13 +74,18 @@
 		"starts_from": {
 			"branch": "engineering",
 			"milestone": "inclined_plane"
-		}
+		},
+		"visibility": { "always_visible": false }
 	},
 	"communication": {
 		"name": "Communication",
 		"color": "#4169E1",
 		"icon": "res://assets/icons/branches/communication.svg",
-		"starts_from": null
+		"starts_from": null,
+		"visibility": { 
+			"always_visible": false,
+			"show_when": [{ "branch": "gathering_and_crafting", "level": 15.0 }]
+		}
 	},
 	"public_administration": {
 		"name": "Public Administration",
@@ -78,13 +94,18 @@
 		"starts_from": {
 			"branch": "governance",
 			"milestone": "tribal_councils"
-		}
+		},
+		"visibility": { "always_visible": false }
 	},
 	"commerce": {
 		"name": "Commerce",
 		"color": "#DAA520",
 		"icon": "res://assets/icons/branches/commerce.svg",
-		"starts_from": null
+		"starts_from": null,
+		"visibility": { 
+			"always_visible": false,
+			"show_when": [{ "branch": "gathering_and_crafting", "level": 10.0 }]
+		}
 	},
 	"natural_sciences": {
 		"name": "Natural Sciences",
@@ -93,7 +114,8 @@
 		"starts_from": {
 			"branch": "philosophy",
 			"milestone": "empirical_observation"
-		}
+		},
+		"visibility": { "always_visible": false }
 	},
 	"energy": {
 		"name": "Energy",
@@ -102,7 +124,8 @@
 		"starts_from": {
 			"branch": "gathering_and_crafting",
 			"milestone": "fire_mastery"
-		}
+		},
+		"visibility": { "always_visible": false }
 	},
 	"philosophy": {
 		"name": "Philosophy",
@@ -111,19 +134,28 @@
 		"starts_from": {
 			"branch": "gathering_and_crafting",
 			"milestone": "fire_mastery"
-		}
+		},
+		"visibility": { "always_visible": false }
 	},
 	"medicine": {
 		"name": "Medicine",
 		"color": "#DC143C",
 		"icon": "res://assets/icons/branches/medicine.svg",
-		"starts_from": null
+		"starts_from": null,
+		"visibility": { 
+			"always_visible": false,
+			"show_when": [{ "branch": "gathering_and_crafting", "level": 5.0 }]
+		}
 	},
 	"warfare": {
 		"name": "Warfare",
 		"color": "#8B0000",
 		"icon": "res://assets/icons/branches/warfare.svg",
-		"starts_from": null
+		"starts_from": null,
+		"visibility": { 
+			"always_visible": false,
+			"show_when": [{ "branch": "gathering_and_crafting", "level": 15.0 }]
+		}
 	},
 	"diplomacy": {
 		"name": "Diplomacy",
@@ -132,6 +164,7 @@
 		"starts_from": {
 			"branch": "governance",
 			"milestone": "tribal_councils"
-		}
+		},
+		"visibility": { "always_visible": false }
 	}
 }

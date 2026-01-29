@@ -60,6 +60,11 @@
 		"caravan_capacity": 0,
 		"decay_reduction": {}
 	},
+	"on_construction_complete": {
+		"research": {
+			"construction": 0.5
+		}
+	},
 	"disabled_admin_cost": 0.0,
 	"upgrades_to": null,
 	"max_per_city": 0,

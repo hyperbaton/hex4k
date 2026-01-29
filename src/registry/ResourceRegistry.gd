@@ -101,3 +101,23 @@ func get_all_population_resources() -> Array[String]:
 		if is_population_resource(res_id):
 			result.append(res_id)
 	return result
+
+func get_required_milestones(id: String) -> Array:
+	"""Get the milestones required to unlock this resource"""
+	var res = get_resource(id)
+	return res.get("milestones_required", [])
+
+func is_resource_unlocked(id: String) -> bool:
+	"""Check if a resource is unlocked (all required milestones are unlocked)"""
+	var milestones = get_required_milestones(id)
+	
+	# If no milestones required, it's always unlocked
+	if milestones.is_empty():
+		return true
+	
+	# Check if all required milestones are unlocked
+	for milestone_id in milestones:
+		if not Registry.tech.is_milestone_unlocked(milestone_id):
+			return false
+	
+	return true

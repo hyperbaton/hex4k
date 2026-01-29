@@ -34,10 +34,13 @@ func update_display():
 	# Add header
 	add_list_header()
 	
-	# Add each resource
+	# Add each unlocked resource
 	var all_resources = current_city.resources.get_all_resources()
 	
 	for resource_id in all_resources:
+		# Skip resources that haven't been unlocked yet
+		if not Registry.resources.is_resource_unlocked(resource_id):
+			continue
 		add_resource_row(resource_id)
 	
 	# Add totals row

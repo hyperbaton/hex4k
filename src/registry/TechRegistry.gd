@@ -264,17 +264,36 @@ func is_branch_unlocked(branch_id: String) -> bool:
 	return is_milestone_unlocked(parent_milestone)
 
 func is_branch_visible(branch_id: String) -> bool:
-	"""Check if a branch should be visible (parent milestone visible or root branch)"""
+	"""Check if a branch should be visible based on visibility settings"""
 	var branch = get_branch(branch_id)
+	if branch.is_empty():
+		return false
+	
+	# Check explicit visibility settings first
+	if branch.has("visibility"):
+		var visibility = branch.visibility
+		
+		# Always visible branches
+		if visibility.get("always_visible", false):
+			return true
+		
+		# Check show_when conditions (same as milestones)
+		if visibility.has("show_when"):
+			for condition in visibility.show_when:
+				var req_branch = condition.get("branch", "")
+				var req_level = condition.get("level", 0.0)
+				
+				if get_branch_progress(req_branch) >= req_level:
+					return true
+	
+	# For branches with starts_from, check if parent milestone is visible
 	var starts_from = branch.get("starts_from", null)
+	if starts_from != null:
+		var parent_milestone = starts_from.get("milestone", "")
+		return is_milestone_visible(parent_milestone)
 	
-	# Root branches are always visible
-	if starts_from == null:
-		return true
-	
-	# Check if parent milestone is visible
-	var parent_milestone = starts_from.get("milestone", "")
-	return is_milestone_visible(parent_milestone)
+	# Default: not visible (unless explicitly set)
+	return false
 
 func get_root_branches() -> Array[String]:
 	"""Get branches that don't spawn from other branches"""

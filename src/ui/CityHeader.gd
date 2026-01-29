@@ -44,10 +44,14 @@ func update_resources():
 	for child in resources_container.get_children():
 		child.queue_free()
 	
-	# Display resources that have storage in this city
+	# Display resources that have storage in this city AND are unlocked
 	for resource_id in Registry.resources.get_all_resource_ids():
 		if not Registry.resources.is_storable(resource_id):
 			continue  # Skip non-storable resources for header
+		
+		# Skip resources that haven't been unlocked yet
+		if not Registry.resources.is_resource_unlocked(resource_id):
+			continue
 		
 		var stored = current_city.get_total_resource(resource_id)
 		var capacity = current_city.get_total_storage_capacity(resource_id)
