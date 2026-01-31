@@ -275,6 +275,10 @@ func get_movement_cost(from: Vector2i, to: Vector2i) -> float:
 	var terrain = Registry.terrains.get_terrain(terrain_id)
 	return terrain.get("movement_cost", 1.0)
 
+func get_terrain_type(coord: Vector2i) -> String:
+	"""Get the terrain type at a coordinate (for unit movement)"""
+	return get_terrain_id(coord)
+
 # === Multiplayer Support ===
 
 func get_visible_tiles_for_player(player_id: String) -> Array[TileView]:

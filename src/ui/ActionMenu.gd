@@ -5,7 +5,7 @@ class_name ActionMenu
 
 signal build_requested(building_id: String)
 signal expand_requested
-signal train_requested
+signal train_requested(unit_id: String)
 signal routes_requested
 signal closed
 
@@ -20,9 +20,11 @@ const BUILDING_OFFSET = 180.0
 
 var build_button: CircularButton
 var expand_button: CircularButton
+var train_button: CircularButton
 var action_buttons: Array[CircularButton] = []  # All main action buttons
 var category_buttons: Array[CircularButton] = []
 var building_buttons: Array[CircularButton] = []
+var unit_buttons: Array[CircularButton] = []  # Unit selection buttons
 
 var current_city: City  # Reference to current city for checking build limits
 
@@ -31,13 +33,17 @@ var menu_state := MenuState.CLOSED
 # Building info panel
 var info_panel: PanelContainer
 var selected_building_id: String = ""
+var selected_unit_id: String = ""
+var is_showing_unit_info: bool = false  # Track if showing unit or building info
 
 enum MenuState {
 	CLOSED,
 	ACTIONS_OPEN,
 	CATEGORIES_OPEN,
 	BUILDINGS_OPEN,
-	INFO_PANEL_OPEN
+	INFO_PANEL_OPEN,
+	UNITS_OPEN,
+	UNIT_INFO_OPEN
 }
 
 func _ready():
@@ -84,6 +90,13 @@ func _input(event: InputEvent):
 				button.is_hovered = button.is_point_inside(mouse_pos)
 				if was_hovered != button.is_hovered:
 					button.queue_redraw()
+		
+		for button in unit_buttons:
+			if is_instance_valid(button):
+				var was_hovered = button.is_hovered
+				button.is_hovered = button.is_point_inside(mouse_pos)
+				if was_hovered != button.is_hovered:
+					button.queue_redraw()
 		return
 	
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -108,6 +121,12 @@ func _input(event: InputEvent):
 					button._gui_input(event)
 					get_viewport().set_input_as_handled()
 					return
+			
+			for button in unit_buttons:
+				if is_instance_valid(button) and button.is_point_inside(mouse_pos):
+					button._gui_input(event)
+					get_viewport().set_input_as_handled()
+					return
 		else:
 			# Mouse release - forward to buttons that might be pressed
 			for button in action_buttons:
@@ -127,6 +146,12 @@ func _input(event: InputEvent):
 					button._gui_input(event)
 					get_viewport().set_input_as_handled()
 					return
+			
+			for button in unit_buttons:
+				if is_instance_valid(button) and button.is_pressed:
+					button._gui_input(event)
+					get_viewport().set_input_as_handled()
+					return
 
 func _on_viewport_resized():
 	"""Reposition buttons when viewport size changes"""
@@ -141,6 +166,11 @@ func setup_action_buttons():
 	build_button.pressed.connect(_on_build_pressed)
 	buttons_container.add_child(build_button)
 	action_buttons.append(build_button)
+	
+	train_button = create_circular_button("Train", Color(0.8, 0.4, 0.2))  # Orange
+	train_button.pressed.connect(_on_train_pressed)
+	buttons_container.add_child(train_button)
+	action_buttons.append(train_button)
 	
 	expand_button = create_circular_button("Expand", Color(0.2, 0.7, 0.3))  # Green
 	expand_button.pressed.connect(_on_expand_pressed)
@@ -220,8 +250,11 @@ func _on_build_pressed():
 		menu_state = MenuState.ACTIONS_OPEN
 		show_building_categories()
 	elif menu_state == MenuState.CATEGORIES_OPEN or menu_state == MenuState.BUILDINGS_OPEN or menu_state == MenuState.INFO_PANEL_OPEN:
-		# Already open - close
+		# Already showing build menus - close
 		close_all_menus()
+	elif menu_state == MenuState.UNITS_OPEN or menu_state == MenuState.UNIT_INFO_OPEN:
+		# Switching from train to build
+		show_building_categories()
 	else:
 		# ACTIONS_OPEN state - show categories
 		show_building_categories()
@@ -231,16 +264,261 @@ func _on_expand_pressed():
 	close_all_menus()
 	emit_signal("expand_requested")
 
+func _on_train_pressed():
+	"""Handle train button press"""
+	if menu_state == MenuState.CLOSED:
+		menu_state = MenuState.ACTIONS_OPEN
+		show_trainable_units()
+	elif menu_state == MenuState.UNITS_OPEN or menu_state == MenuState.UNIT_INFO_OPEN:
+		close_all_menus()
+	else:
+		# Close building menus and show units
+		close_all_menus()
+		menu_state = MenuState.ACTIONS_OPEN
+		show_trainable_units()
+
+func show_trainable_units():
+	"""Show units that can be trained at the current city"""
+	menu_state = MenuState.UNITS_OPEN
+	is_showing_unit_info = false
+	
+	# Hide info panel
+	_hide_info_panel()
+	
+	# Clear existing category and building buttons
+	for button in category_buttons:
+		if is_instance_valid(button):
+			button.queue_free()
+	category_buttons.clear()
+	
+	for button in building_buttons:
+		if is_instance_valid(button):
+			button.queue_free()
+	building_buttons.clear()
+	
+	# Clear existing unit buttons
+	for button in unit_buttons:
+		if is_instance_valid(button):
+			button.queue_free()
+	unit_buttons.clear()
+	
+	# Get available units
+	var units = get_available_units()
+	
+	if units.is_empty():
+		print("No units available to train")
+		return
+	
+	# Position buttons in a horizontal line above action buttons
+	var viewport_size = get_viewport_rect().size
+	var center_x = viewport_size.x / 2
+	var bottom_y = viewport_size.y - 80
+	var row_y = bottom_y - BUTTON_RADIUS * 3
+	
+	# Calculate total width needed
+	var total_width = units.size() * (BUTTON_RADIUS * 2) + (units.size() - 1) * 20
+	var start_x = center_x - total_width / 2
+	
+	for i in range(units.size()):
+		var unit_id = units[i]
+		var unit_name = Registry.units.get_unit_name(unit_id)
+		
+		var button = create_circular_button(unit_name, Color(0.8, 0.5, 0.2))  # Orange for units
+		button.pressed.connect(_on_unit_pressed.bind(unit_id))
+		
+		# Position in horizontal line
+		var x = start_x + i * (BUTTON_RADIUS * 2 + 20)
+		button.position = Vector2(x, row_y - BUTTON_RADIUS)
+		
+		buttons_container.add_child(button)
+		unit_buttons.append(button)
+		
+		animate_button_appear(button)
+
+func get_available_units() -> Array[String]:
+	"""Get units that can be trained at the current city"""
+	var units: Array[String] = []
+	
+	if not current_city:
+		return units
+	
+	# Get OPERATIONAL buildings in this city that can train units
+	var city_buildings: Array[String] = []
+	for coord in current_city.building_instances.keys():
+		var instance = current_city.building_instances[coord] as BuildingInstance
+		if instance and instance.is_operational():
+			city_buildings.append(instance.building_id)
+	
+	# Check each unit
+	for unit_id in Registry.units.get_all_unit_ids():
+		# Check if unit is unlocked
+		if not Registry.units.is_unit_unlocked(unit_id):
+			continue
+		
+		# Check if any of the city's OPERATIONAL buildings can train this unit
+		var trained_at = Registry.units.get_trained_at(unit_id)
+		var can_train = false
+		for building_id in trained_at:
+			if building_id in city_buildings:
+				can_train = true
+				break
+		
+		if can_train:
+			units.append(unit_id)
+	
+	return units
+
+func _on_unit_pressed(unit_id: String):
+	"""Handle unit button press - show unit info"""
+	print("Unit button pressed: ", unit_id)
+	selected_unit_id = unit_id
+	menu_state = MenuState.UNIT_INFO_OPEN
+	is_showing_unit_info = true
+	_show_unit_info(unit_id)
+
+func _show_unit_info(unit_id: String):
+	"""Populate and show the info panel with unit details"""
+	if not info_panel:
+		return
+	
+	var unit = Registry.units.get_unit(unit_id)
+	if unit.is_empty():
+		return
+	
+	var vbox = info_panel.get_node("VBox")
+	
+	# Set unit name
+	var name_label = vbox.get_node("NameLabel") as Label
+	name_label.text = Registry.units.get_unit_name(unit_id)
+	
+	# Training costs text
+	var costs_label = vbox.get_node("CostsLabel") as Label
+	var costs_text = ""
+	
+	var training_cost = Registry.units.get_training_cost(unit_id)
+	if not training_cost.is_empty():
+		var cost_parts = []
+		for resource in training_cost:
+			cost_parts.append("%s: %d" % [resource.capitalize(), training_cost[resource]])
+		costs_text += "Training Cost: " + ", ".join(cost_parts) + "\n"
+	
+	var turns = Registry.units.get_training_turns(unit_id)
+	costs_text += "Training Time: %d turns" % turns
+	
+	costs_label.text = costs_text
+	
+	# Stats text
+	var production_label = vbox.get_node("ProductionLabel") as Label
+	var stats_text = ""
+	
+	var health = Registry.units.get_stat(unit_id, "health", 0)
+	var movement = Registry.units.get_stat(unit_id, "movement", 0)
+	var vision = Registry.units.get_stat(unit_id, "vision", 0)
+	
+	stats_text += "Health: %d" % health
+	stats_text += "  |  Movement: %d" % movement
+	stats_text += "  |  Vision: %d" % vision
+	
+	production_label.text = stats_text
+	
+	# Special info
+	var special_label = vbox.get_node("SpecialLabel") as Label
+	var special_parts = []
+	
+	# Combat stats
+	var combat = unit.get("combat", {})
+	var attack = combat.get("attack", 0)
+	var defense = combat.get("defense", 0)
+	if attack > 0 or defense > 0:
+		special_parts.append("Combat: Atk %d / Def %d" % [attack, defense])
+	
+	# Maintenance
+	var maintenance = Registry.units.get_maintenance(unit_id)
+	if not maintenance.is_empty():
+		var maint_parts = []
+		for resource in maintenance:
+			maint_parts.append("%s %s/turn" % [str(maintenance[resource]), resource.capitalize()])
+		special_parts.append("Maintenance: " + ", ".join(maint_parts))
+	
+	# Abilities
+	var abilities = unit.get("abilities", [])
+	if not abilities.is_empty():
+		special_parts.append("Abilities: " + ", ".join(abilities))
+	
+	# Category
+	var category = Registry.units.get_unit_category(unit_id)
+	special_parts.append("Type: " + category.capitalize())
+	
+	if special_parts.is_empty():
+		special_label.visible = false
+	else:
+		special_label.visible = true
+		special_label.text = "\n".join(special_parts)
+	
+	# Update the button text
+	var btn_container = vbox.get_node_or_null("HBoxContainer")
+	if not btn_container:
+		# Find the button container
+		for child in vbox.get_children():
+			if child is HBoxContainer:
+				btn_container = child
+				break
+	
+	if btn_container:
+		var build_btn = btn_container.get_node_or_null("BuildButton")
+		if build_btn:
+			build_btn.text = "Train"
+	
+	# Position and show panel
+	_reposition_info_panel()
+	info_panel.visible = true
+	
+	# Animate appearance
+	info_panel.modulate.a = 0
+	var tween = create_tween()
+	tween.tween_property(info_panel, "modulate:a", 1.0, 0.2)
+
+func _on_build_button_in_panel_pressed():
+	"""Called when the Build/Train button in the info panel is pressed"""
+	print("ActionMenu: _on_build_button_in_panel_pressed called")
+	print("  is_showing_unit_info: ", is_showing_unit_info)
+	print("  selected_unit_id: ", selected_unit_id)
+	print("  selected_building_id: ", selected_building_id)
+	
+	if is_showing_unit_info and selected_unit_id != "":
+		print("  Emitting train_requested signal for: ", selected_unit_id)
+		emit_signal("train_requested", selected_unit_id)
+		_hide_info_panel()
+	elif selected_building_id != "":
+		print("  Emitting build_requested signal for: ", selected_building_id)
+		emit_signal("build_requested", selected_building_id)
+		_hide_info_panel()
+	else:
+		print("  WARNING: No unit or building selected!")
+
 func show_building_categories():
 	menu_state = MenuState.CATEGORIES_OPEN
 	
 	# Hide info panel
 	_hide_info_panel()
 	
-	# Clear existing
+	# Clear existing category buttons
 	for button in category_buttons:
-		button.queue_free()
+		if is_instance_valid(button):
+			button.queue_free()
 	category_buttons.clear()
+	
+	# Clear building buttons
+	for button in building_buttons:
+		if is_instance_valid(button):
+			button.queue_free()
+	building_buttons.clear()
+	
+	# Clear unit buttons (important for switching from Train to Build)
+	for button in unit_buttons:
+		if is_instance_valid(button):
+			button.queue_free()
+	unit_buttons.clear()
 	
 	# Get all building categories
 	var categories = get_building_categories()
@@ -321,14 +599,10 @@ func show_buildings_in_category(category: String):
 func _on_building_pressed(building_id: String):
 	print("Building button pressed: ", building_id)
 	selected_building_id = building_id
+	selected_unit_id = ""
+	is_showing_unit_info = false
 	menu_state = MenuState.INFO_PANEL_OPEN
 	_show_building_info(building_id)
-
-func _on_build_button_in_panel_pressed():
-	"""Called when the Build button in the info panel is pressed"""
-	if selected_building_id != "":
-		emit_signal("build_requested", selected_building_id)
-		_hide_info_panel()
 
 func get_building_categories() -> Array[String]:
 	"""Get categories that have at least one available building"""
@@ -389,6 +663,8 @@ func get_available_buildings_in_category(category: String) -> Array[String]:
 func close_all_menus():
 	menu_state = MenuState.CLOSED
 	selected_building_id = ""
+	selected_unit_id = ""
+	is_showing_unit_info = false
 	
 	# Hide info panel
 	_hide_info_panel()
@@ -404,6 +680,12 @@ func close_all_menus():
 		if is_instance_valid(button):
 			animate_button_disappear(button)
 	building_buttons.clear()
+	
+	# Clear unit buttons
+	for button in unit_buttons:
+		if is_instance_valid(button):
+			animate_button_disappear(button)
+	unit_buttons.clear()
 	
 	emit_signal("closed")
 
@@ -438,6 +720,11 @@ func is_mouse_over() -> bool:
 	
 	# Check building buttons
 	for button in building_buttons:
+		if is_instance_valid(button) and button.is_point_inside(mouse_pos):
+			return true
+	
+	# Check unit buttons
+	for button in unit_buttons:
 		if is_instance_valid(button) and button.is_point_inside(mouse_pos):
 			return true
 	
@@ -636,6 +923,20 @@ func _show_building_info(building_id: String):
 	else:
 		special_label.visible = true
 		special_label.text = "\n".join(special_parts)
+	
+	# Update the button text to "Build"
+	var btn_container = vbox.get_node_or_null("HBoxContainer")
+	if not btn_container:
+		# Find the button container
+		for child in vbox.get_children():
+			if child is HBoxContainer:
+				btn_container = child
+				break
+	
+	if btn_container:
+		var build_btn = btn_container.get_node_or_null("BuildButton")
+		if build_btn:
+			build_btn.text = "Build"
 	
 	# Position and show panel
 	_reposition_info_panel()

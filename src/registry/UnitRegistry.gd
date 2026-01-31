@@ -2,8 +2,13 @@ extends RefCounted
 class_name UnitRegistry
 
 var units := {}  # Dictionary<String, Dictionary>
+var movement_types := {}  # Dictionary<String, Dictionary>
 
 func load_data():
+	load_units()
+	load_movement_types()
+
+func load_units():
 	var dir = DirAccess.open("res://data/units")
 	if not dir:
 		push_error("Failed to open units directory")
@@ -15,9 +20,9 @@ func load_data():
 	while file_name != "":
 		if file_name.ends_with(".json"):
 			var unit_id = file_name.trim_suffix(".json")
-			var unit_data = _load_unit_file("res://data/units/" + file_name)
+			var unit_data = _load_json_file("res://data/units/" + file_name)
 			
-			if unit_data:
+			if not unit_data.is_empty():
 				units[unit_id] = unit_data
 				print("Loaded unit: ", unit_id)
 		
@@ -26,10 +31,33 @@ func load_data():
 	dir.list_dir_end()
 	print("Loaded %d units" % units.size())
 
-func _load_unit_file(path: String) -> Dictionary:
+func load_movement_types():
+	var dir = DirAccess.open("res://data/movement_types")
+	if not dir:
+		push_error("Failed to open movement_types directory")
+		return
+	
+	dir.list_dir_begin()
+	var file_name = dir.get_next()
+	
+	while file_name != "":
+		if file_name.ends_with(".json"):
+			var type_id = file_name.trim_suffix(".json")
+			var type_data = _load_json_file("res://data/movement_types/" + file_name)
+			
+			if not type_data.is_empty():
+				movement_types[type_id] = type_data
+				print("Loaded movement type: ", type_id)
+		
+		file_name = dir.get_next()
+	
+	dir.list_dir_end()
+	print("Loaded %d movement types" % movement_types.size())
+
+func _load_json_file(path: String) -> Dictionary:
 	var file = FileAccess.open(path, FileAccess.READ)
 	if not file:
-		push_error("Failed to open unit file: " + path)
+		push_error("Failed to open file: " + path)
 		return {}
 	
 	var json_text = file.get_as_text()
@@ -39,10 +67,12 @@ func _load_unit_file(path: String) -> Dictionary:
 	var error = json.parse(json_text)
 	
 	if error != OK:
-		push_error("Failed to parse unit JSON: " + path)
+		push_error("Failed to parse JSON: " + path)
 		return {}
 	
 	return json.data
+
+# === Unit Accessors ===
 
 func get_unit(id: String) -> Dictionary:
 	return units.get(id, {})
@@ -60,3 +90,99 @@ func get_units_by_category(category: String) -> Array:
 		if unit.get("category", "") == category:
 			result.append(id)
 	return result
+
+func get_unit_name(id: String) -> String:
+	return Registry.get_name_label("unit", id)
+
+func get_unit_category(id: String) -> String:
+	var unit = get_unit(id)
+	return unit.get("category", "")
+
+func is_civil_unit(id: String) -> bool:
+	return get_unit_category(id) == "civil"
+
+func is_military_unit(id: String) -> bool:
+	return get_unit_category(id) == "military"
+
+func get_trained_at(id: String) -> Array:
+	"""Get the list of buildings that can train this unit"""
+	var unit = get_unit(id)
+	return unit.get("trained_at", [])
+
+func get_training_cost(id: String) -> Dictionary:
+	"""Get the resource cost to train this unit"""
+	var unit = get_unit(id)
+	var training = unit.get("training", {})
+	return training.get("cost", {})
+
+func get_training_turns(id: String) -> int:
+	"""Get the number of turns to train this unit"""
+	var unit = get_unit(id)
+	var training = unit.get("training", {})
+	return training.get("turns", 1)
+
+func get_milestones_required(id: String) -> Array:
+	"""Get the milestones required to unlock this unit"""
+	var unit = get_unit(id)
+	return unit.get("milestones_required", [])
+
+func is_unit_unlocked(id: String) -> bool:
+	"""Check if a unit is unlocked (all required milestones are unlocked)"""
+	var milestones = get_milestones_required(id)
+	
+	if milestones.is_empty():
+		return true
+	
+	for milestone_id in milestones:
+		if not Registry.tech.is_milestone_unlocked(milestone_id):
+			return false
+	
+	return true
+
+func get_units_trainable_at(building_id: String) -> Array[String]:
+	"""Get all units that can be trained at a specific building"""
+	var result: Array[String] = []
+	for unit_id in units.keys():
+		var trained_at = get_trained_at(unit_id)
+		if building_id in trained_at:
+			result.append(unit_id)
+	return result
+
+func get_stat(id: String, stat_name: String, default_value = 0):
+	"""Get a specific stat from a unit"""
+	var unit = get_unit(id)
+	var stats = unit.get("stats", {})
+	return stats.get(stat_name, default_value)
+
+func get_combat_stat(id: String, stat_name: String, default_value = 0):
+	"""Get a specific combat stat from a unit"""
+	var unit = get_unit(id)
+	var combat = unit.get("combat", {})
+	return combat.get(stat_name, default_value)
+
+func get_maintenance(id: String) -> Dictionary:
+	"""Get the per-turn maintenance cost of a unit"""
+	var unit = get_unit(id)
+	return unit.get("maintenance", {})
+
+# === Movement Type Accessors ===
+
+func get_movement_type(type_id: String) -> Dictionary:
+	return movement_types.get(type_id, {})
+
+func has_movement_type(type_id: String) -> bool:
+	return movement_types.has(type_id)
+
+func get_terrain_cost(movement_type_id: String, terrain_type: String) -> int:
+	"""Get the movement cost to enter a terrain type. Returns -1 if impassable."""
+	var mt = get_movement_type(movement_type_id)
+	var terrain_costs = mt.get("terrain_costs", {})
+	
+	if not terrain_costs.has(terrain_type):
+		return -1  # Impassable
+	
+	return terrain_costs.get(terrain_type, -1)
+
+func can_traverse_terrain(movement_type_id: String, terrain_type: String) -> bool:
+	"""Check if a movement type can traverse a specific terrain"""
+	return get_terrain_cost(movement_type_id, terrain_type) > 0

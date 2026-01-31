@@ -75,6 +75,16 @@ func add_stored(resource_id: String, amount: float):
 func has_resource(resource_id: String, amount: float) -> bool:
 	return get_stored(resource_id) >= amount
 
+func consume(resource_id: String, amount: float, reason: String = "") -> bool:
+	"""Consume resources from storage. Returns true if successful."""
+	if not has_resource(resource_id, amount):
+		return false
+	var current = total_stored.get(resource_id, 0.0)
+	total_stored[resource_id] = current - amount
+	if reason != "":
+		print("  Consumed %.1f %s for %s" % [amount, resource_id, reason])
+	return true
+
 func can_store(resource_id: String, amount: float) -> bool:
 	var current = get_stored(resource_id)
 	var capacity = storage_capacity.get(resource_id, INF)

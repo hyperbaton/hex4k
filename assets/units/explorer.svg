@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Explorer unit - person with pack animal and walking staff -->
+  <defs>
+    <linearGradient id="cloakGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B6914"/>
+      <stop offset="100%" style="stop-color:#5C4A10"/>
+    </linearGradient>
+    <linearGradient id="animalGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#D2B48C"/>
+      <stop offset="100%" style="stop-color:#8B7355"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Pack animal (donkey/mule) -->
+  <g transform="translate(8, 28)">
+    <!-- Body -->
+    <ellipse cx="16" cy="16" rx="14" ry="10" fill="url(#animalGrad)" stroke="#5C4A10" stroke-width="1"/>
+    <!-- Legs -->
+    <rect x="6" y="22" width="4" height="12" fill="#8B7355"/>
+    <rect x="22" y="22" width="4" height="12" fill="#8B7355"/>
+    <!-- Head -->
+    <ellipse cx="32" cy="12" rx="6" ry="5" fill="url(#animalGrad)" stroke="#5C4A10" stroke-width="1"/>
+    <!-- Ears -->
+    <ellipse cx="30" cy="5" rx="2" ry="4" fill="#D2B48C" stroke="#5C4A10" stroke-width="0.5"/>
+    <ellipse cx="34" cy="5" rx="2" ry="4" fill="#D2B48C" stroke="#5C4A10" stroke-width="0.5"/>
+    <!-- Eye -->
+    <circle cx="34" cy="11" r="1.5" fill="#2F1F0A"/>
+    <!-- Pack/cargo -->
+    <rect x="8" y="6" width="16" height="10" rx="2" fill="#6B4226" stroke="#3D2B1F" stroke-width="0.5"/>
+    <line x1="12" y1="6" x2="12" y2="16" stroke="#3D2B1F" stroke-width="0.5"/>
+    <line x1="20" y1="6" x2="20" y2="16" stroke="#3D2B1F" stroke-width="0.5"/>
+  </g>
+  
+  <!-- Explorer figure -->
+  <g transform="translate(38, 8)">
+    <!-- Body/cloak -->
+    <path d="M8,16 L4,40 L16,40 L12,16 Z" fill="url(#cloakGrad)" stroke="#3D2B1F" stroke-width="1"/>
+    <!-- Head -->
+    <circle cx="10" cy="10" r="6" fill="#DEB887" stroke="#8B6914" stroke-width="1"/>
+    <!-- Face features -->
+    <circle cx="8" cy="9" r="1" fill="#3D2B1F"/>
+    <circle cx="12" cy="9" r="1" fill="#3D2B1F"/>
+    <path d="M8,13 Q10,15 12,13" stroke="#3D2B1F" stroke-width="0.5" fill="none"/>
+    <!-- Hat -->
+    <ellipse cx="10" cy="5" rx="7" ry="2" fill="#5C4A10"/>
+    <ellipse cx="10" cy="4" rx="4" ry="3" fill="#6B5230"/>
+    <!-- Walking staff -->
+    <line x1="18" y1="8" x2="22" y2="48" stroke="#6B4226" stroke-width="3" stroke-linecap="round"/>
+    <!-- Arm holding staff -->
+    <path d="M12,22 Q16,20 18,18" stroke="#DEB887" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Legs -->
+    <line x1="7" y1="38" x2="5" y2="50" stroke="#5C4A10" stroke-width="3"/>
+    <line x1="13" y1="38" x2="15" y2="50" stroke="#5C4A10" stroke-width="3"/>
+    <!-- Feet -->
+    <ellipse cx="4" cy="51" rx="3" ry="2" fill="#3D2B1F"/>
+    <ellipse cx="16" cy="51" rx="3" ry="2" fill="#3D2B1F"/>
+  </g>
+  
+  <!-- Rope connecting animal to explorer -->
+  <path d="M40,44 Q44,46 48,44" stroke="#8B6914" stroke-width="1.5" fill="none"/>
+</svg>

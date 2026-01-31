@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Settler unit - family group with cart/supplies -->
+  <defs>
+    <linearGradient id="clothGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2E8B57"/>
+      <stop offset="100%" style="stop-color:#1C5A36"/>
+    </linearGradient>
+    <linearGradient id="cartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B6914"/>
+      <stop offset="100%" style="stop-color:#5C4A10"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Cart with supplies -->
+  <g transform="translate(4, 30)">
+    <!-- Cart body -->
+    <rect x="2" y="8" width="24" height="14" rx="2" fill="url(#cartGrad)" stroke="#3D2B1F" stroke-width="1"/>
+    <!-- Supplies on cart -->
+    <rect x="4" y="2" width="8" height="8" fill="#D2B48C" stroke="#8B6914" stroke-width="0.5"/>
+    <rect x="14" y="4" width="6" height="6" fill="#8B7355" stroke="#5C4A10" stroke-width="0.5"/>
+    <ellipse cx="22" cy="6" rx="4" ry="4" fill="#DEB887"/>
+    <!-- Wheels -->
+    <circle cx="8" cy="24" r="5" fill="#5C4A10" stroke="#3D2B1F" stroke-width="1"/>
+    <circle cx="8" cy="24" r="2" fill="#3D2B1F"/>
+    <circle cx="22" cy="24" r="5" fill="#5C4A10" stroke="#3D2B1F" stroke-width="1"/>
+    <circle cx="22" cy="24" r="2" fill="#3D2B1F"/>
+  </g>
+  
+  <!-- Adult figure (father) -->
+  <g transform="translate(34, 12)">
+    <!-- Body -->
+    <path d="M6,14 L2,38 L12,38 L8,14 Z" fill="url(#clothGrad)" stroke="#1C5A36" stroke-width="1"/>
+    <!-- Head -->
+    <circle cx="7" cy="8" r="5" fill="#DEB887" stroke="#8B6914" stroke-width="1"/>
+    <!-- Eyes -->
+    <circle cx="5" cy="7" r="0.8" fill="#2F1F0A"/>
+    <circle cx="9" cy="7" r="0.8" fill="#2F1F0A"/>
+    <!-- Beard -->
+    <path d="M4,10 Q7,14 10,10" fill="#5C4A10"/>
+    <!-- Arms -->
+    <line x1="3" y1="18" x2="0" y2="28" stroke="#DEB887" stroke-width="2.5"/>
+    <line x1="11" y1="18" x2="14" y2="28" stroke="#DEB887" stroke-width="2.5"/>
+    <!-- Legs -->
+    <line x1="4" y1="36" x2="2" y2="48" stroke="#1C5A36" stroke-width="3"/>
+    <line x1="10" y1="36" x2="12" y2="48" stroke="#1C5A36" stroke-width="3"/>
+    <!-- Feet -->
+    <ellipse cx="1" cy="49" rx="2.5" ry="1.5" fill="#3D2B1F"/>
+    <ellipse cx="13" cy="49" rx="2.5" ry="1.5" fill="#3D2B1F"/>
+  </g>
+  
+  <!-- Adult figure (mother) -->
+  <g transform="translate(46, 14)">
+    <!-- Dress -->
+    <path d="M5,12 L0,38 L14,38 L9,12 Z" fill="#CD853F" stroke="#8B5A2B" stroke-width="1"/>
+    <!-- Head -->
+    <circle cx="7" cy="6" r="4.5" fill="#DEB887" stroke="#8B6914" stroke-width="1"/>
+    <!-- Hair -->
+    <path d="M3,4 Q7,-1 11,4 Q11,2 7,0 Q3,2 3,4" fill="#5C4A10"/>
+    <!-- Eyes -->
+    <circle cx="5" cy="5.5" r="0.7" fill="#2F1F0A"/>
+    <circle cx="9" cy="5.5" r="0.7" fill="#2F1F0A"/>
+    <!-- Legs (under dress) -->
+    <line x1="5" y1="36" x2="4" y2="44" stroke="#DEB887" stroke-width="2"/>
+    <line x1="9" y1="36" x2="10" y2="44" stroke="#DEB887" stroke-width="2"/>
+    <!-- Feet -->
+    <ellipse cx="3" cy="45" rx="2" ry="1.5" fill="#3D2B1F"/>
+    <ellipse cx="11" cy="45" rx="2" ry="1.5" fill="#3D2B1F"/>
+  </g>
+  
+  <!-- Child figure -->
+  <g transform="translate(52, 32)">
+    <!-- Body -->
+    <rect x="2" y="6" width="6" height="10" rx="1" fill="#4682B4"/>
+    <!-- Head -->
+    <circle cx="5" cy="3" r="3" fill="#DEB887"/>
+    <!-- Eyes -->
+    <circle cx="4" cy="2.5" r="0.5" fill="#2F1F0A"/>
+    <circle cx="6" cy="2.5" r="0.5" fill="#2F1F0A"/>
+    <!-- Legs -->
+    <line x1="3" y1="15" x2="2" y2="22" stroke="#4682B4" stroke-width="2"/>
+    <line x1="7" y1="15" x2="8" y2="22" stroke="#4682B4" stroke-width="2"/>
+  </g>
+</svg>

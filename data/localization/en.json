@@ -410,11 +410,15 @@
 	"unit": {
 		"settler": {
 			"name": "Settler",
-			"description": "Brave pioneers who can establish new cities."
+			"description": "A group of pioneers ready to establish a new settlement. Can found cities on suitable terrain."
 		},
 		"caravan": {
 			"name": "Caravan",
-			"description": "Traders who transport goods between cities."
+			"description": "Pack animals and merchants carrying trade goods between cities. Establishes trade routes."
+		},
+		"explorer": {
+			"name": "Explorer",
+			"description": "A swift scout who can traverse difficult terrain with ease. Reveals the map and discovers new lands."
 		}
 	},
 	"perk": {

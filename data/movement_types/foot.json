@@ -1,0 +1,17 @@
+{
+	"name": "Foot",
+	"description": "Standard movement on foot. Hindered by rough terrain.",
+	"terrain_costs": {
+		"grassland": 1,
+		"plains": 1,
+		"meadow": 1,
+		"forest": 2,
+		"rolling_hills": 2,
+		"sharp_hills": 3,
+		"steppe": 1,
+		"savannah": 1,
+		"floodplains": 2,
+		"marsh": 3,
+		"beach": 1
+	}
+}

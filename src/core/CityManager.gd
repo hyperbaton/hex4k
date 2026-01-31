@@ -89,6 +89,7 @@ func _give_starting_resources(city: City):
 	city.store_resource("food", 50)
 	city.store_resource("wood", 30)
 	city.store_resource("stone", 20)
+	city.store_resource("tools", 10)  # For testing unit training
 	city.total_population = 5  # Starting population
 
 func destroy_city(city_id: String):

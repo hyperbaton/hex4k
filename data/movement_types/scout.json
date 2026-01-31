@@ -1,0 +1,17 @@
+{
+	"name": "Scout",
+	"description": "Fast and nimble movement ideal for exploration. Moves easily through most terrain.",
+	"terrain_costs": {
+		"grassland": 1,
+		"plains": 1,
+		"meadow": 1,
+		"forest": 1,
+		"rolling_hills": 1,
+		"sharp_hills": 2,
+		"steppe": 1,
+		"savannah": 1,
+		"floodplains": 1,
+		"marsh": 2,
+		"beach": 1
+	}
+}

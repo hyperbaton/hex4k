@@ -17,12 +17,15 @@ var tile_highlighter: TileHighlighter
 var chunk_manager: Node  # ChunkManager reference for updating tile visuals
 var selected_building_id: String = ""
 var is_expand_mode: bool = false  # True when in tile expansion mode
+var is_train_mode: bool = false  # True when selecting building for training
+var selected_unit_for_training: String = ""  # Unit type to train
 
 var is_open := false
 
 var close_button: Button
 var click_catcher: Control  # Invisible control to catch map clicks
 var tile_info_panel: CityTileInfoPanel  # Panel for showing tile/building info
+var queue_panel: CityQueuePanel  # Panel for showing construction and training queues
 
 func _ready():
 	hide_overlay()
@@ -30,6 +33,7 @@ func _ready():
 	# Connect signals
 	action_menu.build_requested.connect(_on_build_requested)
 	action_menu.expand_requested.connect(_on_expand_requested)
+	action_menu.train_requested.connect(_on_train_requested)
 	action_menu.closed.connect(_on_action_menu_closed)
 	resource_detail_panel.closed.connect(_on_resource_detail_closed)
 	city_header.clicked.connect(_on_header_clicked)
@@ -42,6 +46,9 @@ func _ready():
 	
 	# Create tile info panel
 	_create_tile_info_panel()
+	
+	# Create queue panel
+	_create_queue_panel()
 
 func _create_click_catcher():
 	"""Create an invisible full-screen control to catch map clicks"""
@@ -104,6 +111,13 @@ func _create_tile_info_panel():
 	add_child(tile_info_panel)
 	print("CityOverlay: tile_info_panel created and added to scene")
 
+func _create_queue_panel():
+	"""Create the queue panel for displaying construction and training queues"""
+	queue_panel = CityQueuePanel.new()
+	queue_panel.name = "QueuePanel"
+	add_child(queue_panel)
+	print("CityOverlay: queue_panel created and added to scene")
+
 func _input(event: InputEvent):
 	"""Handle ESC key to close overlay and close button clicks"""
 	if not is_open:
@@ -121,6 +135,11 @@ func _input(event: InputEvent):
 			selected_building_id = ""
 			clear_tile_highlights()
 			action_menu.close_all_menus()
+		elif is_train_mode:
+			# Cancel train mode
+			is_train_mode = false
+			selected_unit_for_training = ""
+			clear_tile_highlights()
 		elif is_expand_mode:
 			# Cancel expand mode
 			is_expand_mode = false
@@ -164,6 +183,10 @@ func open_city(city: City, p_world_query: WorldQuery, p_city_manager: CityManage
 	# Update UI
 	city_header.set_city(city)
 	
+	# Show queue panel and update it
+	if queue_panel:
+		queue_panel.show_panel(city)
+	
 	# Show overlay
 	show_overlay()
 
@@ -176,8 +199,12 @@ func close_overlay():
 	clear_tile_highlights()
 	selected_building_id = ""
 	is_expand_mode = false
+	is_train_mode = false
+	selected_unit_for_training = ""
 	if tile_info_panel:
 		tile_info_panel.hide_panel()
+	if queue_panel:
+		queue_panel.hide_panel()
 	emit_signal("closed")
 
 func show_overlay():
@@ -227,11 +254,20 @@ func _on_click_catcher_input(event: InputEvent):
 			print("CityOverlay: click on tile info panel, ignoring")
 			return
 		
+		# Check if click is on queue panel
+		if queue_panel and queue_panel.visible and queue_panel.get_global_rect().has_point(click_pos):
+			print("CityOverlay: click on queue panel, ignoring")
+			return
+		
 		# Click was on the map area
 		if selected_building_id != "":
 			print("CityOverlay: in building mode")
 			# In building mode - try to place or cancel
 			try_place_building_at_mouse()
+		elif is_train_mode:
+			print("CityOverlay: in train mode")
+			# In training mode - try to select building for training
+			try_select_training_building_at_mouse()
 		elif is_expand_mode:
 			print("CityOverlay: in expand mode")
 			# In expand mode - try to claim tile or cancel
@@ -287,6 +323,10 @@ func is_click_outside_ui(pos: Vector2) -> bool:
 	if tile_info_panel and tile_info_panel.visible and tile_info_panel.get_global_rect().has_point(pos):
 		return false
 	
+	# Check queue panel
+	if queue_panel and queue_panel.visible and queue_panel.get_global_rect().has_point(pos):
+		return false
+	
 	return true
 
 func try_place_building_at_mouse():
@@ -319,6 +359,7 @@ func place_building_at_coord(coord: Vector2i):
 		# Place building in data model
 		var success = city_manager.place_building(current_city.city_id, coord, selected_building_id)
 		if success:
+			var building_name = Registry.get_name_label("building", selected_building_id)
 			print("✓ Started construction: ", selected_building_id, " at ", coord)
 			
 			# Update the visual tile
@@ -328,12 +369,20 @@ func place_building_at_coord(coord: Vector2i):
 			current_city.recalculate_city_stats()
 			city_header.update_display()
 			
+			# Update queue panel
+			if queue_panel:
+				queue_panel.update_display()
+			
+			# Show success toast
+			_show_toast_success("Started construction: " + building_name)
+			
 			# Clear selection and highlights
 			selected_building_id = ""
 			clear_tile_highlights()
 			action_menu.close_all_menus()
 	else:
 		print("✗ Cannot build here: ", check.reason)
+		_show_toast_error("Cannot build here: " + check.reason)
 
 func update_tile_building_visual(coord: Vector2i, building_id: String, under_construction: bool = false):
 	"""Update the visual representation of a building on a tile"""
@@ -438,16 +487,28 @@ func calculate_and_show_adjacency(coord: Vector2i, building_id: String):
 						tile_highlighter.add_adjacency_bonus_display(coord, resource_id, amount)
 
 func _on_action_menu_closed():
-	"""Action menu closed"""
+	"""Action menu closed - only clear highlights if NOT in a special mode"""
+	# Don't clear highlights if we're in train mode or expand mode - those modes
+	# handle their own highlights separately
+	if is_train_mode or is_expand_mode:
+		return
+	
 	if selected_building_id != "":
 		selected_building_id = ""
 		clear_tile_highlights()
 
-func on_highlighted_tile_clicked(coord: Vector2i):
-	"""Handle click on a highlighted tile"""
+func _on_highlighted_tile_clicked(coord: Vector2i):
+	"""Handle click on a highlighted tile (from TileHighlighter signal)"""
+	print("_on_highlighted_tile_clicked: ", coord)
+	
 	if selected_building_id != "":
+		print("  In building mode - placing building")
 		place_building_at_coord(coord)
+	elif is_train_mode:
+		print("  In train mode - starting training")
+		start_training_at_building(coord)
 	elif is_expand_mode:
+		print("  In expand mode - expanding")
 		expand_to_tile(coord)
 
 # === Expand Mode ===
@@ -583,3 +644,251 @@ func expand_to_tile(coord: Vector2i):
 				parent.city_tile_dimmer.activate(current_city)
 				break
 			parent = parent.get_parent()
+
+# === Train Mode ===
+
+func _on_train_requested(unit_id: String):
+	"""Player requested to train a unit - enter building selection mode"""
+	print("CityOverlay: _on_train_requested called with unit_id: ", unit_id)
+	
+	# Get training cost
+	var training_cost = Registry.units.get_training_cost(unit_id)
+	print("  Training cost: ", training_cost)
+	
+	# Check if we can afford it first using city's storage system
+	var can_afford = current_city.has_resources(training_cost)
+	
+	if not can_afford:
+		var missing = current_city.get_missing_resources(training_cost)
+		var missing_parts: Array[String] = []
+		for resource_id in missing.keys():
+			var available = current_city.get_total_resource(resource_id)
+			var needed = training_cost[resource_id]
+			missing_parts.append("%s (need %.0f, have %.0f)" % [resource_id.capitalize(), needed, available])
+		var msg = "Not enough resources: " + ", ".join(missing_parts)
+		print("✗ " + msg)
+		_show_toast_error(msg)
+		return
+	
+	# Check if any building can train this unit
+	var trainable_at = Registry.units.get_trained_at(unit_id)
+	print("  Trainable at buildings: ", trainable_at)
+	var has_training_building = false
+	for coord in current_city.building_instances.keys():
+		var instance: BuildingInstance = current_city.building_instances[coord]
+		print("  Checking building %s at %v: operational=%s, can_train=%s" % [
+			instance.building_id, coord, instance.is_operational(), 
+			instance.building_id in trainable_at
+		])
+		if instance.is_operational() and instance.building_id in trainable_at:
+			has_training_building = true
+			break
+	
+	if not has_training_building:
+		var msg = "No operational building available to train this unit"
+		print("✗ " + msg)
+		_show_toast_error(msg)
+		return
+	
+	print("  Entering train mode...")
+	
+	# Enter training mode - select building to train at
+	is_train_mode = true
+	selected_unit_for_training = unit_id
+	selected_building_id = ""  # Clear any building placement
+	is_expand_mode = false
+	
+	# Close menus (this will NOT clear highlights because is_train_mode is now true)
+	action_menu.close_all_menus()
+	
+	# Hide tile info panel
+	if tile_info_panel:
+		tile_info_panel.hide_panel()
+	
+	# Highlight buildings that can train this unit
+	print("  Highlighting training buildings...")
+	highlight_training_buildings(unit_id)
+	
+	# Show instruction
+	_show_toast_info("Select a building to train " + Registry.units.get_unit_name(unit_id))
+
+func highlight_training_buildings(unit_id: String):
+	"""Highlight buildings that can train the specified unit"""
+	print("  highlight_training_buildings called for: ", unit_id)
+	
+	# Clear existing highlights
+	if tile_highlighter:
+		tile_highlighter.clear_all()
+		print("    Cleared existing highlights")
+	else:
+		print("    WARNING: tile_highlighter is null!")
+		return
+	
+	var trainable_at = Registry.units.get_trained_at(unit_id)
+	var found_building = false
+	
+	print("    Looking for buildings: ", trainable_at)
+	print("    City has %d building instances" % current_city.building_instances.size())
+	
+	# Check each building in the city
+	for coord in current_city.building_instances.keys():
+		var instance: BuildingInstance = current_city.building_instances[coord]
+		
+		print("    Checking %s at %v: operational=%s, in_list=%s, training=%s" % [
+			instance.building_id, coord, instance.is_operational(),
+			instance.building_id in trainable_at, instance.is_training()
+		])
+		
+		# Must be operational and able to train this unit
+		if not instance.is_operational():
+			continue
+		
+		if not instance.building_id in trainable_at:
+			continue
+		
+		# Check if already training
+		var color: Color
+		if instance.is_training():
+			# Orange - building is busy
+			color = Color(1.0, 0.5, 0.0)
+		else:
+			# Green - available
+			color = Color.GREEN
+		
+		print("    Highlighting %v with color %s" % [coord, color])
+		tile_highlighter.highlight_tile(coord, color)
+		found_building = true
+	
+	if not found_building:
+		print("✗ No buildings available to train this unit")
+		is_train_mode = false
+		selected_unit_for_training = ""
+	else:
+		print("    Found trainable buildings, train mode active")
+
+func try_select_training_building_at_mouse():
+	"""Try to select a building for training at mouse position"""
+	print("try_select_training_building_at_mouse called")
+	print("  is_train_mode: ", is_train_mode)
+	print("  selected_unit_for_training: ", selected_unit_for_training)
+	
+	if not is_train_mode or selected_unit_for_training == "":
+		print("  Aborting - not in train mode or no unit selected")
+		return
+	
+	# Get world position
+	var camera = get_viewport().get_camera_2d()
+	var world_pos = camera.get_global_mouse_position()
+	var coord = WorldUtil.pixel_to_axial(world_pos)
+	
+	print("  Clicked coord: ", coord, " (type: ", typeof(coord), ")")
+	print("  Highlighted tiles: ", tile_highlighter.highlighted_tiles.keys() if tile_highlighter else "no highlighter")
+	
+	# Check if this is a valid (highlighted) tile
+	if tile_highlighter and tile_highlighter.highlighted_tiles.has(coord):
+		print("  Valid tile - starting training")
+		# Valid tile - try to start training
+		start_training_at_building(coord)
+	else:
+		# Invalid tile - exit training mode
+		print("  Invalid tile (not highlighted), exiting training mode")
+		is_train_mode = false
+		selected_unit_for_training = ""
+		clear_tile_highlights()
+
+func start_training_at_building(coord: Vector2i):
+	"""Start training the selected unit at the specified building"""
+	if not current_city.building_instances.has(coord):
+		print("✗ No building at this location")
+		_show_toast_error("No building at this location")
+		return
+	
+	var instance: BuildingInstance = current_city.building_instances[coord]
+	
+	# Check if building is already training
+	if instance.is_training():
+		var training_name = Registry.units.get_unit_name(instance.training_unit_id)
+		print("✗ Building is already training: %s" % instance.training_unit_id)
+		_show_toast_warning("This building is already training: " + training_name)
+		return
+	
+	# Check if building can train this unit
+	if not instance.can_train_unit(selected_unit_for_training):
+		print("✗ This building cannot train this unit")
+		_show_toast_error("This building cannot train this unit")
+		return
+	
+	# Get training cost and turns
+	var training_cost = Registry.units.get_training_cost(selected_unit_for_training)
+	var training_turns = Registry.units.get_training_turns(selected_unit_for_training)
+	
+	# Double-check we can afford it using city's storage system
+	if not current_city.has_resources(training_cost):
+		var missing = current_city.get_missing_resources(training_cost)
+		var missing_parts: Array[String] = []
+		for resource_id in missing.keys():
+			var available = current_city.get_total_resource(resource_id)
+			var needed = training_cost[resource_id]
+			missing_parts.append("%s (need %.0f, have %.0f)" % [resource_id.capitalize(), needed, available])
+		print("✗ Cannot train: Not enough resources: " + ", ".join(missing_parts))
+		_show_toast_error("Not enough resources: " + ", ".join(missing_parts))
+		is_train_mode = false
+		selected_unit_for_training = ""
+		clear_tile_highlights()
+		return
+	
+	# Deduct resources using city's storage system
+	for resource_id in training_cost.keys():
+		var cost = training_cost[resource_id]
+		var consumed = current_city.consume_resource(resource_id, cost)
+		print("  Deducted %s: %.1f" % [resource_id, consumed])
+	
+	# Start training at this building
+	instance.start_training(selected_unit_for_training, training_turns)
+	
+	var unit_name = Registry.units.get_unit_name(selected_unit_for_training)
+	var building_name = Registry.get_name_label("building", instance.building_id)
+	print("✓ Started training: %s at %s" % [unit_name, building_name])
+	print("  Cost: ", training_cost)
+	print("  Turns: ", training_turns)
+	
+	# Exit training mode
+	is_train_mode = false
+	selected_unit_for_training = ""
+	clear_tile_highlights()
+	
+	# Update displays
+	city_header.update_display()
+	
+	# Update queue panel
+	if queue_panel:
+		queue_panel.update_display()
+	
+	# Show success message
+	_show_toast_success("Training %s at %s (%d turns)" % [unit_name, building_name, training_turns])
+
+# === Toast Notifications ===
+
+var toast_layer: ToastNotification
+
+func _show_toast_error(msg: String):
+	_ensure_toast_layer()
+	ToastNotification.show_error(msg)
+
+func _show_toast_success(msg: String):
+	_ensure_toast_layer()
+	ToastNotification.show_success(msg)
+
+func _show_toast_info(msg: String):
+	_ensure_toast_layer()
+	ToastNotification.show_message(msg, 2.5, "info")
+
+func _show_toast_warning(msg: String):
+	_ensure_toast_layer()
+	ToastNotification.show_warning(msg)
+
+func _ensure_toast_layer():
+	if not toast_layer or not is_instance_valid(toast_layer):
+		toast_layer = ToastNotification.new()
+		toast_layer.name = "ToastNotification"
+		get_tree().root.add_child(toast_layer)

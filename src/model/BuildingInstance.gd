@@ -26,6 +26,11 @@ var stored_resources: Dictionary = {}  # resource_id -> float
 # Cache for building data
 var _building_data: Dictionary = {}
 
+# Training queue (for buildings that can train units)
+var training_unit_id: String = ""  # Currently training unit type
+var training_turns_remaining: int = 0
+var training_total_turns: int = 0
+
 func _init(id: String, coord: Vector2i):
 	building_id = id
 	tile_coord = coord
@@ -227,6 +232,74 @@ func apply_decay() -> Dictionary:
 	
 	return decayed
 
+# === Training ===
+
+func can_train_units() -> bool:
+	"""Check if this building can train any units"""
+	if not is_operational():
+		return false
+	# Check if any unit lists this building in trained_at
+	for unit_id in Registry.units.get_all_unit_ids():
+		var trained_at = Registry.units.get_trained_at(unit_id)
+		if building_id in trained_at:
+			return true
+	return false
+
+func can_train_unit(unit_id: String) -> bool:
+	"""Check if this building can train a specific unit"""
+	if not is_operational():
+		return false
+	var trained_at = Registry.units.get_trained_at(unit_id)
+	return building_id in trained_at
+
+func is_training() -> bool:
+	"""Check if this building is currently training a unit"""
+	return training_unit_id != ""
+
+func start_training(unit_id: String, turns: int) -> bool:
+	"""Start training a unit. Returns false if already training."""
+	if is_training():
+		return false
+	if not can_train_unit(unit_id):
+		return false
+	
+	training_unit_id = unit_id
+	training_turns_remaining = turns
+	training_total_turns = turns
+	print("BuildingInstance: Started training %s at %v (%d turns)" % [unit_id, tile_coord, turns])
+	return true
+
+func cancel_training() -> String:
+	"""Cancel current training. Returns the unit_id that was cancelled."""
+	var unit_id = training_unit_id
+	training_unit_id = ""
+	training_turns_remaining = 0
+	training_total_turns = 0
+	return unit_id
+
+func advance_training() -> String:
+	"""Advance training by one turn. Returns unit_id if completed, empty string otherwise."""
+	if not is_training():
+		return ""
+	
+	training_turns_remaining -= 1
+	
+	if training_turns_remaining <= 0:
+		# Training complete!
+		var completed_unit = training_unit_id
+		training_unit_id = ""
+		training_turns_remaining = 0
+		training_total_turns = 0
+		return completed_unit
+	
+	return ""
+
+func get_training_progress_percent() -> float:
+	"""Get training progress as percentage (0-100)"""
+	if not is_training() or training_total_turns == 0:
+		return 0.0
+	return float(training_total_turns - training_turns_remaining) / float(training_total_turns) * 100.0
+
 # === Serialization ===
 
 func to_dict() -> Dictionary:
@@ -237,7 +310,10 @@ func to_dict() -> Dictionary:
 		"status": status,
 		"turns_remaining": turns_remaining,
 		"cost_per_turn": cost_per_turn,
-		"stored_resources": stored_resources
+		"stored_resources": stored_resources,
+		"training_unit_id": training_unit_id,
+		"training_turns_remaining": training_turns_remaining,
+		"training_total_turns": training_total_turns
 	}
 
 static func from_dict(data: Dictionary) -> BuildingInstance:
@@ -248,4 +324,7 @@ static func from_dict(data: Dictionary) -> BuildingInstance:
 	instance.turns_remaining = data.get("turns_remaining", 0)
 	instance.cost_per_turn = data.get("cost_per_turn", {})
 	instance.stored_resources = data.get("stored_resources", {})
+	instance.training_unit_id = data.get("training_unit_id", "")
+	instance.training_turns_remaining = data.get("training_turns_remaining", 0)
+	instance.training_total_turns = data.get("training_total_turns", 0)
 	return instance

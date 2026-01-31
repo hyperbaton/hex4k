@@ -12,6 +12,8 @@ extends Node2D
 
 var city_tile_dimmer: CityTileDimmer
 var turn_manager: TurnManager
+var unit_manager: UnitManager
+var unit_layer: UnitLayer
 var end_turn_button: Button
 var turn_label: Label
 var turn_report_panel: PanelContainer
@@ -23,9 +25,18 @@ func _ready():
 	world_query.initialize(self, city_manager)
 	tile_highlighter.initialize(world_query)
 	
-	# Create turn manager
-	turn_manager = TurnManager.new(city_manager)
+	# Create unit manager
+	unit_manager = UnitManager.new()
+	
+	# Create turn manager with unit manager reference
+	turn_manager = TurnManager.new(city_manager, unit_manager)
 	turn_manager.turn_completed.connect(_on_turn_completed)
+	
+	# Create unit layer for visuals (in world space, above tiles)
+	unit_layer = UnitLayer.new()
+	unit_layer.name = "UnitLayer"
+	unit_layer.setup(unit_manager)
+	add_child(unit_layer)
 	
 	# Create the city tile dimmer (in world space, above chunks but below UI)
 	city_tile_dimmer = CityTileDimmer.new()
@@ -33,6 +44,9 @@ func _ready():
 	add_child(city_tile_dimmer)
 	# Move it after ChunkManager so it draws on top of tiles
 	move_child(city_tile_dimmer, chunk_manager.get_index() + 1)
+	
+	# Move unit layer above dimmer
+	move_child(unit_layer, city_tile_dimmer.get_index() + 1)
 	
 	# Create turn UI
 	_create_turn_ui()
@@ -194,9 +208,16 @@ func _on_end_turn_pressed():
 	if city_overlay.is_open and city_overlay.current_city:
 		city_overlay.current_city.recalculate_city_stats()
 		city_overlay.city_header.update_display()
+		# Update queue panel
+		if city_overlay.queue_panel:
+			city_overlay.queue_panel.update_display()
 	
 	# Update building visuals for completed constructions
 	_update_building_visuals(report)
+	
+	# Refresh unit visuals
+	if unit_layer:
+		unit_layer.refresh_all()
 
 func _update_building_visuals(report: TurnReport):
 	"""Update visual state of buildings after turn processing"""
@@ -242,14 +263,72 @@ func _on_tile_selected(tile: HexTile):
 	if turn_report_panel and turn_report_panel.visible:
 		return
 	
-	# Create TileView for selected tile
+	# Get tile coordinate
 	var coord = Vector2i(tile.data.q, tile.data.r)
+	print("World._on_tile_selected: coord=", coord)
+	
+	# Check for unit at this tile first
+	var unit_at_tile = unit_manager.get_unit_at(coord) if unit_manager else null
+	print("  unit_at_tile: ", unit_at_tile, " (unit_manager exists: ", unit_manager != null, ")")
+	
+	if unit_at_tile:
+		print("  Unit found: ", unit_at_tile.unit_id, " owner: ", unit_at_tile.owner_id)
+		# There's a unit here - check if it belongs to the current player
+		if unit_at_tile.owner_id == current_player_id:
+			# Is this unit already selected?
+			if unit_layer.selected_unit == unit_at_tile:
+				print("  Unit already selected - checking for city")
+				# Unit already selected - clicking again opens city if applicable
+				var city = city_manager.get_city_at_tile(coord)
+				if city and city.owner.player_id == current_player_id:
+					# Deselect unit and open city
+					unit_layer.deselect_unit()
+					tile_highlighter.clear_all()
+					tile_info_panel.hide_panel()
+					if city_tile_dimmer:
+						city_tile_dimmer.activate(city)
+					city_overlay.open_city(city, world_query, city_manager, tile_highlighter, chunk_manager)
+					return
+				# No city - just keep unit selected, maybe show unit info
+				print("Unit already selected, no city here")
+				return
+			else:
+				# Select this unit
+				print("Selecting unit: ", unit_at_tile.unit_id, " (", unit_at_tile.unit_type, ")")
+				unit_layer.select_unit(unit_at_tile)
+				tile_info_panel.hide_panel()
+				# Show movement range
+				_show_unit_movement_range(unit_at_tile)
+				return
+		else:
+			# Enemy unit - show info but don't select
+			print("Enemy unit at tile")
+	else:
+		print("  No unit at tile")
+	
+	# No unit clicked - check if we have a selected unit and clicked a valid move tile
+	if unit_layer.selected_unit:
+		# Check if clicking a reachable tile
+		if tile_highlighter.highlighted_tiles.has(coord):
+			# Move the selected unit here
+			_move_selected_unit_to(coord)
+			return
+		else:
+			# Clicked somewhere else - deselect unit
+			print("Deselecting unit - clicked non-reachable tile")
+			unit_layer.deselect_unit()
+			tile_highlighter.clear_all()
+	
+	# Check for city
 	var tile_view = world_query.get_tile_view(coord)
 	
 	if tile_view:
 		# Check if clicking on any tile that belongs to a city owned by the player
 		var city = city_manager.get_city_at_tile(coord)
 		if city and city.owner.player_id == current_player_id:
+			# Deselect any selected unit when entering city
+			unit_layer.deselect_unit()
+			tile_highlighter.clear_all()
 			# Hide tile info panel
 			tile_info_panel.hide_panel()
 			# Activate tile dimmer for this city
@@ -265,6 +344,59 @@ func _on_tile_selected(tile: HexTile):
 		# Fallback to old method
 		tile_info_panel.show_tile(tile)
 
+func _show_unit_movement_range(unit: Unit):
+	"""Highlight tiles the unit can move to"""
+	tile_highlighter.clear_all()
+	
+	# Get reachable tiles
+	var reachable = unit_manager.get_reachable_tiles(unit, world_query)
+	
+	print("Unit movement range: ", reachable.size(), " tiles")
+	
+	# Highlight each reachable tile
+	for coord in reachable.keys():
+		if coord == unit.coord:
+			continue  # Don't highlight current position
+		
+		var move_cost = reachable[coord]
+		# Color based on movement cost (green = cheap, yellow = expensive)
+		var color: Color
+		if move_cost <= unit.current_movement / 2:
+			color = Color(0.2, 0.8, 0.2, 0.6)  # Green - easy to reach
+		else:
+			color = Color(0.8, 0.8, 0.2, 0.6)  # Yellow - uses most movement
+		
+		tile_highlighter.highlight_tile(coord, color)
+
+func _move_selected_unit_to(coord: Vector2i):
+	"""Move the selected unit to the target coordinate"""
+	var unit = unit_layer.selected_unit
+	if not unit:
+		return
+	
+	# Get movement cost
+	var reachable = unit_manager.get_reachable_tiles(unit, world_query)
+	if not reachable.has(coord):
+		print("Cannot move to ", coord, " - not reachable")
+		return
+	
+	var move_cost = reachable[coord]
+	
+	# Move the unit
+	var from_coord = unit.coord
+	unit.move_to(coord, move_cost)
+	
+	print("Moved unit from ", from_coord, " to ", coord, " (cost: ", move_cost, ", remaining: ", unit.current_movement, ")")
+	
+	# Update movement highlights
+	if unit.current_movement > 0:
+		# Still has movement - show new range
+		_show_unit_movement_range(unit)
+	else:
+		# No more movement - clear highlights but keep selected
+		tile_highlighter.clear_all()
+		print("Unit has no more movement this turn")
+
 func _on_city_overlay_closed():
 	# City overlay closed - deactivate dimmer
 	if city_tile_dimmer:
@@ -272,8 +404,15 @@ func _on_city_overlay_closed():
 	tile_highlighter.clear_all()
 
 func _on_highlighted_tile_clicked(coord: Vector2i):
-	# Forward to city overlay
-	city_overlay.on_highlighted_tile_clicked(coord)
+	# Forward to city overlay if open
+	if city_overlay.is_open:
+		city_overlay._on_highlighted_tile_clicked(coord)
+		return
+	
+	# Check if we have a selected unit - handle movement
+	if unit_layer.selected_unit:
+		print("Highlighted tile clicked for unit movement: ", coord)
+		_move_selected_unit_to(coord)
 
 func _on_tech_tree_button_pressed():
 	if not tech_tree_screen.is_open:

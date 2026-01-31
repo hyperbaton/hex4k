@@ -4,30 +4,29 @@
 	"milestones_required": ["pack_animal_domestication"],
 	"training": {
 		"cost": {
-			"food": 30,
-			"wood": 10
+			"food": 20,
+			"wood": 5
 		},
-		"turns": 4
+		"turns": 3
 	},
 	"stats": {
-		"health": 80,
-		"movement": 3,
-		"vision": 2,
-		"cargo_capacity": 100
+		"health": 50,
+		"movement": 4,
+		"vision": 3
 	},
 	"combat": {
 		"attack": 0,
-		"defense": 3,
+		"defense": 2,
 		"can_attack": false,
 		"can_capture": false
 	},
-	"movement_type": "foot",
+	"movement_type": "scout",
 	"maintenance": {
 		"food": 1
 	},
-	"abilities": ["trade", "transport"],
+	"abilities": ["explore"],
 	"visual": {
-		"sprite": "res://assets/units/caravan.svg",
-		"color": "#DAA520"
+		"sprite": "res://assets/units/explorer.svg",
+		"color": "#8B4513"
 	}
 }

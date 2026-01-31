@@ -1,37 +1,33 @@
 {
-	"category": "settler",
-	"cost": {
-		"production": 100,
-		"food": 50,
-		"turns": 10
+	"category": "civil",
+	"trained_at": ["city_center", "longhouse", "tribal_camp"],
+	"milestones_required": [],
+	"training": {
+		"cost": {
+			"food": 50,
+			"wood": 20,
+			"tools": 5
+		},
+		"turns": 5
 	},
 	"stats": {
+		"health": 100,
 		"movement": 2,
+		"vision": 2
+	},
+	"combat": {
 		"attack": 0,
 		"defense": 5,
-		"health": 100,
-		"range": 0,
-		"cargo_capacity": 0
+		"can_attack": false,
+		"can_capture": false
+	},
+	"movement_type": "foot",
+	"maintenance": {
+		"food": 2
 	},
 	"abilities": ["found_city"],
-	"terrain_costs": {
-		"grassland": 1,
-		"plains": 1,
-		"forest": 2,
-		"mountain": 999,
-		"ocean": 999
-	},
-	"requirements": {
-		"milestones_required": [],
-		"resources_consumed_on_build": {}
-	},
-	"maintenance": {
-		"per_turn": {
-			"food": 2
-		}
-	},
-	"upgrades_to": null,
 	"visual": {
-		"sprite": "res://assets/sprites/settler.png"
+		"sprite": "res://assets/units/settler.svg",
+		"color": "#2E8B57"
 	}
 }

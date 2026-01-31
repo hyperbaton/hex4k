@@ -13,8 +13,12 @@ var last_report: TurnReport = null
 # Reference to city manager for accessing all cities
 var city_manager: CityManager
 
-func _init(p_city_manager: CityManager):
+# Reference to unit manager for spawning units
+var unit_manager: UnitManager
+
+func _init(p_city_manager: CityManager, p_unit_manager: UnitManager = null):
 	city_manager = p_city_manager
+	unit_manager = p_unit_manager
 
 func process_turn() -> TurnReport:
 	"""Process a complete turn for all cities"""
@@ -25,6 +29,13 @@ func process_turn() -> TurnReport:
 	
 	emit_signal("turn_started", current_turn)
 	print("\n========== TURN %d ==========" % current_turn)
+	
+	# Process unit turn start (refresh movement, etc.)
+	if unit_manager:
+		# For now, process all units (could be per-player in multiplayer)
+		for unit in unit_manager.get_all_units():
+			unit.start_turn()
+		print("  Units refreshed: %d" % unit_manager.get_all_units().size())
 	
 	# Process each city
 	for city in city_manager.get_all_cities():
@@ -64,6 +75,9 @@ func _process_city_turn(city: City) -> TurnReport.CityTurnReport:
 	
 	# Phase 4: Construction processing
 	_phase_construction(city, report)
+	
+	# Phase 4b: Training processing
+	_phase_training(city, report)
 	
 	# Phase 5: Population update
 	_phase_population(city, report)
@@ -328,6 +342,80 @@ func _on_construction_completed(city: City, instance: BuildingInstance, report: 
 			Registry.tech.add_research(branch_id, points)
 			report.add_completion_research_reward(branch_id, points)
 			print("      Research reward: +%.2f %s" % [points, branch_id])
+
+# === Phase 4b: Training ===
+
+func _phase_training(city: City, report: TurnReport.CityTurnReport):
+	"""Process unit training for all buildings in the city"""
+	for coord in city.building_instances.keys():
+		var instance: BuildingInstance = city.building_instances[coord]
+		
+		if not instance.is_training():
+			continue
+		
+		var unit_id = instance.training_unit_id
+		var turns_remaining = instance.training_turns_remaining
+		
+		# Process one turn of training
+		var completed_unit_type = instance.advance_training()
+		
+		if completed_unit_type != "":
+			# Training completed - spawn unit!
+			_on_training_completed(city, completed_unit_type, coord, report)
+		else:
+			# Still training
+			print("    Training %s at %v: %d turns remaining" % [unit_id, coord, turns_remaining - 1])
+
+func _on_training_completed(city: City, unit_type: String, building_coord: Vector2i, report: TurnReport.CityTurnReport):
+	"""Handle unit training completion - spawn the unit"""
+	print("    Training completed: %s at %v" % [Registry.units.get_unit_name(unit_type), building_coord])
+	
+	# Find spawn location (building tile first, then adjacent, then city center)
+	var spawn_coord = _find_unit_spawn_location(city, building_coord)
+	
+	if spawn_coord == Vector2i(-99999, -99999):  # Invalid coord sentinel
+		print("      Warning: No valid spawn location found!")
+		return
+	
+	# Spawn the unit if we have a unit manager
+	if unit_manager:
+		var owner_id = city.owner.player_id if city.owner else "unknown"
+		var unit = unit_manager.spawn_unit(unit_type, owner_id, spawn_coord, city.city_id)
+		if unit:
+			print("      Spawned %s at %v" % [unit_type, spawn_coord])
+			# Add to report (we could add training-related tracking to TurnReport)
+	else:
+		print("      Warning: No unit manager - unit not spawned")
+
+func _find_unit_spawn_location(city: City, building_coord: Vector2i) -> Vector2i:
+	"""Find a valid tile to spawn a unit, preferring the building location"""
+	# First try the building's tile
+	if not unit_manager or not unit_manager.has_unit_at(building_coord):
+		return building_coord
+	
+	# Try adjacent tiles to the building
+	var directions = [
+		Vector2i(1, 0), Vector2i(1, -1), Vector2i(0, -1),
+		Vector2i(-1, 0), Vector2i(-1, 1), Vector2i(0, 1)
+	]
+	
+	for dir in directions:
+		var coord = building_coord + dir
+		if city.has_tile(coord):
+			if not unit_manager.has_unit_at(coord):
+				return coord
+	
+	# Try city center
+	if not unit_manager.has_unit_at(city.city_center_coord):
+		return city.city_center_coord
+	
+	# Try any city tile
+	for coord in city.tiles.keys():
+		if not unit_manager.has_unit_at(coord):
+			return coord
+	
+	# No valid location found
+	return Vector2i(-99999, -99999)
 
 # === Phase 5: Population ===
 
