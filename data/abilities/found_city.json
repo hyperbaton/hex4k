@@ -1,0 +1,49 @@
+{
+  "id": "found_city",
+  "name": "Found City",
+  "description": "Establish a new settlement on this tile",
+  "icon": "res://assets/icons/abilities/found_city.svg",
+  "category": "civil",
+  
+  "conditions": [
+    {
+      "type": "not_on_city",
+      "message": "Cannot found a city on existing city territory"
+    },
+    {
+      "type": "terrain_allows_city",
+      "message": "Cannot found a city on this terrain"
+    },
+    {
+      "type": "min_distance_from_city",
+      "distance": 3,
+      "message": "Too close to another city"
+    }
+  ],
+  
+  "costs": {
+    "movement": "all",
+    "consumes_unit": true
+  },
+  
+  "effects": [
+    {
+      "type": "found_city",
+      "city_center_building": "${city_center_building}",
+      "city_name_prefix": "${city_name_prefix}"
+    }
+  ],
+  
+  "params": {
+    "city_center_building": {
+      "type": "string",
+      "default": "city_center",
+      "description": "Building to place as city center"
+    },
+    "city_name_prefix": {
+      "type": "string", 
+      "default": "New ",
+      "description": "Prefix for auto-generated city name"
+    }
+  }
+}

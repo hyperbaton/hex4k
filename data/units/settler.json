@@ -25,7 +25,15 @@
 	"maintenance": {
 		"food": 2
 	},
-	"abilities": ["found_city"],
+	"abilities": [
+		{
+			"ability_id": "found_city",
+			"params": {
+				"city_center_building": "longhouse",
+				"city_name_prefix": "New "
+			}
+		}
+	],
 	"visual": {
 		"sprite": "res://assets/units/settler.svg",
 		"color": "#2E8B57"

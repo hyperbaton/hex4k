@@ -24,7 +24,12 @@
 	"maintenance": {
 		"food": 1
 	},
-	"abilities": ["explore"],
+	"abilities": [
+		{
+			"ability_id": "fortify",
+			"params": {}
+		}
+	],
 	"visual": {
 		"sprite": "res://assets/units/explorer.svg",
 		"color": "#8B4513"

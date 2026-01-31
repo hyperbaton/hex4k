@@ -11,6 +11,7 @@ var modifiers: ModifierRegistry
 var units: UnitRegistry
 var perks: PerkRegistry
 var localization: LocalizationRegistry
+var abilities: AbilityRegistry
 
 func _ready():
 	print("=== Initializing Game Registries ===")
@@ -24,6 +25,7 @@ func _ready():
 	modifiers = ModifierRegistry.new()
 	units = UnitRegistry.new()
 	perks = PerkRegistry.new()
+	abilities = AbilityRegistry.new()
 	
 	# Load all data
 	localization.load_data()
@@ -34,6 +36,7 @@ func _ready():
 	buildings.load_data()
 	units.load_data()
 	perks.load_data()
+	# AbilityRegistry loads in _init()
 	
 	print("=== Registry Initialization Complete ===")
 

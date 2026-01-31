@@ -1,0 +1,28 @@
+{
+  "id": "fortify",
+  "name": "Fortify",
+  "description": "Dig in and gain defensive bonus. Unit skips its turn.",
+  "icon": "res://assets/icons/abilities/fortify.svg",
+  "category": "defense",
+  
+  "conditions": [
+    {
+      "type": "not_fortified",
+      "message": "Already fortified"
+    }
+  ],
+  
+  "costs": {
+    "movement": "all",
+    "ends_turn": true
+  },
+  
+  "effects": [
+    {
+      "type": "set_fortified",
+      "value": true
+    }
+  ],
+  
+  "params": {}
+}

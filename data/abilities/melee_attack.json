@@ -1,0 +1,54 @@
+{
+  "id": "melee_attack",
+  "name": "Attack",
+  "description": "Engage an adjacent enemy in melee combat",
+  "icon": "res://assets/icons/abilities/melee_attack.svg",
+  "category": "military",
+  
+  "conditions": [
+    {
+      "type": "has_movement",
+      "message": "No movement remaining"
+    },
+    {
+      "type": "not_acted",
+      "message": "Already acted this turn"
+    },
+    {
+      "type": "adjacent_enemy",
+      "message": "No adjacent enemy to attack"
+    }
+  ],
+  
+  "costs": {
+    "movement": "all",
+    "ends_turn": true
+  },
+  
+  "effects": [
+    {
+      "type": "melee_combat",
+      "damage_multiplier": "${damage_multiplier}",
+      "bonus_vs": "${bonus_vs}"
+    }
+  ],
+  
+  "targeting": {
+    "type": "adjacent",
+    "filter": "enemy_unit",
+    "range": 1
+  },
+  
+  "params": {
+    "damage_multiplier": {
+      "type": "float",
+      "default": 1.0,
+      "description": "Multiplier for base attack damage"
+    },
+    "bonus_vs": {
+      "type": "array",
+      "default": [],
+      "description": "Unit types this attack has bonus against"
+    }
+  }
+}

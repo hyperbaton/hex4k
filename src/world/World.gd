@@ -14,6 +14,7 @@ var city_tile_dimmer: CityTileDimmer
 var turn_manager: TurnManager
 var unit_manager: UnitManager
 var unit_layer: UnitLayer
+var unit_ability_bar: UnitAbilityBar
 var end_turn_button: Button
 var turn_label: Label
 var turn_report_panel: PanelContainer
@@ -50,6 +51,9 @@ func _ready():
 	
 	# Create turn UI
 	_create_turn_ui()
+	
+	# Create unit ability bar (in UI layer)
+	_create_unit_ability_bar()
 	
 	# Connect signals
 	chunk_manager.tile_selected.connect(_on_tile_selected)
@@ -184,6 +188,20 @@ func _create_turn_report_panel(parent: Control):
 	
 	parent.add_child(turn_report_panel)
 
+func _create_unit_ability_bar():
+	"""Create the unit ability bar UI"""
+	var ui_root = $UI/Root
+	
+	unit_ability_bar = UnitAbilityBar.new()
+	unit_ability_bar.name = "UnitAbilityBar"
+	unit_ability_bar.set_context({
+		world_query = world_query,
+		city_manager = city_manager,
+		unit_manager = unit_manager
+	})
+	unit_ability_bar.ability_requested.connect(_on_ability_requested)
+	ui_root.add_child(unit_ability_bar)
+
 func _on_end_turn_pressed():
 	"""Handle End Turn button press"""
 	# Disable button during processing
@@ -284,6 +302,8 @@ func _on_tile_selected(tile: HexTile):
 					# Deselect unit and open city
 					unit_layer.deselect_unit()
 					tile_highlighter.clear_all()
+					if unit_ability_bar:
+						unit_ability_bar.hide_bar()
 					tile_info_panel.hide_panel()
 					if city_tile_dimmer:
 						city_tile_dimmer.activate(city)
@@ -318,6 +338,8 @@ func _on_tile_selected(tile: HexTile):
 			print("Deselecting unit - clicked non-reachable tile")
 			unit_layer.deselect_unit()
 			tile_highlighter.clear_all()
+			if unit_ability_bar:
+				unit_ability_bar.hide_bar()
 	
 	# Check for city
 	var tile_view = world_query.get_tile_view(coord)
@@ -329,6 +351,8 @@ func _on_tile_selected(tile: HexTile):
 			# Deselect any selected unit when entering city
 			unit_layer.deselect_unit()
 			tile_highlighter.clear_all()
+			if unit_ability_bar:
+				unit_ability_bar.hide_bar()
 			# Hide tile info panel
 			tile_info_panel.hide_panel()
 			# Activate tile dimmer for this city
@@ -367,6 +391,10 @@ func _show_unit_movement_range(unit: Unit):
 			color = Color(0.8, 0.8, 0.2, 0.6)  # Yellow - uses most movement
 		
 		tile_highlighter.highlight_tile(coord, color)
+	
+	# Show ability bar for the unit
+	if unit_ability_bar:
+		unit_ability_bar.show_unit_abilities(unit)
 
 func _move_selected_unit_to(coord: Vector2i):
 	"""Move the selected unit to the target coordinate"""
@@ -396,6 +424,9 @@ func _move_selected_unit_to(coord: Vector2i):
 		# No more movement - clear highlights but keep selected
 		tile_highlighter.clear_all()
 		print("Unit has no more movement this turn")
+		# Refresh ability bar (conditions may have changed)
+		if unit_ability_bar:
+			unit_ability_bar.show_unit_abilities(unit)
 
 func _on_city_overlay_closed():
 	# City overlay closed - deactivate dimmer
@@ -413,6 +444,53 @@ func _on_highlighted_tile_clicked(coord: Vector2i):
 	if unit_layer.selected_unit:
 		print("Highlighted tile clicked for unit movement: ", coord)
 		_move_selected_unit_to(coord)
+
+func _on_ability_requested(ability_id: String, params: Dictionary):
+	"""Handle ability button press"""
+	var unit = unit_layer.selected_unit
+	if not unit:
+		print("✗ No unit selected for ability")
+		return
+	
+	print("Executing ability: ", ability_id, " with params: ", params)
+	
+	# Build context
+	var context = {
+		world_query = world_query,
+		city_manager = city_manager,
+		unit_manager = unit_manager
+	}
+	
+	# Execute ability
+	var result = Registry.abilities.execute_ability(ability_id, unit, params, context)
+	
+	if result.success:
+		print("✓ Ability executed: ", result.message)
+		
+		# Check if unit was consumed
+		if result.results.get("unit_consumed", false):
+			print("  Unit consumed by ability")
+			# Remove the unit
+			unit_manager.remove_unit(unit.unit_id)
+			unit_layer.deselect_unit()
+			tile_highlighter.clear_all()
+			if unit_ability_bar:
+				unit_ability_bar.hide_bar()
+			
+			# If a city was founded, show it
+			if result.results.has("city"):
+				var city = result.results.city
+				print("  City founded: ", city.city_name)
+				# Update tile visual
+				var center_tile = chunk_manager.get_tile_at_coord(city.city_center_coord)
+				if center_tile:
+					var building_id = city.get_building_instance(city.city_center_coord).building_id
+					center_tile.set_building(building_id)
+		else:
+			# Unit still exists - refresh displays
+			_show_unit_movement_range(unit)
+	else:
+		print("✗ Ability failed: ", result.message)
 
 func _on_tech_tree_button_pressed():
 	if not tech_tree_screen.is_open:
