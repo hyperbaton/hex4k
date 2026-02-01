@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Wild Game Icon - Deer silhouette -->
+  <g fill="#6D4C41">
+    <!-- Body -->
+    <ellipse cx="16" cy="20" rx="8" ry="5"/>
+    <!-- Head -->
+    <circle cx="24" cy="16" r="3"/>
+    <!-- Legs -->
+    <rect x="10" y="24" width="2" height="6"/>
+    <rect x="14" y="24" width="2" height="5"/>
+    <rect x="18" y="24" width="2" height="5"/>
+    <rect x="22" y="24" width="2" height="4"/>
+    <!-- Antlers -->
+    <path d="M24,13 L22,8 M22,10 L20,8" stroke="#6D4C41" stroke-width="1.5" fill="none"/>
+    <path d="M24,13 L26,8 M26,10 L28,8" stroke="#6D4C41" stroke-width="1.5" fill="none"/>
+    <!-- Tail -->
+    <ellipse cx="8" cy="18" rx="2" ry="1.5" fill="#8D6E63"/>
+  </g>
+</svg>

@@ -1,0 +1,10 @@
+{
+  "id": "grassland_sparse_jungle",
+  "display_name": "Light Jungle",
+  "base_terrain": "grassland",
+  "required_modifiers": ["sparse_jungle"],
+  "visual": {
+    "sprite": "res://assets/tiles/grassland_sparse_jungle.svg",
+    "color": "#4A8B3A"
+  }
+}

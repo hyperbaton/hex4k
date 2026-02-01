@@ -1,0 +1,30 @@
+{
+	"type": "resource_deposit",
+	"duration": -1,
+	"stackable": false,
+	"conflicts_with": [],
+	"conditions": {
+		"terrain_types": ["coast", "ocean", "lake"],
+		"altitude_min": 0.0,
+		"altitude_max": 0.35,
+		"requires_modifiers": [],
+		"prohibits_modifiers": []
+	},
+	"generation": {
+		"spawn_chance": 0.12,
+		"altitude_min": 0.15,
+		"altitude_max": 0.32,
+		"humidity_min": 0.0,
+		"humidity_max": 1.0,
+		"temperature_min": 0.20,
+		"temperature_max": 0.85,
+		"terrain_types": ["coast", "ocean", "lake"],
+		"cluster_size": 3,
+		"cluster_falloff": 1.5
+	},
+	"visual": {
+		"icon": "res://assets/icons/modifiers/fish.svg",
+		"overlay_color": "#0288D180"
+	},
+	"milestones_required": []
+}

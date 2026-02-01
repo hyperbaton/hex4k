@@ -1,0 +1,10 @@
+{
+  "id": "ocean",
+  "display_name": "Ocean",
+  "base_terrain": "ocean",
+  "required_modifiers": [],
+  "visual": {
+    "sprite": "res://assets/tiles/ocean.svg",
+    "color": "#1E5799"
+  }
+}

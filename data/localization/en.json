@@ -127,6 +127,58 @@
 		"clay_deposit": {
 			"name": "Clay Deposit",
 			"description": "A site rich in workable clay, ideal for pottery production."
+		},
+		"dense_forest": {
+			"name": "Dense Forest",
+			"description": "Thick woodland providing abundant timber and game, but slowing movement."
+		},
+		"sparse_forest": {
+			"name": "Sparse Forest",
+			"description": "Scattered trees providing moderate wood and hunting opportunities."
+		},
+		"dense_jungle": {
+			"name": "Dense Jungle",
+			"description": "Lush tropical vegetation teeming with life but difficult to traverse."
+		},
+		"sparse_jungle": {
+			"name": "Sparse Jungle",
+			"description": "Tropical vegetation with clearings, offering food and wood."
+		},
+		"game_trails": {
+			"name": "Game Trails",
+			"description": "Paths frequented by wild animals, excellent for hunting."
+		},
+		"berry_bushes": {
+			"name": "Berry Bushes",
+			"description": "Wild shrubs bearing edible berries for gathering."
+		},
+		"stone_outcrops": {
+			"name": "Stone Outcrops",
+			"description": "Exposed rock formations providing accessible building stone."
+		},
+		"stone_outcrop": {
+			"name": "Stone Outcrop",
+			"description": "Exposed rock providing accessible building stone."
+		},
+		"freshwater_spring": {
+			"name": "Freshwater Spring",
+			"description": "A natural source of clean water, vital for settlement."
+		},
+		"fresh_water": {
+			"name": "Fresh Water",
+			"description": "A source of clean drinking water."
+		},
+		"fish": {
+			"name": "Fish",
+			"description": "Waters teeming with fish, ideal for fishing."
+		},
+		"flint_deposit": {
+			"name": "Flint Deposit",
+			"description": "Nodules of flint suitable for tool-making."
+		},
+		"wild_game": {
+			"name": "Wild Game",
+			"description": "Area frequented by wild animals, excellent for hunting."
 		}
 	},
 	"building": {

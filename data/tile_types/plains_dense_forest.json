@@ -1,0 +1,10 @@
+{
+  "id": "plains_dense_forest",
+  "display_name": "Forested Plains",
+  "base_terrain": "plains",
+  "required_modifiers": ["dense_forest"],
+  "visual": {
+    "sprite": "res://assets/tiles/plains_dense_forest.svg",
+    "color": "#4A6A25"
+  }
+}

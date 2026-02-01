@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Dense Forest Icon - Multiple trees -->
+  <g fill="#1B5E20">
+    <!-- Left tree -->
+    <polygon points="8,24 12,24 10,8"/>
+    <rect x="9" y="24" width="2" height="4" fill="#5D4037"/>
+    <!-- Center tree (larger) -->
+    <polygon points="12,26 20,26 16,6"/>
+    <rect x="14.5" y="26" width="3" height="4" fill="#5D4037"/>
+    <!-- Right tree -->
+    <polygon points="20,24 24,24 22,10"/>
+    <rect x="21" y="24" width="2" height="4" fill="#5D4037"/>
+  </g>
+</svg>

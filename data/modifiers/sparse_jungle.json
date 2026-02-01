@@ -1,0 +1,30 @@
+{
+	"type": "terrain_feature",
+	"duration": -1,
+	"stackable": false,
+	"conflicts_with": ["dense_forest", "sparse_forest", "dense_jungle"],
+	"conditions": {
+		"terrain_types": ["grassland", "plains", "rolling_hills", "savannah"],
+		"altitude_min": 0.30,
+		"altitude_max": 0.70,
+		"requires_modifiers": [],
+		"prohibits_modifiers": ["dense_forest", "sparse_forest", "dense_jungle"]
+	},
+	"generation": {
+		"spawn_chance": 0.10,
+		"altitude_min": 0.30,
+		"altitude_max": 0.65,
+		"humidity_min": 0.55,
+		"humidity_max": 0.80,
+		"temperature_min": 0.60,
+		"temperature_max": 0.90,
+		"terrain_types": ["grassland", "plains", "rolling_hills", "savannah"],
+		"cluster_size": 2.5,
+		"cluster_falloff": 1.3
+	},
+	"visual": {
+		"icon": "res://assets/icons/modifiers/sparse_jungle.svg",
+		"overlay_color": "#1F5F2F35"
+	},
+	"milestones_required": []
+}

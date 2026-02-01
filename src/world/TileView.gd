@@ -3,6 +3,11 @@ class_name TileView
 
 # Unified view of a tile combining terrain and gameplay data
 # This is a READ-ONLY view - modifications go through proper systems
+#
+# Note: Modifier effects (yields, movement costs) are NOT stored here.
+# Effects are defined on the RECEIVERS (buildings define adjacency bonuses,
+# movement_types define terrain costs). This follows the principle that
+# effects belong to the receiver, not the source.
 
 var coord: Vector2i
 var terrain_data: HexTileData  # Physical/terrain data (always present)
@@ -44,6 +49,28 @@ func get_terrain_color() -> Color:
 		return Color(terrain.visual.color)
 	
 	return Color.WHITE
+
+# === Modifier Information ===
+
+func get_modifiers() -> Array:
+	"""Get list of modifier IDs on this tile"""
+	if terrain_data:
+		return terrain_data.modifiers
+	return []
+
+func has_modifier(modifier_id: String) -> bool:
+	return terrain_data and terrain_data.has_modifier(modifier_id)
+
+func get_modifier_names() -> Array[String]:
+	"""Get human-readable names of modifiers"""
+	var names: Array[String] = []
+	for mod_id in get_modifiers():
+		names.append(Registry.modifiers.get_modifier_name(mod_id))
+	return names
+
+func get_modifier_type(modifier_id: String) -> String:
+	"""Get the type of a specific modifier"""
+	return Registry.modifiers.get_modifier_type(modifier_id)
 
 # === Ownership Information ===
 
@@ -146,6 +173,7 @@ func get_display_summary() -> Dictionary:
 		coord = coord,
 		terrain = get_terrain_name(),
 		terrain_id = get_terrain_id(),
+		modifiers = get_modifiers(),
 		is_claimed = is_claimed(),
 		city_name = get_city_name(),
 		owner = get_owner_name(),
@@ -164,6 +192,11 @@ func get_tooltip_text() -> String:
 	
 	# Terrain
 	text += "Terrain: %s\n" % get_terrain_name()
+	
+	# Modifiers
+	var modifiers = get_modifiers()
+	if not modifiers.is_empty():
+		text += "Features: %s\n" % ", ".join(get_modifier_names())
 	
 	# Ownership
 	if is_claimed():
@@ -212,6 +245,7 @@ func get_visible_to_player(player_id: String) -> Dictionary:
 		coord = coord,
 		terrain = get_terrain_name(),
 		terrain_id = get_terrain_id(),
+		modifiers = get_modifiers(),
 		is_claimed = is_claimed()
 	}
 	

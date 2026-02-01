@@ -1,0 +1,10 @@
+{
+  "id": "grassland_dense_forest",
+  "display_name": "Dense Forest",
+  "base_terrain": "grassland",
+  "required_modifiers": ["dense_forest"],
+  "visual": {
+    "sprite": "res://assets/tiles/grassland_dense_forest.svg",
+    "color": "#2D5A1E"
+  }
+}

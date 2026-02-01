@@ -1,0 +1,10 @@
+{
+  "id": "mountain",
+  "display_name": "Mountain",
+  "base_terrain": "mountain",
+  "required_modifiers": [],
+  "visual": {
+    "sprite": "res://assets/tiles/mountain.svg",
+    "color": "#6B6B6B"
+  }
+}

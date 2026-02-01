@@ -1,0 +1,10 @@
+{
+  "id": "plains_sparse_forest",
+  "display_name": "Wooded Plains",
+  "base_terrain": "plains",
+  "required_modifiers": ["sparse_forest"],
+  "visual": {
+    "sprite": "res://assets/tiles/plains_sparse_forest.svg",
+    "color": "#8A9A40"
+  }
+}

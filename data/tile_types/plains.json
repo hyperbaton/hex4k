@@ -1,0 +1,10 @@
+{
+  "id": "plains",
+  "display_name": "Plains",
+  "base_terrain": "plains",
+  "required_modifiers": [],
+  "visual": {
+    "sprite": "res://assets/tiles/plains.svg",
+    "color": "#C4B550"
+  }
+}

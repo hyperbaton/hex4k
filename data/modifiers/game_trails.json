@@ -1,0 +1,30 @@
+{
+	"type": "terrain_feature",
+	"duration": -1,
+	"stackable": false,
+	"conflicts_with": [],
+	"conditions": {
+		"terrain_types": ["grassland", "plains", "savannah", "steppe", "rolling_hills", "meadow"],
+		"altitude_min": 0.35,
+		"altitude_max": 0.75,
+		"requires_modifiers": [],
+		"prohibits_modifiers": []
+	},
+	"generation": {
+		"spawn_chance": 0.08,
+		"altitude_min": 0.35,
+		"altitude_max": 0.70,
+		"humidity_min": 0.30,
+		"humidity_max": 0.80,
+		"temperature_min": 0.25,
+		"temperature_max": 0.75,
+		"terrain_types": ["grassland", "plains", "savannah", "steppe", "rolling_hills", "meadow"],
+		"cluster_size": 2.0,
+		"cluster_falloff": 0.8
+	},
+	"visual": {
+		"icon": "res://assets/icons/modifiers/game_trails.svg",
+		"overlay_color": "#6B4C2A30"
+	},
+	"milestones_required": []
+}

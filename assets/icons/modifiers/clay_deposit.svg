@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Clay Deposit Icon - Clay mound with texture -->
+  <ellipse cx="16" cy="22" rx="12" ry="6" fill="#8D6E63"/>
+  <ellipse cx="16" cy="20" rx="10" ry="5" fill="#A1887F"/>
+  <ellipse cx="16" cy="18" rx="7" ry="3" fill="#BCAAA4"/>
+  <!-- Texture lines -->
+  <path d="M8,22 Q12,20 16,22 Q20,24 24,22" stroke="#6D4C41" stroke-width="0.5" fill="none"/>
+  <path d="M10,20 Q14,18 18,20" stroke="#6D4C41" stroke-width="0.5" fill="none"/>
+</svg>

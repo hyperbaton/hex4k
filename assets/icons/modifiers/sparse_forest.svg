@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Sparse Forest Icon - Fewer, smaller trees -->
+  <g fill="#2E7D32">
+    <!-- Left tree -->
+    <polygon points="6,26 12,26 9,12"/>
+    <rect x="8" y="26" width="2" height="4" fill="#6D4C41"/>
+    <!-- Right tree -->
+    <polygon points="20,26 26,26 23,14"/>
+    <rect x="22" y="26" width="2" height="4" fill="#6D4C41"/>
+  </g>
+</svg>

@@ -1,0 +1,10 @@
+{
+  "id": "desert",
+  "display_name": "Desert",
+  "base_terrain": "desert",
+  "required_modifiers": [],
+  "visual": {
+    "sprite": "res://assets/tiles/desert.svg",
+    "color": "#E8D5A3"
+  }
+}

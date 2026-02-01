@@ -22,6 +22,10 @@ var temperature_noise := FastNoiseLite.new()
 
 var river_noise := FastNoiseLite.new()
 
+# Modifier generation noise layers
+var modifier_noise := FastNoiseLite.new()
+var cluster_noise := FastNoiseLite.new()
+
 # Cache for terrain matching
 var terrain_cache: Array[Dictionary] = []
 
@@ -39,6 +43,16 @@ func _init(p_seed: int) -> void:
 	river_noise.seed = noise_seed + river_seed_offset
 	river_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
 	river_noise.frequency = river_scale
+	
+	# Initialize modifier noise
+	modifier_noise.seed = noise_seed + 1234
+	modifier_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	modifier_noise.frequency = 0.15
+	
+	# Cluster noise for grouping modifiers
+	cluster_noise.seed = noise_seed + 5678
+	cluster_noise.noise_type = FastNoiseLite.TYPE_CELLULAR
+	cluster_noise.frequency = 0.08
 	
 	# Build terrain cache sorted by priority (highest first)
 	_build_terrain_cache()
@@ -106,6 +120,9 @@ func generate_tile_data(q: float, r:float) -> HexTileData:
 	tile.is_river = generate_river(q, r, altitude)
 	
 	tile.terrain_id = get_terrain_from_parameters(altitude, humidity, temperature, tile.is_river)
+	
+	# Generate modifiers for this tile
+	generate_modifiers_for_tile(tile)
 	
 	return tile
 
@@ -224,3 +241,97 @@ func get_terrain_from_parameters(altitude: float, humidity: float, temperature: 
 			return "plains"
 	
 	return best_match
+
+# === Modifier Generation ===
+
+func generate_modifiers_for_tile(tile: HexTileData):
+	"""Generate modifiers for a tile based on terrain and climate"""
+	var gen_cache = Registry.modifiers.get_generation_cache()
+	
+	for mod_data in gen_cache:
+		var modifier_id = mod_data.id
+		
+		# Check if this modifier can spawn here
+		if not _can_modifier_spawn(mod_data, tile):
+			continue
+		
+		# Calculate spawn probability with clustering
+		var spawn_chance = _calculate_spawn_chance(mod_data, tile)
+		
+		# Use deterministic random based on position and modifier
+		var random_value = _get_deterministic_random(tile.q, tile.r, modifier_id)
+		
+		if random_value < spawn_chance:
+			tile.add_modifier(modifier_id)
+
+func _can_modifier_spawn(mod_data: Dictionary, tile: HexTileData) -> bool:
+	"""Check if a modifier can spawn on this tile"""
+	
+	# Check terrain type
+	var allowed_terrains = mod_data.terrain_types
+	if not allowed_terrains.is_empty() and not tile.terrain_id in allowed_terrains:
+		return false
+	
+	# Check altitude
+	if tile.altitude < mod_data.altitude_min or tile.altitude > mod_data.altitude_max:
+		return false
+	
+	# Check humidity
+	if tile.humidity < mod_data.humidity_min or tile.humidity > mod_data.humidity_max:
+		return false
+	
+	# Check temperature
+	if tile.temperature < mod_data.temperature_min or tile.temperature > mod_data.temperature_max:
+		return false
+	
+	# Check conflicts with existing modifiers
+	var conflicts = mod_data.conflicts_with
+	for existing in tile.modifiers:
+		if existing in conflicts:
+			return false
+	
+	return true
+
+func _calculate_spawn_chance(mod_data: Dictionary, tile: HexTileData) -> float:
+	"""Calculate spawn chance with clustering support"""
+	var base_chance = mod_data.spawn_chance
+	var cluster_size = mod_data.cluster_size
+	var cluster_falloff = mod_data.cluster_falloff
+	
+	if cluster_size <= 1:
+		# No clustering - just use base chance
+		return base_chance
+	
+	# Use cellular noise to create cluster centers
+	# Different modifiers use different noise offsets for variety
+	var mod_hash = mod_data.id.hash() % 1000
+	var cluster_value = cluster_noise.get_noise_2d(
+		float(tile.q) + mod_hash * 0.1,
+		float(tile.r) + mod_hash * 0.1
+	)
+	
+	# Cellular noise returns values around 0, with "cells" being similar values
+	# Transform to a multiplier: cells with low absolute values get higher spawn chance
+	var cluster_multiplier = 1.0 - abs(cluster_value) * cluster_falloff
+	cluster_multiplier = clamp(cluster_multiplier, 0.1, 2.0)
+	
+	# Additional variation using regular noise
+	var variation = modifier_noise.get_noise_2d(
+		float(tile.q) * 0.5 + mod_hash,
+		float(tile.r) * 0.5 + mod_hash
+	)
+	# Map from [-1,1] to [0.5, 1.5]
+	var variation_multiplier = 1.0 + variation * 0.5
+	
+	return base_chance * cluster_multiplier * variation_multiplier * cluster_size
+
+func _get_deterministic_random(q: int, r: int, modifier_id: String) -> float:
+	"""Get a deterministic 'random' value for a tile and modifier combination"""
+	# Use noise with a unique offset per modifier
+	var mod_hash = modifier_id.hash()
+	var noise_val = modifier_noise.get_noise_2d(
+		float(q) * 3.7 + mod_hash * 0.001,
+		float(r) * 3.7 + mod_hash * 0.001
+	)
+	# Map from [-1,1] to [0,1]
+	return (noise_val + 1.0) * 0.5

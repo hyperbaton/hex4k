@@ -1,0 +1,30 @@
+{
+	"type": "resource_deposit",
+	"duration": -1,
+	"stackable": false,
+	"conflicts_with": [],
+	"conditions": {
+		"terrain_types": ["rolling_hills", "sharp_hills", "plains", "grassland"],
+		"altitude_min": 0.40,
+		"altitude_max": 0.75,
+		"requires_modifiers": [],
+		"prohibits_modifiers": []
+	},
+	"generation": {
+		"spawn_chance": 0.05,
+		"altitude_min": 0.45,
+		"altitude_max": 0.70,
+		"humidity_min": 0.0,
+		"humidity_max": 0.60,
+		"temperature_min": 0.20,
+		"temperature_max": 0.80,
+		"terrain_types": ["rolling_hills", "sharp_hills", "plains", "grassland"],
+		"cluster_size": 2,
+		"cluster_falloff": 0.3
+	},
+	"visual": {
+		"icon": "res://assets/icons/modifiers/flint_deposit.svg",
+		"overlay_color": "#2F4F4F80"
+	},
+	"milestones_required": []
+}

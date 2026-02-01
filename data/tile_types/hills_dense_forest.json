@@ -1,0 +1,10 @@
+{
+  "id": "hills_dense_forest",
+  "display_name": "Forested Hills",
+  "base_terrain": "hills",
+  "required_modifiers": ["dense_forest"],
+  "visual": {
+    "sprite": "res://assets/tiles/hills_dense_forest.svg",
+    "color": "#3D4D25"
+  }
+}

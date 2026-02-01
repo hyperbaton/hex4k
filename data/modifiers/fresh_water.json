@@ -1,0 +1,30 @@
+{
+	"type": "water_source",
+	"duration": -1,
+	"stackable": false,
+	"conflicts_with": [],
+	"conditions": {
+		"terrain_types": ["grassland", "plains", "rolling_hills", "sharp_hills"],
+		"altitude_min": 0.40,
+		"altitude_max": 0.70,
+		"requires_modifiers": [],
+		"prohibits_modifiers": []
+	},
+	"generation": {
+		"spawn_chance": 0.04,
+		"altitude_min": 0.42,
+		"altitude_max": 0.65,
+		"humidity_min": 0.50,
+		"humidity_max": 1.0,
+		"temperature_min": 0.25,
+		"temperature_max": 0.75,
+		"terrain_types": ["grassland", "plains", "rolling_hills", "sharp_hills"],
+		"cluster_size": 1,
+		"cluster_falloff": 0.0
+	},
+	"visual": {
+		"icon": "res://assets/icons/modifiers/fresh_water.svg",
+		"overlay_color": "#4169E180"
+	},
+	"milestones_required": []
+}

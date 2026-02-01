@@ -1,0 +1,10 @@
+{
+  "id": "grassland_sparse_forest",
+  "display_name": "Lightly Wooded Grassland",
+  "base_terrain": "grassland",
+  "required_modifiers": ["sparse_forest"],
+  "visual": {
+    "sprite": "res://assets/tiles/grassland_sparse_forest.svg",
+    "color": "#5A9A4A"
+  }
+}

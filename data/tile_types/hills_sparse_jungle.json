@@ -1,0 +1,10 @@
+{
+  "id": "hills_sparse_jungle",
+  "display_name": "Jungle Hills",
+  "base_terrain": "hills",
+  "required_modifiers": ["sparse_jungle"],
+  "visual": {
+    "sprite": "res://assets/tiles/hills_sparse_jungle.svg",
+    "color": "#4A6B3A"
+  }
+}

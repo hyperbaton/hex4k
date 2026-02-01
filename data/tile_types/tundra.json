@@ -1,0 +1,10 @@
+{
+  "id": "tundra",
+  "display_name": "Tundra",
+  "base_terrain": "tundra",
+  "required_modifiers": [],
+  "visual": {
+    "sprite": "res://assets/tiles/tundra.svg",
+    "color": "#A8B8A8"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "hills",
+  "display_name": "Hills",
+  "base_terrain": "hills",
+  "required_modifiers": [],
+  "visual": {
+    "sprite": "res://assets/tiles/hills.svg",
+    "color": "#8B7355"
+  }
+}

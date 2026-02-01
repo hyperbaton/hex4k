@@ -1,0 +1,10 @@
+{
+  "id": "hills_dense_jungle",
+  "display_name": "Dense Jungle Hills",
+  "base_terrain": "hills",
+  "required_modifiers": ["dense_jungle"],
+  "visual": {
+    "sprite": "res://assets/tiles/hills_dense_jungle.svg",
+    "color": "#2D4A1E"
+  }
+}

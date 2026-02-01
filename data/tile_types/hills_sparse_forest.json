@@ -1,0 +1,10 @@
+{
+  "id": "hills_sparse_forest",
+  "display_name": "Wooded Hills",
+  "base_terrain": "hills",
+  "required_modifiers": ["sparse_forest"],
+  "visual": {
+    "sprite": "res://assets/tiles/hills_sparse_forest.svg",
+    "color": "#6B6B45"
+  }
+}

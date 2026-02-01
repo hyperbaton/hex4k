@@ -1,0 +1,30 @@
+{
+	"type": "resource_deposit",
+	"duration": -1,
+	"stackable": false,
+	"conflicts_with": [],
+	"conditions": {
+		"terrain_types": ["rolling_hills", "sharp_hills", "mountain", "rocky_desert", "steppe"],
+		"altitude_min": 0.50,
+		"altitude_max": 0.90,
+		"requires_modifiers": [],
+		"prohibits_modifiers": []
+	},
+	"generation": {
+		"spawn_chance": 0.07,
+		"altitude_min": 0.55,
+		"altitude_max": 0.85,
+		"humidity_min": 0.0,
+		"humidity_max": 0.70,
+		"temperature_min": 0.15,
+		"temperature_max": 0.80,
+		"terrain_types": ["rolling_hills", "sharp_hills", "mountain", "rocky_desert", "steppe"],
+		"cluster_size": 2.5,
+		"cluster_falloff": 1.2
+	},
+	"visual": {
+		"icon": "res://assets/icons/modifiers/stone_outcrops.svg",
+		"overlay_color": "#70707040"
+	},
+	"milestones_required": []
+}

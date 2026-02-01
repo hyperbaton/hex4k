@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Copper Deposit Icon - Rock with copper veins -->
+  <g>
+    <!-- Rock base -->
+    <polygon points="4,28 8,16 12,20 16,12 20,18 24,14 28,28" fill="#757575"/>
+    <polygon points="6,28 10,20 14,22 16,16 20,20 24,18 26,28" fill="#9E9E9E"/>
+    <!-- Copper veins -->
+    <ellipse cx="10" cy="22" rx="3" ry="2" fill="#CD7F32"/>
+    <ellipse cx="18" cy="18" rx="4" ry="2.5" fill="#B87333"/>
+    <ellipse cx="22" cy="24" rx="2.5" ry="1.5" fill="#CD7F32"/>
+    <!-- Copper shine -->
+    <ellipse cx="18" cy="17" rx="2" ry="1" fill="#D4A574"/>
+  </g>
+</svg>
