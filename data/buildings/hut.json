@@ -30,8 +30,12 @@
 		"milestones_required": ["timber_framing"]
 	},
 	"production": {
-		"per_turn_produces": {},
-		"per_turn_consumes": {},
+		"per_turn_produces": {
+			"population": 1
+		},
+		"per_turn_consumes": {
+			"food": 1
+		},
 		"branch_specific_research": {}
 	},
 	"per_turn_penalty": {},

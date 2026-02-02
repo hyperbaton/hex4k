@@ -125,9 +125,7 @@ func is_contiguous(new_coord: Vector2i) -> bool:
 
 func calculate_tile_claim_cost(distance: int) -> float:
 	"""Calculate the admin cost to claim/maintain a tile based on distance"""
-	var base_cost = 1.0
-	var distance_multiplier = 0.5
-	return base_cost + (distance * distance_multiplier)
+	return CityConfig.BASE_TILE_ADMIN_CAPACITY + (distance * CityConfig.TILE_ADMIN_CAPACITY_MULTIPLIER)
 
 # === Building Management ===
 

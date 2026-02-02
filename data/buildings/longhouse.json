@@ -43,10 +43,10 @@
 	"provides": {
 		"population_storage": 10,
 		"resource_storage": {
-			"food": 50,
-			"wood": 50,
-			"stone": 30,
-			"tools": 20,
+			"food": 10,
+			"wood": 10,
+			"stone": 5,
+			"tools": 5,
 			"fiber": 20,
 			"clothing": 10,
 			"clay": 20,

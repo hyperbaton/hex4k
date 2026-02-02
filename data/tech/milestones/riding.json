@@ -3,7 +3,6 @@
 	"description": "Mounting and controlling animals for transportation.",
 	"branch": "animal_husbandry",
 	"requirements": [{ "branch": "animal_husbandry", "level": 40.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
 	"visibility": { "always_visible": false, "show_when": [{ "branch": "animal_husbandry", "level": 20.0 }] },
 	"visual": { "icon": "res://assets/icons/milestones/riding.png" }
 }

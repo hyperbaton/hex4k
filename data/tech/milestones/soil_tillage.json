@@ -3,7 +3,6 @@
 	"description": "Techniques for preparing and turning soil for planting.",
 	"branch": "agriculture",
 	"requirements": [{ "branch": "agriculture", "level": 20.0 }],
-	"unlocks": { "buildings": ["farm"], "units": [], "modifiers": [], "resources": [], "perks": [] },
 	"visibility": { "always_visible": false, "show_when": [{ "branch": "agriculture", "level": 10.0 }] },
 	"visual": { "icon": "res://assets/icons/milestones/soil_tillage.png" }
 }

@@ -12,7 +12,7 @@
 		"distance_multiplier": 0.1
 	},
 	"requirements": {
-		"terrain_types": ["grassland", "plains", "forest"],
+		"terrain_types": ["grassland", "plains", "meadow", "forest"],
 		"terrain_exclude": ["ocean", "mountain", "lake"],
 		"required_modifiers": [],
 		"required_adjacent": {
@@ -31,15 +31,15 @@
 	},
 	"production": {
 		"per_turn_produces": {
-			"food": 2,
-			"wood": 1
+			"food": 1,
+			"wood": 0.5
 		},
 		"per_turn_consumes": {
 			"population": 1
 		},
 		"branch_specific_research": {
 			"agriculture": 0.05,
-			"gathering_and_crafting": 0.05
+			"gathering_and_crafting": 0.10
 		}
 	},
 	"per_turn_penalty": {},

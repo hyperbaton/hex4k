@@ -156,8 +156,7 @@ func can_city_expand_to_tile(city_id: String, coord: Vector2i) -> Dictionary:
 	
 	# Check admin capacity for the tile
 	var distance = city.calculate_distance_from_center(coord)
-	var base_admin_cost = 1.0  # Base cost for claiming a tile
-	var admin_cost = base_admin_cost + (distance * distance * 0.1)
+	var admin_cost = city.calculate_tile_claim_cost(distance)
 	
 	if admin_cost > city.get_available_admin_capacity():
 		return {can_expand = false, reason = "Insufficient administrative capacity"}

@@ -1,0 +1,4 @@
+class_name CityConfig
+
+const BASE_TILE_ADMIN_CAPACITY := 0.50
+const TILE_ADMIN_CAPACITY_MULTIPLIER := 0.1

@@ -3,7 +3,6 @@
 	"description": "Specialized ovens for firing clay into durable ceramics.",
 	"branch": "gathering_and_crafting",
 	"requirements": [{ "branch": "gathering_and_crafting", "level": 100.0 }],
-	"unlocks": { "buildings": [], "units": [], "modifiers": [], "resources": [], "perks": [] },
 	"visibility": { "always_visible": false, "show_when": [{ "branch": "gathering_and_crafting", "level": 40.0 }] },
 	"visual": { "icon": "res://assets/icons/milestones/pottery_kiln.png" }
 }
