@@ -225,7 +225,7 @@ func start_construction(coord: Vector2i, building_id: String) -> bool:
 	return true
 
 func demolish_building(coord: Vector2i):
-	"""Demolish a building at the given tile"""
+	"""Demolish a building at the given tile (internal, use try_demolish_building for player actions)"""
 	if not has_building(coord):
 		return
 	
@@ -234,6 +234,111 @@ func demolish_building(coord: Vector2i):
 	var tile = get_tile(coord)
 	if tile:
 		tile.building_id = ""
+
+func can_disable_building(coord: Vector2i) -> Dictionary:
+	"""Check if a building can be disabled. Returns {can_disable: bool, reason: String}"""
+	var instance = get_building_instance(coord)
+	if not instance:
+		return {can_disable = false, reason = "No building at this location"}
+	
+	# Can't disable city centers
+	if Registry.buildings.is_city_center(instance.building_id):
+		return {can_disable = false, reason = "Cannot disable city center"}
+	
+	# Can't disable buildings under construction
+	if instance.is_under_construction():
+		return {can_disable = false, reason = "Building is under construction"}
+	
+	# Can't disable already disabled buildings
+	if instance.is_disabled():
+		return {can_disable = false, reason = "Building is already disabled"}
+	
+	return {can_disable = true, reason = ""}
+
+func disable_building(coord: Vector2i) -> bool:
+	"""Disable a building at the given coordinate"""
+	var check = can_disable_building(coord)
+	if not check.can_disable:
+		push_warning("Cannot disable building at %v: %s" % [coord, check.reason])
+		return false
+	
+	var instance = get_building_instance(coord)
+	instance.set_disabled()
+	print("City: Disabled building %s at %v" % [instance.building_id, coord])
+	return true
+
+func can_enable_building(coord: Vector2i) -> Dictionary:
+	"""Check if a building can be enabled. Returns {can_enable: bool, reason: String}"""
+	var instance = get_building_instance(coord)
+	if not instance:
+		return {can_enable = false, reason = "No building at this location"}
+	
+	# Can only enable disabled buildings
+	if not instance.is_disabled():
+		return {can_enable = false, reason = "Building is not disabled"}
+	
+	return {can_enable = true, reason = ""}
+
+func enable_building(coord: Vector2i) -> bool:
+	"""Enable a previously disabled building"""
+	var check = can_enable_building(coord)
+	if not check.can_enable:
+		push_warning("Cannot enable building at %v: %s" % [coord, check.reason])
+		return false
+	
+	var instance = get_building_instance(coord)
+	# Set to expecting resources - the turn processor will activate it if resources are available
+	instance.set_expecting_resources()
+	print("City: Enabled building %s at %v" % [instance.building_id, coord])
+	return true
+
+func can_demolish_building(coord: Vector2i) -> Dictionary:
+	"""Check if a building can be demolished. Returns {can_demolish: bool, reason: String, cost: Dictionary}"""
+	var instance = get_building_instance(coord)
+	if not instance:
+		return {can_demolish = false, reason = "No building at this location", cost = {}}
+	
+	# Can't demolish city centers
+	if Registry.buildings.is_city_center(instance.building_id):
+		return {can_demolish = false, reason = "Cannot demolish city center", cost = {}}
+	
+	# Can't demolish buildings under construction (use cancel instead)
+	if instance.is_under_construction():
+		return {can_demolish = false, reason = "Cannot demolish building under construction", cost = {}}
+	
+	# Check demolition cost
+	var demolition_cost = Registry.buildings.get_demolition_cost(instance.building_id)
+	var missing = get_missing_resources(demolition_cost)
+	
+	if not missing.is_empty():
+		var missing_str = ""
+		for res_id in missing.keys():
+			var res_name = Registry.get_name_label("resource", res_id)
+			missing_str += "%s (need %.0f more), " % [res_name, missing[res_id]]
+		missing_str = missing_str.trim_suffix(", ")
+		return {can_demolish = false, reason = "Insufficient resources: " + missing_str, cost = demolition_cost}
+	
+	return {can_demolish = true, reason = "", cost = demolition_cost}
+
+func try_demolish_building(coord: Vector2i) -> bool:
+	"""Attempt to demolish a building, paying the demolition cost"""
+	var check = can_demolish_building(coord)
+	if not check.can_demolish:
+		push_warning("Cannot demolish building at %v: %s" % [coord, check.reason])
+		return false
+	
+	var instance = get_building_instance(coord)
+	var building_id = instance.building_id
+	
+	# Pay demolition cost
+	for res_id in check.cost.keys():
+		consume_resource(res_id, check.cost[res_id])
+		print("  Deducted demolition cost: %s x%.0f" % [res_id, check.cost[res_id]])
+	
+	# Remove the building
+	demolish_building(coord)
+	print("City: Demolished building %s at %v" % [building_id, coord])
+	return true
 
 # === Resource Management (Per-Building Storage) ===
 

@@ -4,6 +4,7 @@ class_name CityTileInfoPanel
 # Left sidebar panel that displays tile and building information in city view
 
 signal closed
+signal building_action_requested(action: String, coord: Vector2i)  # action: "enable", "disable", "demolish"
 
 var current_coord: Vector2i
 var current_city: City
@@ -12,7 +13,13 @@ var world_query: WorldQuery
 var title_label: Label
 var terrain_section: PanelContainer
 var building_section: PanelContainer
+var actions_section: PanelContainer
 var close_button: Button
+
+# Action buttons
+var enable_button: Button
+var disable_button: Button
+var demolish_button: Button
 
 const PANEL_WIDTH := 300
 const SECTION_MARGIN := 12
@@ -63,6 +70,10 @@ func _setup_panel():
 	# === Building Section ===
 	building_section = _create_section("BUILDING", Color(0.4, 0.55, 0.7))
 	content_vbox.add_child(building_section)
+	
+	# === Actions Section ===
+	actions_section = _create_actions_section()
+	content_vbox.add_child(actions_section)
 
 func _create_header_section() -> PanelContainer:
 	"""Create the header with title and close button"""
@@ -150,6 +161,121 @@ func _create_section(section_title: String, accent_color: Color) -> PanelContain
 	
 	return panel
 
+func _create_actions_section() -> PanelContainer:
+	"""Create the actions section with enable/disable/demolish buttons"""
+	var panel = PanelContainer.new()
+	panel.name = "ActionsSection"
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.10, 0.10)
+	style.border_color = Color(0.25, 0.2, 0.2)
+	style.border_width_top = 1
+	style.set_content_margin_all(0)
+	panel.add_theme_stylebox_override("panel", style)
+	
+	var vbox = VBoxContainer.new()
+	vbox.name = "MainVBox"
+	vbox.add_theme_constant_override("separation", 0)
+	panel.add_child(vbox)
+	
+	# Section header with accent color bar
+	var header_hbox = HBoxContainer.new()
+	header_hbox.name = "Header"
+	header_hbox.add_theme_constant_override("separation", 0)
+	vbox.add_child(header_hbox)
+	
+	# Accent color bar
+	var accent_bar = ColorRect.new()
+	accent_bar.color = Color(0.7, 0.45, 0.35)
+	accent_bar.custom_minimum_size = Vector2(4, 0)
+	header_hbox.add_child(accent_bar)
+	
+	# Section title
+	var header_label = Label.new()
+	header_label.name = "SectionTitle"
+	header_label.text = "  ACTIONS"
+	header_label.add_theme_font_size_override("font_size", 11)
+	header_label.add_theme_color_override("font_color", Color(0.7, 0.45, 0.35))
+	header_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header_label.custom_minimum_size = Vector2(0, 32)
+	header_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	header_hbox.add_child(header_label)
+	
+	# Content container with buttons
+	var content_margin = MarginContainer.new()
+	content_margin.name = "ContentMargin"
+	content_margin.add_theme_constant_override("margin_left", SECTION_MARGIN)
+	content_margin.add_theme_constant_override("margin_right", SECTION_MARGIN)
+	content_margin.add_theme_constant_override("margin_top", 8)
+	content_margin.add_theme_constant_override("margin_bottom", SECTION_MARGIN)
+	vbox.add_child(content_margin)
+	
+	var buttons_vbox = VBoxContainer.new()
+	buttons_vbox.name = "Content"
+	buttons_vbox.add_theme_constant_override("separation", 8)
+	content_margin.add_child(buttons_vbox)
+	
+	# Enable button
+	enable_button = _create_action_button("Enable", Color(0.3, 0.7, 0.4), "Reactivate this building")
+	enable_button.pressed.connect(_on_enable_pressed)
+	buttons_vbox.add_child(enable_button)
+	
+	# Disable button
+	disable_button = _create_action_button("Disable", Color(0.7, 0.6, 0.3), "Stop production and consumption")
+	disable_button.pressed.connect(_on_disable_pressed)
+	buttons_vbox.add_child(disable_button)
+	
+	# Demolish button
+	demolish_button = _create_action_button("Demolish", Color(0.8, 0.35, 0.3), "Remove this building")
+	demolish_button.pressed.connect(_on_demolish_pressed)
+	buttons_vbox.add_child(demolish_button)
+	
+	return panel
+
+func _create_action_button(text: String, color: Color, tooltip_text: String) -> Button:
+	"""Create a styled action button"""
+	var button = Button.new()
+	button.text = text
+	button.tooltip_text = tooltip_text
+	button.custom_minimum_size = Vector2(0, 32)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	
+	# Style the button
+	var normal_style = StyleBoxFlat.new()
+	normal_style.bg_color = Color(color.r * 0.3, color.g * 0.3, color.b * 0.3, 0.8)
+	normal_style.border_color = color
+	normal_style.set_border_width_all(1)
+	normal_style.set_corner_radius_all(4)
+	button.add_theme_stylebox_override("normal", normal_style)
+	
+	var hover_style = StyleBoxFlat.new()
+	hover_style.bg_color = Color(color.r * 0.5, color.g * 0.5, color.b * 0.5, 0.9)
+	hover_style.border_color = color
+	hover_style.set_border_width_all(2)
+	hover_style.set_corner_radius_all(4)
+	button.add_theme_stylebox_override("hover", hover_style)
+	
+	var pressed_style = StyleBoxFlat.new()
+	pressed_style.bg_color = Color(color.r * 0.6, color.g * 0.6, color.b * 0.6, 1.0)
+	pressed_style.border_color = color
+	pressed_style.set_border_width_all(2)
+	pressed_style.set_corner_radius_all(4)
+	button.add_theme_stylebox_override("pressed", pressed_style)
+	
+	var disabled_style = StyleBoxFlat.new()
+	disabled_style.bg_color = Color(0.15, 0.15, 0.15, 0.6)
+	disabled_style.border_color = Color(0.3, 0.3, 0.3)
+	disabled_style.set_border_width_all(1)
+	disabled_style.set_corner_radius_all(4)
+	button.add_theme_stylebox_override("disabled", disabled_style)
+	
+	button.add_theme_color_override("font_color", color)
+	button.add_theme_color_override("font_hover_color", color.lightened(0.2))
+	button.add_theme_color_override("font_pressed_color", Color.WHITE)
+	button.add_theme_color_override("font_disabled_color", Color(0.4, 0.4, 0.4))
+	
+	return button
+
 func _get_section_content(section: PanelContainer) -> VBoxContainer:
 	"""Get the content container from a section"""
 	return section.get_node("MainVBox/ContentMargin/Content")
@@ -181,8 +307,11 @@ func show_tile(coord: Vector2i, city: City, p_world_query: WorldQuery):
 	if tile_view.has_building():
 		_populate_building_info(tile_view, city)
 		building_section.visible = true
+		_update_actions_section(city)
+		actions_section.visible = true
 	else:
 		building_section.visible = false
+		actions_section.visible = false
 	
 	# Position on left side of screen, full height with some margin
 	var viewport_size = get_viewport().get_visible_rect().size
@@ -418,6 +547,73 @@ func _clear_section_content(section: PanelContainer):
 	for child in content.get_children():
 		child.queue_free()
 
+func _update_actions_section(city: City):
+	"""Update the actions section based on building state"""
+	var instance = city.get_building_instance(current_coord)
+	if not instance:
+		actions_section.visible = false
+		return
+	
+	# Check if it's a city center (no actions allowed)
+	if Registry.buildings.is_city_center(instance.building_id):
+		actions_section.visible = false
+		return
+	
+	# Check if under construction (no actions allowed)
+	if instance.is_under_construction():
+		actions_section.visible = false
+		return
+	
+	# Update Enable button
+	var can_enable = city.can_enable_building(current_coord)
+	enable_button.visible = instance.is_disabled()
+	enable_button.disabled = not can_enable.can_enable
+	if can_enable.can_enable:
+		enable_button.tooltip_text = "Reactivate this building"
+	else:
+		enable_button.tooltip_text = can_enable.reason
+	
+	# Update Disable button
+	var can_disable = city.can_disable_building(current_coord)
+	disable_button.visible = not instance.is_disabled()
+	disable_button.disabled = not can_disable.can_disable
+	if can_disable.can_disable:
+		disable_button.tooltip_text = "Stop production and consumption"
+	else:
+		disable_button.tooltip_text = can_disable.reason
+	
+	# Update Demolish button
+	var can_demolish = city.can_demolish_building(current_coord)
+	demolish_button.visible = true
+	demolish_button.disabled = not can_demolish.can_demolish
+	
+	# Build demolish tooltip with cost info
+	var demolish_tooltip = "Remove this building"
+	if not can_demolish.cost.is_empty():
+		demolish_tooltip += "\nCost: "
+		var cost_parts = []
+		for res_id in can_demolish.cost.keys():
+			var res_name = Registry.get_name_label("resource", res_id)
+			cost_parts.append("%s x%.0f" % [res_name, can_demolish.cost[res_id]])
+		demolish_tooltip += ", ".join(cost_parts)
+	
+	if not can_demolish.can_demolish:
+		demolish_tooltip += "\n" + can_demolish.reason
+	
+	demolish_button.tooltip_text = demolish_tooltip
+
+func _on_enable_pressed():
+	"""Handle enable button click"""
+	emit_signal("building_action_requested", "enable", current_coord)
+
+func _on_disable_pressed():
+	"""Handle disable button click"""
+	emit_signal("building_action_requested", "disable", current_coord)
+
+func _on_demolish_pressed():
+	"""Handle demolish button click"""
+	emit_signal("building_action_requested", "demolish", current_coord)
+
 func _on_close_pressed():
 	"""Handle close button click"""
 	visible = false
@@ -426,3 +622,8 @@ func _on_close_pressed():
 func hide_panel():
 	"""Hide the panel"""
 	visible = false
+
+func refresh():
+	"""Refresh the panel with current data"""
+	if visible and current_city and world_query:
+		show_tile(current_coord, current_city, world_query)

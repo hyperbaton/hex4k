@@ -186,3 +186,18 @@ func get_on_construction_complete(building_id: String) -> Dictionary:
 	"""Get resources/research granted when construction completes"""
 	var building = get_building(building_id)
 	return building.get("on_construction_complete", {})
+
+func get_demolition_cost(building_id: String) -> Dictionary:
+	"""Get the cost to demolish this building"""
+	var building = get_building(building_id)
+	return building.get("demolition_cost", {})
+
+func get_disabled_consumption(building_id: String) -> Dictionary:
+	"""Get any consumption that occurs while the building is disabled (e.g. maintenance)"""
+	var building = get_building(building_id)
+	return building.get("disabled_consumption", {})
+
+func is_city_center(building_id: String) -> bool:
+	"""Check if this building is a city center (cannot be demolished or disabled)"""
+	var building = get_building(building_id)
+	return building.get("is_city_center", false)

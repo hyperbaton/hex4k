@@ -108,6 +108,7 @@ func _create_tile_info_panel():
 	tile_info_panel = CityTileInfoPanel.new()
 	tile_info_panel.name = "TileInfoPanel"
 	tile_info_panel.closed.connect(_on_tile_info_panel_closed)
+	tile_info_panel.building_action_requested.connect(_on_building_action_requested)
 	add_child(tile_info_panel)
 	print("CityOverlay: tile_info_panel created and added to scene")
 
@@ -304,6 +305,92 @@ func _handle_tile_info_click():
 func _on_tile_info_panel_closed():
 	"""Handle tile info panel close"""
 	pass
+
+func _on_building_action_requested(action: String, coord: Vector2i):
+	"""Handle building action requests from the tile info panel"""
+	print("CityOverlay: Building action requested: %s at %v" % [action, coord])
+	
+	match action:
+		"enable":
+			_handle_enable_building(coord)
+		"disable":
+			_handle_disable_building(coord)
+		"demolish":
+			_handle_demolish_building(coord)
+		_:
+			push_warning("Unknown building action: " + action)
+
+func _handle_enable_building(coord: Vector2i):
+	"""Enable a disabled building"""
+	var success = current_city.enable_building(coord)
+	
+	if success:
+		var instance = current_city.get_building_instance(coord)
+		var building_name = Registry.get_name_label("building", instance.building_id)
+		_show_toast_success("Enabled: " + building_name)
+		
+		# Update displays
+		current_city.recalculate_city_stats()
+		city_header.update_display()
+		if queue_panel:
+			queue_panel.update_display()
+		
+		# Refresh the tile info panel
+		if tile_info_panel:
+			tile_info_panel.refresh()
+	else:
+		var check = current_city.can_enable_building(coord)
+		_show_toast_error("Cannot enable: " + check.reason)
+
+func _handle_disable_building(coord: Vector2i):
+	"""Disable an active building"""
+	var success = current_city.disable_building(coord)
+	
+	if success:
+		var instance = current_city.get_building_instance(coord)
+		var building_name = Registry.get_name_label("building", instance.building_id)
+		_show_toast_success("Disabled: " + building_name)
+		
+		# Update displays
+		current_city.recalculate_city_stats()
+		city_header.update_display()
+		if queue_panel:
+			queue_panel.update_display()
+		
+		# Refresh the tile info panel
+		if tile_info_panel:
+			tile_info_panel.refresh()
+	else:
+		var check = current_city.can_disable_building(coord)
+		_show_toast_error("Cannot disable: " + check.reason)
+
+func _handle_demolish_building(coord: Vector2i):
+	"""Demolish a building"""
+	var instance = current_city.get_building_instance(coord)
+	if not instance:
+		return
+	
+	var building_name = Registry.get_name_label("building", instance.building_id)
+	var success = current_city.try_demolish_building(coord)
+	
+	if success:
+		_show_toast_success("Demolished: " + building_name)
+		
+		# Update tile visual
+		update_tile_building_visual(coord, "", false)
+		
+		# Update displays
+		current_city.recalculate_city_stats()
+		city_header.update_display()
+		if queue_panel:
+			queue_panel.update_display()
+		
+		# Hide the tile info panel since building is gone
+		if tile_info_panel:
+			tile_info_panel.hide_panel()
+	else:
+		var check = current_city.can_demolish_building(coord)
+		_show_toast_error("Cannot demolish: " + check.reason)
 
 func is_click_outside_ui(pos: Vector2) -> bool:
 	"""Check if click is outside all UI elements"""

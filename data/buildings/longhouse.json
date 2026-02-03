@@ -61,6 +61,9 @@
 		}
 	},
 	"disabled_admin_cost": 0.0,
+	"disabled_consumption": {},
+	"demolition_cost": {},
+	"on_construction_complete": {},
 	"upgrades_to": "tribal_camp",
 	"max_per_city": 1,
 	"can_units_stand": true,

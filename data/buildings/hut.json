@@ -50,6 +50,10 @@
 		"decay_reduction": {}
 	},
 	"disabled_admin_cost": 0.0,
+	"disabled_consumption": {},
+	"demolition_cost": {
+		"wood": 2
+	},
 	"on_construction_complete": {
 		"research": {
 			"construction": 0.5
