@@ -5,7 +5,7 @@ class_name City
 
 var city_id: String  # Unique identifier
 var city_name: String
-var owner: Player  # Reference to owning player
+var owner: Player  # Reference to owning player (null if abandoned)
 
 # Tiles
 var tiles: Dictionary = {}  # Vector2i -> CityTile
@@ -18,6 +18,9 @@ var building_instances: Dictionary = {}  # Vector2i -> BuildingInstance
 # Population
 var total_population: int = 0  # Current population count
 var population_capacity: int = 0  # Max population (from housing)
+
+# City state
+var is_abandoned: bool = false  # True if city has been abandoned (population reached 0)
 
 # Administrative capacity
 var admin_capacity_available: float = 0.0
@@ -157,6 +160,10 @@ func can_place_building(coord: Vector2i, building_id: String) -> Dictionary:
 	Check if a building can be placed at the given coordinate.
 	Returns {can_place: bool, reason: String}
 	"""
+	# Can't build in abandoned cities
+	if is_abandoned:
+		return {can_place = false, reason = "City is abandoned"}
+	
 	# Check if tile exists in city
 	if not has_tile(coord):
 		return {can_place = false, reason = "Tile not in city"}
@@ -237,6 +244,9 @@ func demolish_building(coord: Vector2i):
 
 func can_disable_building(coord: Vector2i) -> Dictionary:
 	"""Check if a building can be disabled. Returns {can_disable: bool, reason: String}"""
+	if is_abandoned:
+		return {can_disable = false, reason = "City is abandoned"}
+	
 	var instance = get_building_instance(coord)
 	if not instance:
 		return {can_disable = false, reason = "No building at this location"}
@@ -269,6 +279,9 @@ func disable_building(coord: Vector2i) -> bool:
 
 func can_enable_building(coord: Vector2i) -> Dictionary:
 	"""Check if a building can be enabled. Returns {can_enable: bool, reason: String}"""
+	if is_abandoned:
+		return {can_enable = false, reason = "City is abandoned"}
+	
 	var instance = get_building_instance(coord)
 	if not instance:
 		return {can_enable = false, reason = "No building at this location"}
@@ -294,6 +307,9 @@ func enable_building(coord: Vector2i) -> bool:
 
 func can_demolish_building(coord: Vector2i) -> Dictionary:
 	"""Check if a building can be demolished. Returns {can_demolish: bool, reason: String, cost: Dictionary}"""
+	if is_abandoned:
+		return {can_demolish = false, reason = "City is abandoned", cost = {}}
+	
 	var instance = get_building_instance(coord)
 	if not instance:
 		return {can_demolish = false, reason = "No building at this location", cost = {}}
@@ -339,6 +355,84 @@ func try_demolish_building(coord: Vector2i) -> bool:
 	demolish_building(coord)
 	print("City: Demolished building %s at %v" % [building_id, coord])
 	return true
+
+# === Abandonment ===
+
+func abandon() -> Player:
+	"""
+	Abandon this city due to population reaching zero.
+	Disables all buildings, clears perishable resources, and disowns the city.
+	Returns the previous owner (for checking if they lost the game).
+	"""
+	if is_abandoned:
+		return null  # Already abandoned
+	
+	var previous_owner = owner
+	print("City %s is being abandoned!" % city_name)
+	
+	# Set abandoned state
+	is_abandoned = true
+	total_population = 0
+	
+	# Disable all buildings
+	for coord in building_instances.keys():
+		var instance: BuildingInstance = building_instances[coord]
+		if not instance.is_under_construction():
+			instance.set_disabled()
+	
+	# Clear all perishable (decaying) resources from storage
+	_clear_perishable_resources()
+	
+	# Disown the city
+	if owner:
+		owner.remove_city(self)
+		owner = null
+	
+	print("City %s has been abandoned" % city_name)
+	return previous_owner
+
+func _clear_perishable_resources():
+	"""Clear all perishable/decaying resources from all storage buildings"""
+	for instance in building_instances.values():
+		var resources_to_clear: Array[String] = []
+		
+		# Find all decaying resources in this building's storage
+		for resource_id in instance.stored_resources.keys():
+			if Registry.resources.is_decaying(resource_id):
+				resources_to_clear.append(resource_id)
+		
+		# Clear them
+		for resource_id in resources_to_clear:
+			var amount = instance.stored_resources[resource_id]
+			if amount > 0:
+				print("  Cleared %.1f %s (perishable)" % [amount, resource_id])
+				instance.stored_resources[resource_id] = 0.0
+
+func reclaim(new_owner: Player):
+	"""
+	Reclaim an abandoned city for a new owner.
+	Buildings remain disabled - the new owner must enable them manually.
+	"""
+	if not is_abandoned:
+		push_warning("Cannot reclaim a city that is not abandoned")
+		return
+	
+	if not new_owner:
+		push_error("Cannot reclaim city without a valid owner")
+		return
+	
+	owner = new_owner
+	new_owner.add_city(self)
+	is_abandoned = false
+	
+	# Give a small starting population so the city can function
+	total_population = 1
+	
+	print("City %s has been reclaimed by %s" % [city_name, new_owner.player_name])
+
+func should_check_abandonment() -> bool:
+	"""Check if this city should be checked for abandonment (population at 0)"""
+	return not is_abandoned and total_population <= 0
 
 # === Resource Management (Per-Building Storage) ===
 

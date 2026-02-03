@@ -9,6 +9,8 @@ var players: Dictionary = {}  # player_id -> Player
 
 signal city_founded(city: City)
 signal city_destroyed(city: City)
+signal city_abandoned(city: City, previous_owner: Player)
+signal player_defeated(player: Player)
 signal building_constructed(city: City, coord: Vector2i, building_id: String)
 signal building_demolished(city: City, coord: Vector2i)
 
@@ -111,6 +113,65 @@ func destroy_city(city_id: String):
 	cities.erase(city_id)
 	print("Destroyed city: %s" % city.city_name)
 
+func abandon_city(city_id: String) -> Player:
+	"""
+	Abandon a city due to population reaching zero.
+	Returns the previous owner (for defeat checking).
+	"""
+	var city = cities.get(city_id)
+	if not city:
+		push_warning("Cannot abandon city - not found: %s" % city_id)
+		return null
+	
+	if city.is_abandoned:
+		return null  # Already abandoned
+	
+	# Get the previous owner before abandoning
+	var previous_owner = city.owner
+	
+	# Abandon the city (disables buildings, clears perishables, removes owner)
+	city.abandon()
+	
+	# Emit signal for UI updates
+	emit_signal("city_abandoned", city, previous_owner)
+	print("City %s has been abandoned" % city.city_name)
+	
+	# Check if the previous owner has lost the game (no more cities)
+	if previous_owner and previous_owner.get_city_count() == 0:
+		_handle_player_defeat(previous_owner)
+	
+	return previous_owner
+
+func _handle_player_defeat(player: Player):
+	"""Handle a player losing the game due to having no cities"""
+	print("=== PLAYER DEFEATED ===")
+	print("  %s has lost all their cities!" % player.player_name)
+	print("========================")
+	emit_signal("player_defeated", player)
+
+func get_abandoned_cities() -> Array[City]:
+	"""Get all abandoned cities that can be claimed"""
+	var result: Array[City] = []
+	for city in cities.values():
+		if city.is_abandoned:
+			result.append(city)
+	return result
+
+func reclaim_city(city_id: String, new_owner: Player) -> bool:
+	"""Allow a player to reclaim an abandoned city"""
+	var city = cities.get(city_id)
+	if not city:
+		push_warning("Cannot reclaim city - not found: %s" % city_id)
+		return false
+	
+	if not city.is_abandoned:
+		push_warning("Cannot reclaim city - not abandoned: %s" % city_id)
+		return false
+	
+	city.reclaim(new_owner)
+	print("City %s reclaimed by %s" % [city.city_name, new_owner.player_name])
+	return true
+
 func get_city(city_id: String) -> City:
 	return cities.get(city_id)
 
@@ -128,11 +189,19 @@ func get_all_cities() -> Array[City]:
 	return result
 
 func get_cities_for_player(player_id: String) -> Array[City]:
-	"""Get all cities owned by a player"""
+	"""Get all cities owned by a player (excludes abandoned cities)"""
 	var player = get_player(player_id)
 	if player:
 		return player.get_all_cities()
 	return []
+
+func get_active_cities() -> Array[City]:
+	"""Get all non-abandoned cities"""
+	var result: Array[City] = []
+	for city in cities.values():
+		if not city.is_abandoned:
+			result.append(city)
+	return result
 
 func is_tile_owned(coord: Vector2i) -> bool:
 	return tile_ownership.has(coord)
@@ -145,6 +214,9 @@ func can_city_expand_to_tile(city_id: String, coord: Vector2i) -> Dictionary:
 	var city = get_city(city_id)
 	if not city:
 		return {can_expand = false, reason = "City not found"}
+	
+	if city.is_abandoned:
+		return {can_expand = false, reason = "City is abandoned"}
 	
 	# Check if tile is already owned
 	if is_tile_owned(coord):

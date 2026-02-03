@@ -37,6 +37,25 @@ func add_milestone_unlocked(milestone_id: String):
 func has_critical_alerts() -> bool:
 	return not critical_alerts.is_empty()
 
+func has_city_abandonments() -> bool:
+	for alert in critical_alerts:
+		if alert.type == "city_abandoned":
+			return true
+	return false
+
+func has_player_defeats() -> bool:
+	for alert in critical_alerts:
+		if alert.type == "player_defeated":
+			return true
+	return false
+
+func get_alerts_by_type(alert_type: String) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for alert in critical_alerts:
+		if alert.type == alert_type:
+			result.append(alert)
+	return result
+
 func get_summary() -> String:
 	"""Get a brief text summary of the turn"""
 	var lines: Array[String] = []

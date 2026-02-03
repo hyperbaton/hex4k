@@ -37,3 +37,7 @@ func add_perk(perk_id: String):
 
 func get_all_cities() -> Array[City]:
 	return cities
+
+func has_lost() -> bool:
+	"""Check if this player has lost (no cities remaining)"""
+	return cities.is_empty()

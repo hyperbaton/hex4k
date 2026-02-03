@@ -6,6 +6,8 @@ class_name TurnManager
 signal turn_started(turn_number: int)
 signal turn_completed(report: TurnReport)
 signal city_processed(city_id: String, city_report: TurnReport.CityTurnReport)
+signal city_abandoned(city: City, previous_owner: Player)
+signal player_defeated(player: Player)
 
 var current_turn: int = 0
 var last_report: TurnReport = null
@@ -37,15 +39,30 @@ func process_turn() -> TurnReport:
 			unit.start_turn()
 		print("  Units refreshed: %d" % unit_manager.get_all_units().size())
 	
-	# Process each city
+	# Process each city (skip abandoned cities)
+	var cities_to_abandon: Array[City] = []
+	
 	for city in city_manager.get_all_cities():
+		# Skip abandoned cities - they don't participate in the turn cycle
+		if city.is_abandoned:
+			print("  Skipping abandoned city: %s" % city.city_name)
+			continue
+		
 		var city_report = _process_city_turn(city)
 		report.add_city_report(city.city_id, city_report)
+		
+		# Check if city should be abandoned (population reached 0)
+		if city.should_check_abandonment():
+			cities_to_abandon.append(city)
 		
 		# Generate critical alerts for this city
 		_generate_city_alerts(city, city_report, report)
 		
 		emit_signal("city_processed", city.city_id, city_report)
+	
+	# Handle city abandonments (done after loop to avoid modifying collection during iteration)
+	for city in cities_to_abandon:
+		_handle_city_abandonment(city, report)
 	
 	# Process global research and milestone unlocks
 	_process_global_research(report)
@@ -505,6 +522,36 @@ func _process_global_research(report: TurnReport):
 	
 	# Check for newly unlocked milestones
 	Registry.tech.check_milestone_unlocks()
+
+# === City Abandonment ===
+
+func _handle_city_abandonment(city: City, report: TurnReport):
+	"""Handle a city being abandoned due to population reaching zero"""
+	print("\n!!! CITY ABANDONED: %s !!!" % city.city_name)
+	
+	# Use CityManager to handle the abandonment
+	var previous_owner = city_manager.abandon_city(city.city_id)
+	
+	# Add critical alert
+	report.add_critical_alert(
+		"city_abandoned",
+		city.city_id,
+		"%s has been abandoned! Population reached zero." % city.city_name,
+		{"previous_owner": previous_owner.player_id if previous_owner else "none"}
+	)
+	
+	# Emit signals
+	emit_signal("city_abandoned", city, previous_owner)
+	
+	# Check if player was defeated
+	if previous_owner and previous_owner.get_city_count() == 0:
+		report.add_critical_alert(
+			"player_defeated",
+			"",
+			"%s has lost all their cities and is defeated!" % previous_owner.player_name,
+			{"player_id": previous_owner.player_id}
+		)
+		emit_signal("player_defeated", previous_owner)
 
 # === Alerts Generation ===
 

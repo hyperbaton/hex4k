@@ -26,8 +26,13 @@ func update_display():
 	if not current_city:
 		return
 	
-	# City name
-	city_name_label.text = current_city.city_name
+	# City name (with abandoned indicator)
+	if current_city.is_abandoned:
+		city_name_label.text = current_city.city_name + " [ABANDONED]"
+		city_name_label.add_theme_color_override("font_color", Color(0.6, 0.4, 0.4))
+	else:
+		city_name_label.text = current_city.city_name
+		city_name_label.remove_theme_color_override("font_color")
 	
 	# Population
 	var pop_text = "%d / %d" % [current_city.total_population, int(current_city.population_capacity)]
