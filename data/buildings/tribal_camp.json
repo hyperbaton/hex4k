@@ -41,20 +41,15 @@
 	},
 	"adjacency_bonuses": [],
 	"provides": {
-		"population_storage": 15,
+		"population_storage": 10,
 		"resource_storage": {
-			"food": 80,
-			"wood": 80,
-			"stone": 50,
-			"tools": 40,
-			"fiber": 30,
-			"clothing": 20,
-			"clay": 30,
-			"pottery": 25,
-			"honey": 25,
-			"population": 15
+			"food": 40,
+			"wood": 20,
+			"stone": 20,
+			"tools": 5,
+			"population": 10
 		},
-		"admin_capacity": 25.0,
+		"admin_capacity": 50.0,
 		"caravan_capacity": 0,
 		"decay_reduction": {
 			"food": 0.6
@@ -66,7 +61,6 @@
 		}
 	},
 	"disabled_admin_cost": 0.0,
-	"upgrades_from": "longhouse",
 	"upgrades_to": null,
 	"max_per_city": 1,
 	"can_units_stand": true,

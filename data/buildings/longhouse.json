@@ -54,7 +54,7 @@
 			"honey": 15,
 			"population": 10
 		},
-		"admin_capacity": 15.0,
+		"admin_capacity": 30.0,
 		"caravan_capacity": 0,
 		"decay_reduction": {
 			"food": 0.5

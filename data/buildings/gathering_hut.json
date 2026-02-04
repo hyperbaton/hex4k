@@ -32,7 +32,8 @@
 	"production": {
 		"per_turn_produces": {
 			"food": 1,
-			"wood": 0.5
+			"wood": 0.5,
+			"stone": 0.5
 		},
 		"per_turn_consumes": {
 			"population": 1

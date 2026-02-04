@@ -4,7 +4,7 @@
   "base_terrain": "grassland",
   "required_modifiers": ["dense_jungle"],
   "visual": {
-    "sprite": "res://assets/tiles/grassland_dense_jungle.svg",
-    "color": "#1E5A1E"
+	"sprite": "res://assets/tiles/grassland_dense_jungle.svg",
+	"color": "#1E5A1E"
   }
 }

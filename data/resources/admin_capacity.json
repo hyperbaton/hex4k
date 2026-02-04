@@ -1,5 +1,8 @@
 {
 	"type": "flow",
+	"flags": {
+		"cap": true
+	},
 	"storage": {
 		"max_stack": 0,
 		"decay": {

@@ -4,7 +4,7 @@
   "base_terrain": "grassland",
   "required_modifiers": [],
   "visual": {
-    "sprite": "res://assets/tiles/grassland.svg",
-    "color": "#7CBA5B"
+	"sprite": "res://assets/tiles/grassland.svg",
+	"color": "#7CBA5B"
   }
 }

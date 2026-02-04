@@ -11,7 +11,7 @@
 		"prohibits_modifiers": ["sparse_forest", "dense_jungle", "sparse_jungle"]
 	},
 	"generation": {
-		"spawn_chance": 0.12,
+		"spawn_chance": 0.45,
 		"altitude_min": 0.35,
 		"altitude_max": 0.70,
 		"humidity_min": 0.50,
@@ -19,7 +19,7 @@
 		"temperature_min": 0.35,
 		"temperature_max": 0.70,
 		"terrain_types": ["grassland", "plains", "rolling_hills", "meadow"],
-		"cluster_size": 3.0,
+		"cluster_size": 30,
 		"cluster_falloff": 1.5
 	},
 	"visual": {

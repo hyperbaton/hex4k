@@ -11,7 +11,7 @@
 		"prohibits_modifiers": []
 	},
 	"generation": {
-		"spawn_chance": 0.08,
+		"spawn_chance": 0.25,
 		"altitude_min": 0.35,
 		"altitude_max": 0.60,
 		"humidity_min": 0.40,
