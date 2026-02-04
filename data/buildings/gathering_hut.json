@@ -52,8 +52,24 @@
 			"yields": {
 				"wood": 0.5
 			}
+		},
+		{
+			"source_type": "modifier",
+			"source_id": "berry_bushes",
+			"radius": 1,
+			"yields": {
+				"food": 0.5
+			}
 		}
 	],
+	"modifier_bonuses": {
+		"berry_bushes": {
+			"food": 2
+		},
+		"freshwater_spring": {
+			"food": 0.5
+		}
+	},
 	"provides": {
 		"population_storage": 0,
 		"resource_storage": {},

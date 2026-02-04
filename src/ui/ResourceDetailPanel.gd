@@ -9,15 +9,21 @@ signal closed
 @onready var resource_list := $MarginContainer/VBoxContainer/ScrollContainer/ResourceList
 
 var current_city: City
+var world_query: Node  # WorldQuery reference for bonus calculations
 
 # Cached calculations for display
 var calculated_production: Dictionary = {}  # resource_id -> amount
 var calculated_consumption: Dictionary = {}  # resource_id -> amount
 var calculated_decay: Dictionary = {}  # resource_id -> amount
+var calculated_bonuses: Dictionary = {}  # resource_id -> bonus amount (terrain/modifier/adjacency)
 
 func _ready():
 	visible = false
 	close_button.pressed.connect(_on_close_pressed)
+
+func set_world_query(p_world_query: Node):
+	"""Set the world query reference for bonus calculations"""
+	world_query = p_world_query
 
 func show_panel(city: City):
 	current_city = city
@@ -34,6 +40,7 @@ func _calculate_city_flows():
 	calculated_production.clear()
 	calculated_consumption.clear()
 	calculated_decay.clear()
+	calculated_bonuses.clear()
 	
 	if not current_city:
 		return
@@ -52,10 +59,26 @@ func _calculate_city_flows():
 		
 		# Production: Only ACTIVE buildings produce
 		if instance.is_active():
-			var production = instance.get_production()
-			for resource_id in production.keys():
-				var amount = production[resource_id] * efficiency
-				calculated_production[resource_id] = calculated_production.get(resource_id, 0.0) + amount
+			var base_production = instance.get_production()
+			var bonuses = _calculate_production_bonuses(coord, instance.building_id)
+			
+			for resource_id in base_production.keys():
+				var base_amount = base_production[resource_id]
+				var bonus_amount = bonuses.get(resource_id, 0.0)
+				var total = (base_amount + bonus_amount) * efficiency
+				
+				calculated_production[resource_id] = calculated_production.get(resource_id, 0.0) + total
+				
+				# Track bonuses separately for display
+				if bonus_amount > 0:
+					calculated_bonuses[resource_id] = calculated_bonuses.get(resource_id, 0.0) + (bonus_amount * efficiency)
+			
+			# Also add any bonus-only production (resources not in base production)
+			for resource_id in bonuses.keys():
+				if not base_production.has(resource_id):
+					var bonus_amount = bonuses[resource_id] * efficiency
+					calculated_production[resource_id] = calculated_production.get(resource_id, 0.0) + bonus_amount
+					calculated_bonuses[resource_id] = calculated_bonuses.get(resource_id, 0.0) + bonus_amount
 		
 		# Consumption: ACTIVE and EXPECTING_RESOURCES buildings consume
 		if instance.is_active() or instance.is_expecting_resources():
@@ -73,6 +96,104 @@ func _calculate_city_flows():
 				# Decay calculation matches BuildingInstance.apply_decay()
 				var decay_amount = stored * decay_rate
 				calculated_decay[resource_id] = decay_amount
+
+func _calculate_production_bonuses(coord: Vector2i, building_id: String) -> Dictionary:
+	"""
+	Calculate all production bonuses for a building at a specific location.
+	Includes: terrain bonuses, modifier bonuses, and adjacency bonuses.
+	Returns: Dictionary of resource_id -> bonus_amount
+	"""
+	var bonuses: Dictionary = {}
+	
+	# Need world_query for terrain/modifier data
+	if not world_query:
+		return bonuses
+	
+	var terrain_data = world_query.get_terrain_data(coord)
+	if not terrain_data:
+		return bonuses
+	
+	# 1. Terrain bonuses - bonus from being ON specific terrain
+	var terrain_bonuses = Registry.buildings.get_terrain_bonuses(building_id)
+	if terrain_bonuses.has(terrain_data.terrain_id):
+		var terrain_yields = terrain_bonuses[terrain_data.terrain_id]
+		for resource_id in terrain_yields.keys():
+			bonuses[resource_id] = bonuses.get(resource_id, 0.0) + terrain_yields[resource_id]
+	
+	# 2. Modifier bonuses - bonus from modifiers ON this tile
+	var modifier_bonuses = Registry.buildings.get_modifier_bonuses(building_id)
+	for mod_id in terrain_data.modifiers:
+		if modifier_bonuses.has(mod_id):
+			var mod_yields = modifier_bonuses[mod_id]
+			for resource_id in mod_yields.keys():
+				bonuses[resource_id] = bonuses.get(resource_id, 0.0) + mod_yields[resource_id]
+	
+	# 3. Adjacency bonuses - bonus from adjacent terrain/buildings/modifiers
+	var adjacency_bonuses = Registry.buildings.get_adjacency_bonuses(building_id)
+	for adj_bonus in adjacency_bonuses:
+		var source_type = adj_bonus.get("source_type", "")
+		var source_id = adj_bonus.get("source_id", "")
+		var radius = adj_bonus.get("radius", 1)
+		var yields = adj_bonus.get("yields", {})
+		
+		# Count matching adjacent sources
+		var matching_count = _count_adjacent_sources(coord, source_type, source_id, radius)
+		
+		if matching_count > 0:
+			for resource_id in yields.keys():
+				var bonus_per_source = yields[resource_id]
+				bonuses[resource_id] = bonuses.get(resource_id, 0.0) + (bonus_per_source * matching_count)
+	
+	return bonuses
+
+func _count_adjacent_sources(coord: Vector2i, source_type: String, source_id: String, radius: int) -> int:
+	"""Count how many matching sources are adjacent to a tile"""
+	var count = 0
+	
+	if not world_query:
+		return count
+	
+	# Get all tiles within radius
+	var neighbors = world_query.get_tiles_in_range(coord, 1, radius)
+	
+	for neighbor_coord in neighbors:
+		var matched = false
+		
+		match source_type:
+			"terrain":
+				# Check terrain type
+				var terrain_id = world_query.get_terrain_id(neighbor_coord)
+				matched = (terrain_id == source_id)
+			
+			"modifier":
+				# Check for modifier on tile
+				var neighbor_data = world_query.get_terrain_data(neighbor_coord)
+				if neighbor_data:
+					matched = neighbor_data.has_modifier(source_id)
+			
+			"building":
+				# Check for building
+				if current_city.has_building(neighbor_coord):
+					var neighbor_instance = current_city.get_building_instance(neighbor_coord)
+					matched = (neighbor_instance.building_id == source_id)
+			
+			"building_category":
+				# Check for building category
+				if current_city.has_building(neighbor_coord):
+					var neighbor_instance = current_city.get_building_instance(neighbor_coord)
+					var neighbor_building = Registry.buildings.get_building(neighbor_instance.building_id)
+					matched = (neighbor_building.get("category", "") == source_id)
+			
+			"river":
+				# Check for river
+				var neighbor_data = world_query.get_terrain_data(neighbor_coord)
+				if neighbor_data:
+					matched = neighbor_data.is_river
+		
+		if matched:
+			count += 1
+	
+	return count
 
 func _calculate_production_efficiency(admin_ratio: float) -> float:
 	"""Calculate production efficiency based on admin ratio (matches TurnManager)"""
@@ -108,6 +229,20 @@ func update_display():
 		warning_label.text = "⚠ Admin overloaded! Production efficiency: %.0f%%" % (efficiency * 100)
 		warning_label.add_theme_color_override("font_color", Color(1.0, 0.7, 0.3))
 		resource_list.add_child(warning_label)
+		
+		var sep = HSeparator.new()
+		resource_list.add_child(sep)
+	
+	# Show bonus info if bonuses exist
+	var total_bonus = 0.0
+	for amount in calculated_bonuses.values():
+		total_bonus += amount
+	if total_bonus > 0:
+		var bonus_label = Label.new()
+		bonus_label.text = "✦ Production includes +%.1f from terrain, modifiers & adjacency" % total_bonus
+		bonus_label.add_theme_color_override("font_color", Color(0.5, 0.8, 0.6))
+		bonus_label.add_theme_font_size_override("font_size", 11)
+		resource_list.add_child(bonus_label)
 		
 		var sep = HSeparator.new()
 		resource_list.add_child(sep)
@@ -167,13 +302,22 @@ func add_resource_row(resource_id: String):
 	var production = calculated_production.get(resource_id, 0.0)
 	var consumption = calculated_consumption.get(resource_id, 0.0)
 	var decay = calculated_decay.get(resource_id, 0.0)
+	var bonus = calculated_bonuses.get(resource_id, 0.0)
 	var net = production - consumption - decay
+	
+	# Format production with bonus indicator
+	var prod_text = "-"
+	if production > 0:
+		if bonus > 0:
+			prod_text = "+%.1f*" % production  # Asterisk indicates includes bonuses
+		else:
+			prod_text = "+%.1f" % production
 	
 	var row = create_resource_row(
 		name_label,
 		"%.1f" % stored,
 		"%.0f" % capacity if capacity > 0 else "-",
-		"%+.1f" % production if production > 0 else "-",
+		prod_text,
 		"-%.1f" % consumption if consumption > 0 else "-",
 		"-%.1f" % decay if decay > 0 else "-",
 		"%+.1f" % net if net != 0 else "0"
@@ -187,10 +331,13 @@ func add_resource_row(resource_id: String):
 		elif net < 0:
 			net_label.add_theme_color_override("font_color", Color(0.9, 0.5, 0.5))
 	
-	# Color production green
+	# Color production green (brighter if has bonus)
 	var prod_label = row.get_child(3) as Label
 	if prod_label and production > 0:
-		prod_label.add_theme_color_override("font_color", Color(0.6, 0.85, 0.6))
+		if bonus > 0:
+			prod_label.add_theme_color_override("font_color", Color(0.5, 0.95, 0.6))  # Bright green
+		else:
+			prod_label.add_theme_color_override("font_color", Color(0.6, 0.85, 0.6))
 	
 	# Color consumption red
 	var cons_label = row.get_child(4) as Label
@@ -226,6 +373,7 @@ func add_totals_row():
 	var total_prod = 0.0
 	var total_cons = 0.0
 	var total_decay = 0.0
+	var total_bonus = 0.0
 	
 	for amount in calculated_production.values():
 		total_prod += amount
@@ -236,13 +384,24 @@ func add_totals_row():
 	for amount in calculated_decay.values():
 		total_decay += amount
 	
+	for amount in calculated_bonuses.values():
+		total_bonus += amount
+	
 	var total_net = total_prod - total_cons - total_decay
+	
+	# Format production total with bonus indicator
+	var prod_text = "-"
+	if total_prod > 0:
+		if total_bonus > 0:
+			prod_text = "+%.1f*" % total_prod
+		else:
+			prod_text = "+%.1f" % total_prod
 	
 	var row = create_resource_row(
 		"TOTALS",
 		"-",
 		"-",
-		"%+.1f" % total_prod if total_prod > 0 else "-",
+		prod_text,
 		"-%.1f" % total_cons if total_cons > 0 else "-",
 		"-%.1f" % total_decay if total_decay > 0 else "-",
 		"%+.1f" % total_net if total_net != 0 else "0"
@@ -254,6 +413,14 @@ func add_totals_row():
 			child.add_theme_color_override("font_color", Color(0.9, 0.9, 0.7))
 	
 	resource_list.add_child(row)
+	
+	# Add legend for asterisk
+	if total_bonus > 0:
+		var legend = Label.new()
+		legend.text = "* includes bonuses from terrain, modifiers, and adjacency"
+		legend.add_theme_font_size_override("font_size", 10)
+		legend.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+		resource_list.add_child(legend)
 
 func create_resource_row(name: String, stored: String, capacity: String, 
 						 production: String, consumption: String,

@@ -111,6 +111,16 @@ func get_adjacency_bonuses(building_id: String) -> Array:
 	var building = get_building(building_id)
 	return building.get("adjacency_bonuses", [])
 
+func get_terrain_bonuses(building_id: String) -> Dictionary:
+	"""Get production bonuses when placed on specific terrain types"""
+	var building = get_building(building_id)
+	return building.get("terrain_bonuses", {})
+
+func get_modifier_bonuses(building_id: String) -> Dictionary:
+	"""Get production bonuses when placed on tiles with specific modifiers"""
+	var building = get_building(building_id)
+	return building.get("modifier_bonuses", {})
+
 func get_storage_provided(building_id: String) -> Dictionary:
 	var building = get_building(building_id)
 	if building.has("provides"):

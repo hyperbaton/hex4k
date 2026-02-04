@@ -492,6 +492,7 @@ func clear_tile_highlights():
 
 func _on_header_clicked():
 	"""Show detailed resource panel"""
+	resource_detail_panel.set_world_query(world_query)
 	resource_detail_panel.show_panel(current_city)
 
 func _on_resource_detail_closed():
@@ -530,26 +531,42 @@ func highlight_valid_tiles(building_id: String):
 			calculate_and_show_adjacency(coord, building_id)
 
 func calculate_and_show_adjacency(coord: Vector2i, building_id: String):
-	"""Calculate and display adjacency bonuses"""
-	var bonuses = Registry.buildings.get_adjacency_bonuses(building_id)
+	"""Calculate and display all production bonuses (terrain, modifier, adjacency)"""
+	var total_bonuses: Dictionary = {}  # resource_id -> total_amount
 	
-	if bonuses.is_empty():
+	# Get terrain data for this tile
+	var terrain_data = world_query.get_terrain_data(coord)
+	if not terrain_data:
 		return
 	
-	# Check each bonus
-	for bonus in bonuses:
+	# 1. Terrain bonuses - bonus from being ON specific terrain
+	var terrain_bonuses = Registry.buildings.get_terrain_bonuses(building_id)
+	if terrain_bonuses.has(terrain_data.terrain_id):
+		var terrain_yields = terrain_bonuses[terrain_data.terrain_id]
+		for resource_id in terrain_yields.keys():
+			total_bonuses[resource_id] = total_bonuses.get(resource_id, 0.0) + terrain_yields[resource_id]
+	
+	# 2. Modifier bonuses - bonus from modifiers ON this tile
+	var modifier_bonuses = Registry.buildings.get_modifier_bonuses(building_id)
+	for mod_id in terrain_data.modifiers:
+		if modifier_bonuses.has(mod_id):
+			var mod_yields = modifier_bonuses[mod_id]
+			for resource_id in mod_yields.keys():
+				total_bonuses[resource_id] = total_bonuses.get(resource_id, 0.0) + mod_yields[resource_id]
+	
+	# 3. Adjacency bonuses - bonus from adjacent terrain/buildings/modifiers
+	var adjacency_bonuses = Registry.buildings.get_adjacency_bonuses(building_id)
+	
+	for bonus in adjacency_bonuses:
 		var source_type = bonus.get("source_type", "")
 		var source_id = bonus.get("source_id", "")
 		var yields = bonus.get("yields", {})
 		var radius = bonus.get("radius", 1)
 		
 		# Check neighbors
-		var neighbors = world_query.get_tiles_in_range(coord, 0, radius)
+		var neighbors = world_query.get_tiles_in_range(coord, 1, radius)
 		
 		for neighbor_coord in neighbors:
-			if neighbor_coord == coord:
-				continue
-			
 			var matches = false
 			
 			match source_type:
@@ -562,16 +579,31 @@ func calculate_and_show_adjacency(coord: Vector2i, building_id: String):
 					if view and view.has_building():
 						matches = (view.get_building_id() == source_id)
 				
+				"building_category":
+					var view = world_query.get_tile_view(neighbor_coord)
+					if view and view.has_building():
+						var neighbor_building = Registry.buildings.get_building(view.get_building_id())
+						matches = (neighbor_building.get("category", "") == source_id)
+				
 				"modifier":
-					# TODO: Check modifiers when implemented
-					pass
+					var neighbor_data = world_query.get_terrain_data(neighbor_coord)
+					if neighbor_data:
+						matches = neighbor_data.has_modifier(source_id)
+				
+				"river":
+					var neighbor_data = world_query.get_terrain_data(neighbor_coord)
+					if neighbor_data:
+						matches = neighbor_data.is_river
 			
 			if matches:
-				# Show bonus icon on the tile being placed
 				for resource_id in yields.keys():
-					var amount = yields[resource_id]
-					if tile_highlighter:
-						tile_highlighter.add_adjacency_bonus_display(coord, resource_id, amount)
+					total_bonuses[resource_id] = total_bonuses.get(resource_id, 0.0) + yields[resource_id]
+	
+	# Show combined bonuses on the tile
+	for resource_id in total_bonuses.keys():
+		var amount = total_bonuses[resource_id]
+		if tile_highlighter and amount != 0:
+			tile_highlighter.add_adjacency_bonus_display(coord, resource_id, amount)
 
 func _on_action_menu_closed():
 	"""Action menu closed - only clear highlights if NOT in a special mode"""

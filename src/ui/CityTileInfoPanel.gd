@@ -349,9 +349,47 @@ func _populate_terrain_info(tile_view: TileView):
 	if tile_view.is_river():
 		content.add_child(_create_info_row("🌊", "River", Color(0.4, 0.6, 0.9)))
 	
+	# Show modifiers/features
+	var modifiers = tile_view.get_modifiers()
+	if not modifiers.is_empty():
+		content.add_child(_create_separator())
+		content.add_child(_create_subsection_label("Features"))
+		
+		for mod_id in modifiers:
+			var mod_name = Registry.modifiers.get_modifier_name(mod_id)
+			var mod_type = Registry.modifiers.get_modifier_type(mod_id)
+			var mod_desc = Registry.modifiers.get_modifier_description(mod_id)
+			
+			# Choose icon and color based on modifier type
+			var icon = "◆"
+			var color = Color(0.7, 0.8, 0.6)
+			
+			match mod_type:
+				"resource_deposit":
+					icon = "💎"
+					color = Color(0.8, 0.7, 0.5)
+				"terrain_feature":
+					icon = "🌿"
+					color = Color(0.6, 0.8, 0.5)
+				"yield_modifier":
+					icon = "⬆"
+					color = Color(0.5, 0.7, 0.9)
+			
+			content.add_child(_create_info_row(icon, mod_name, color))
+			
+			# Show description if available
+			if mod_desc != "" and mod_desc != mod_name:
+				var mod_desc_label = Label.new()
+				mod_desc_label.text = "   " + mod_desc
+				mod_desc_label.add_theme_font_size_override("font_size", 11)
+				mod_desc_label.add_theme_color_override("font_color", Color(0.55, 0.55, 0.55))
+				mod_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				content.add_child(mod_desc_label)
+	
 	# Distance from city center
 	var distance = tile_view.get_distance_from_center()
 	if distance >= 0:
+		content.add_child(_create_separator())
 		content.add_child(_create_info_row("📍", "Distance: %d from center" % distance, Color(0.6, 0.6, 0.6)))
 
 func _populate_building_info(tile_view: TileView, city: City):
@@ -392,14 +430,34 @@ func _populate_building_info(tile_view: TileView, city: City):
 		if instance.is_under_construction() and instance.turns_remaining > 0:
 			content.add_child(_create_info_row("⏱", "%d turns remaining" % instance.turns_remaining, Color(0.8, 0.7, 0.4)))
 	
-	# Production
+	# Calculate production bonuses from terrain, modifiers, and adjacency
+	var bonuses = _calculate_building_bonuses(building_id, tile_view)
+	
+	# Production (base + bonuses)
 	var production = Registry.buildings.get_production_per_turn(building_id)
-	if not production.is_empty():
+	if not production.is_empty() or not bonuses.is_empty():
 		content.add_child(_create_separator())
 		content.add_child(_create_subsection_label("Production"))
+		
+		# Get all resource IDs that have production or bonuses
+		var all_resources: Array[String] = []
 		for res_id in production.keys():
+			if not res_id in all_resources:
+				all_resources.append(res_id)
+		for res_id in bonuses.keys():
+			if not res_id in all_resources:
+				all_resources.append(res_id)
+		
+		for res_id in all_resources:
+			var base_amount = production.get(res_id, 0.0)
+			var bonus_amount = bonuses.get(res_id, 0.0)
 			var res_name = Registry.localization.get_name("resource", res_id)
-			content.add_child(_create_resource_row(res_name, production[res_id], true))
+			
+			if bonus_amount != 0:
+				# Show base + bonus breakdown
+				content.add_child(_create_resource_row_with_bonus(res_name, base_amount, bonus_amount))
+			else:
+				content.add_child(_create_resource_row(res_name, base_amount, true))
 	
 	# Consumption
 	var consumption = Registry.buildings.get_consumption_per_turn(building_id)
@@ -474,6 +532,139 @@ func _create_resource_row(resource_name: String, amount: float, is_production: b
 	hbox.add_child(amount_label)
 	
 	return hbox
+
+func _create_resource_row_with_bonus(resource_name: String, base_amount: float, bonus_amount: float) -> HBoxContainer:
+	"""Create a row showing resource production with bonus breakdown"""
+	var hbox = HBoxContainer.new()
+	hbox.add_theme_constant_override("separation", 8)
+	
+	var name_label = Label.new()
+	name_label.text = resource_name
+	name_label.add_theme_font_size_override("font_size", 12)
+	name_label.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75))
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hbox.add_child(name_label)
+	
+	var total = base_amount + bonus_amount
+	var amount_label = Label.new()
+	
+	# Format: "+total (base +bonus)" or "+total (base -penalty)"
+	var bonus_sign = "+" if bonus_amount >= 0 else ""
+	if base_amount > 0:
+		amount_label.text = "+%.1f (%.1f %s%.1f)" % [total, base_amount, bonus_sign, bonus_amount]
+	else:
+		# Pure bonus with no base production
+		amount_label.text = "+%.1f (bonus)" % total
+	
+	amount_label.add_theme_font_size_override("font_size", 12)
+	
+	# Color based on total and bonus
+	if bonus_amount > 0:
+		amount_label.add_theme_color_override("font_color", Color(0.5, 0.95, 0.6))  # Bright green for positive bonus
+	else:
+		amount_label.add_theme_color_override("font_color", Color(0.85, 0.75, 0.4))  # Yellow-ish for negative bonus
+	
+	amount_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	hbox.add_child(amount_label)
+	
+	return hbox
+
+func _calculate_building_bonuses(building_id: String, tile_view: TileView) -> Dictionary:
+	"""Calculate production bonuses from terrain, modifiers, and adjacency"""
+	var bonuses: Dictionary = {}
+	
+	if not world_query:
+		return bonuses
+	
+	# Get terrain data for this tile
+	var terrain_data = world_query.get_terrain_data(current_coord)
+	if not terrain_data:
+		return bonuses
+	
+	# 1. Terrain bonuses - bonus from being ON specific terrain
+	var terrain_bonuses = Registry.buildings.get_terrain_bonuses(building_id)
+	if terrain_bonuses.has(terrain_data.terrain_id):
+		var terrain_yields = terrain_bonuses[terrain_data.terrain_id]
+		for resource_id in terrain_yields.keys():
+			bonuses[resource_id] = bonuses.get(resource_id, 0.0) + terrain_yields[resource_id]
+	
+	# 2. Modifier bonuses - bonus from modifiers ON this tile
+	var modifier_bonuses = Registry.buildings.get_modifier_bonuses(building_id)
+	for mod_id in terrain_data.modifiers:
+		if modifier_bonuses.has(mod_id):
+			var mod_yields = modifier_bonuses[mod_id]
+			for resource_id in mod_yields.keys():
+				bonuses[resource_id] = bonuses.get(resource_id, 0.0) + mod_yields[resource_id]
+	
+	# 3. Adjacency bonuses - bonus from adjacent terrain/buildings/modifiers
+	var adjacency_bonuses = Registry.buildings.get_adjacency_bonuses(building_id)
+	
+	for bonus in adjacency_bonuses:
+		var source_type = bonus.get("source_type", "")
+		var source_id = bonus.get("source_id", "")
+		var yields = bonus.get("yields", {})
+		var radius = bonus.get("radius", 1)
+		
+		# Count matching adjacent sources
+		var matching_count = _count_adjacent_sources(source_type, source_id, radius)
+		
+		if matching_count > 0:
+			for resource_id in yields.keys():
+				var bonus_per_source = yields[resource_id]
+				bonuses[resource_id] = bonuses.get(resource_id, 0.0) + (bonus_per_source * matching_count)
+	
+	return bonuses
+
+func _count_adjacent_sources(source_type: String, source_id: String, radius: int) -> int:
+	"""Count how many matching sources are adjacent to the current tile"""
+	var count = 0
+	
+	if not world_query:
+		return count
+	
+	# Get all tiles within radius (excluding self)
+	var neighbors = world_query.get_tiles_in_range(current_coord, 1, radius)
+	
+	for neighbor_coord in neighbors:
+		var matched = false
+		
+		match source_type:
+			"terrain":
+				# Check terrain type
+				var terrain_id = world_query.get_terrain_id(neighbor_coord)
+				matched = (terrain_id == source_id)
+			
+			"modifier":
+				# Check for modifier on tile
+				var neighbor_data = world_query.get_terrain_data(neighbor_coord)
+				if neighbor_data:
+					matched = neighbor_data.has_modifier(source_id)
+			
+			"building":
+				# Check for building
+				if current_city and current_city.has_building(neighbor_coord):
+					var neighbor_instance = current_city.get_building_instance(neighbor_coord)
+					if neighbor_instance:
+						matched = (neighbor_instance.building_id == source_id)
+			
+			"building_category":
+				# Check for building category
+				if current_city and current_city.has_building(neighbor_coord):
+					var neighbor_instance = current_city.get_building_instance(neighbor_coord)
+					if neighbor_instance:
+						var neighbor_building = Registry.buildings.get_building(neighbor_instance.building_id)
+						matched = (neighbor_building.get("category", "") == source_id)
+			
+			"river":
+				# Check for river
+				var neighbor_data = world_query.get_terrain_data(neighbor_coord)
+				if neighbor_data:
+					matched = neighbor_data.is_river
+		
+		if matched:
+			count += 1
+	
+	return count
 
 func _create_capacity_row(resource_name: String, capacity: int) -> HBoxContainer:
 	"""Create a row showing storage capacity"""

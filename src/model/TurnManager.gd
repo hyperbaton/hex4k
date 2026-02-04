@@ -18,9 +18,13 @@ var city_manager: CityManager
 # Reference to unit manager for spawning units
 var unit_manager: UnitManager
 
-func _init(p_city_manager: CityManager, p_unit_manager: UnitManager = null):
+# Reference to world query for terrain/modifier data
+var world_query: Node  # WorldQuery type
+
+func _init(p_city_manager: CityManager, p_unit_manager: UnitManager = null, p_world_query: Node = null):
 	city_manager = p_city_manager
 	unit_manager = p_unit_manager
+	world_query = p_world_query
 
 func process_turn() -> TurnReport:
 	"""Process a complete turn for all cities"""
@@ -180,11 +184,13 @@ func _phase_production(city: City, report: TurnReport.CityTurnReport):
 		if production.is_empty():
 			continue
 		
-		# Calculate adjacency bonuses (future: implement properly)
-		# var adjacency = _calculate_adjacency_bonuses(city, coord, instance.building_id)
+		# Calculate all production bonuses for this building
+		var bonuses = _calculate_production_bonuses(city, coord, instance.building_id)
 		
 		for resource_id in production.keys():
-			var raw_amount = production[resource_id]
+			var base_amount = production[resource_id]
+			var bonus_amount = bonuses.get(resource_id, 0.0)
+			var raw_amount = base_amount + bonus_amount
 			var adjusted_amount = raw_amount * efficiency
 			
 			# Try to store the produced resources (partial storage supported)
@@ -193,11 +199,112 @@ func _phase_production(city: City, report: TurnReport.CityTurnReport):
 			
 			report.add_production(resource_id, raw_amount, adjusted_amount)
 			
+			if bonus_amount > 0:
+				print("    %s: base %.1f + bonus %.1f = %.1f" % [resource_id, base_amount, bonus_amount, raw_amount])
+			
 			if spilled > 0:
 				report.add_spillage(resource_id, spilled)
 				print("    Spillage: %.1f %s (storage full)" % [spilled, resource_id])
 	
 	print("  Production complete (efficiency: %.0f%%)" % (efficiency * 100))
+
+func _calculate_production_bonuses(city: City, coord: Vector2i, building_id: String) -> Dictionary:
+	"""
+	Calculate all production bonuses for a building at a specific location.
+	Includes: terrain bonuses, modifier bonuses, and adjacency bonuses.
+	Returns: Dictionary of resource_id -> bonus_amount
+	"""
+	var bonuses: Dictionary = {}
+	
+	# Get terrain data if world_query is available
+	if not world_query:
+		return bonuses
+	
+	var terrain_data = world_query.get_terrain_data(coord)
+	if not terrain_data:
+		return bonuses
+	
+	# 1. Terrain bonuses - bonus from being ON specific terrain
+	var terrain_bonuses = Registry.buildings.get_terrain_bonuses(building_id)
+	if terrain_bonuses.has(terrain_data.terrain_id):
+		var terrain_yields = terrain_bonuses[terrain_data.terrain_id]
+		for resource_id in terrain_yields.keys():
+			bonuses[resource_id] = bonuses.get(resource_id, 0.0) + terrain_yields[resource_id]
+	
+	# 2. Modifier bonuses - bonus from modifiers ON this tile
+	var modifier_bonuses = Registry.buildings.get_modifier_bonuses(building_id)
+	for mod_id in terrain_data.modifiers:
+		if modifier_bonuses.has(mod_id):
+			var mod_yields = modifier_bonuses[mod_id]
+			for resource_id in mod_yields.keys():
+				bonuses[resource_id] = bonuses.get(resource_id, 0.0) + mod_yields[resource_id]
+	
+	# 3. Adjacency bonuses - bonus from adjacent terrain/buildings/modifiers
+	var adjacency_bonuses = Registry.buildings.get_adjacency_bonuses(building_id)
+	for adj_bonus in adjacency_bonuses:
+		var source_type = adj_bonus.get("source_type", "")
+		var source_id = adj_bonus.get("source_id", "")
+		var radius = adj_bonus.get("radius", 1)
+		var yields = adj_bonus.get("yields", {})
+		
+		# Count matching adjacent sources
+		var matching_count = _count_adjacent_sources(coord, source_type, source_id, radius, city)
+		
+		if matching_count > 0:
+			for resource_id in yields.keys():
+				var bonus_per_source = yields[resource_id]
+				bonuses[resource_id] = bonuses.get(resource_id, 0.0) + (bonus_per_source * matching_count)
+	
+	return bonuses
+
+func _count_adjacent_sources(coord: Vector2i, source_type: String, source_id: String, radius: int, city: City) -> int:
+	"""Count how many matching sources are adjacent to a tile"""
+	var count = 0
+	
+	if not world_query:
+		return count
+	
+	# Get all tiles within radius
+	var neighbors = world_query.get_tiles_in_range(coord, 1, radius)
+	
+	for neighbor_coord in neighbors:
+		var matched = false
+		
+		match source_type:
+			"terrain":
+				# Check terrain type
+				var terrain_id = world_query.get_terrain_id(neighbor_coord)
+				matched = (terrain_id == source_id)
+			
+			"modifier":
+				# Check for modifier on tile
+				var neighbor_data = world_query.get_terrain_data(neighbor_coord)
+				if neighbor_data:
+					matched = neighbor_data.has_modifier(source_id)
+			
+			"building":
+				# Check for building
+				if city.has_building(neighbor_coord):
+					var neighbor_instance = city.get_building_instance(neighbor_coord)
+					matched = (neighbor_instance.building_id == source_id)
+			
+			"building_category":
+				# Check for building category
+				if city.has_building(neighbor_coord):
+					var neighbor_instance = city.get_building_instance(neighbor_coord)
+					var neighbor_building = Registry.buildings.get_building(neighbor_instance.building_id)
+					matched = (neighbor_building.get("category", "") == source_id)
+			
+			"river":
+				# Check for river
+				var neighbor_data = world_query.get_terrain_data(neighbor_coord)
+				if neighbor_data:
+					matched = neighbor_data.is_river
+		
+		if matched:
+			count += 1
+	
+	return count
 
 # === Phase 3: Consumption ===
 

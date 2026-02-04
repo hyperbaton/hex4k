@@ -29,8 +29,8 @@ func _ready():
 	# Create unit manager
 	unit_manager = UnitManager.new()
 	
-	# Create turn manager with unit manager reference
-	turn_manager = TurnManager.new(city_manager, unit_manager)
+	# Create turn manager with unit manager and world_query references
+	turn_manager = TurnManager.new(city_manager, unit_manager, world_query)
 	turn_manager.turn_completed.connect(_on_turn_completed)
 	
 	# Create unit layer for visuals (in world space, above tiles)

@@ -18,7 +18,7 @@
 		"required_adjacent": {
 			"building_ids": [],
 			"building_categories": [],
-			"terrain_types": ["forest"],
+			"terrain_types": [],
 			"min_count": 1,
 			"max_distance": 1
 		},
@@ -49,6 +49,22 @@
 			"radius": 1,
 			"yields": {
 				"food": 1
+			}
+		},
+		{
+			"source_type": "modifier",
+			"source_id": "wild_game",
+			"radius": 1,
+			"yields": {
+				"food": 1
+			}
+		},
+		{
+			"source_type": "modifier",
+			"source_id": "game_trails",
+			"radius": 1,
+			"yields": {
+				"food": 0.5
 			}
 		}
 	],

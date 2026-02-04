@@ -53,10 +53,26 @@
 			"yields": {
 				"wood": 0.5
 			}
+		},
+		{
+			"source_type": "modifier",
+			"source_id": "dense_forest",
+			"radius": 1,
+			"yields": {
+				"wood": 0.5
+			}
 		}
 	],
 	"terrain_bonuses": {
 		"forest": {
+			"wood": 1
+		}
+	},
+	"modifier_bonuses": {
+		"dense_forest": {
+			"wood": 2
+		},
+		"sparse_forest": {
 			"wood": 1
 		}
 	},
