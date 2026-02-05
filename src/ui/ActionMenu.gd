@@ -585,6 +585,13 @@ func show_buildings_in_category(category: String):
 		var building_name = Registry.get_name_label("building", building_id)
 		
 		var button = create_circular_button(building_name, Color.YELLOW)
+		
+		# Load building icon
+		var icon_path = "res://assets/buildings/%s.svg" % building_id
+		var icon_tex = load(icon_path) as Texture2D
+		if icon_tex:
+			button.icon = icon_tex
+		
 		button.pressed.connect(_on_building_pressed.bind(building_id))
 		
 		# Position in horizontal line

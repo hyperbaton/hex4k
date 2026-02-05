@@ -2,7 +2,7 @@ extends RefCounted
 class_name BuildingInstance
 
 # Represents an instance of a building placed in a city tile
-# Tracks status, stored resources, and construction progress
+# Tracks status, stored resources, construction progress, and upgrades
 
 enum Status {
 	ACTIVE,              # Operating normally, will produce
@@ -19,6 +19,12 @@ var status: Status = Status.CONSTRUCTING
 # Construction tracking
 var turns_remaining: int = 0
 var cost_per_turn: Dictionary = {}
+
+# Upgrade tracking - building operates normally while upgrading
+var upgrading_to: String = ""  # Target building ID
+var upgrade_turns_remaining: int = 0
+var upgrade_total_turns: int = 0
+var upgrade_cost_per_turn: Dictionary = {}
 
 # Storage for storage buildings
 var stored_resources: Dictionary = {}  # resource_id -> float
@@ -90,13 +96,21 @@ func set_disabled():
 	status = Status.DISABLED
 
 func get_status_name() -> String:
+	var base_status = ""
 	match status:
-		Status.ACTIVE: return "Active"
-		Status.EXPECTING_RESOURCES: return "Waiting for Resources"
-		Status.CONSTRUCTING: return "Under Construction"
-		Status.CONSTRUCTION_PAUSED: return "Construction Paused"
-		Status.DISABLED: return "Disabled"
-	return "Unknown"
+		Status.ACTIVE: base_status = "Active"
+		Status.EXPECTING_RESOURCES: base_status = "Waiting for Resources"
+		Status.CONSTRUCTING: base_status = "Under Construction"
+		Status.CONSTRUCTION_PAUSED: base_status = "Construction Paused"
+		Status.DISABLED: base_status = "Disabled"
+		_: base_status = "Unknown"
+	
+	# Add upgrade indicator if upgrading
+	if is_upgrading():
+		var target_name = Registry.get_name_label("building", upgrading_to)
+		base_status += " (Upgrading to %s)" % target_name
+	
+	return base_status
 
 # === Construction ===
 
@@ -119,6 +133,116 @@ func complete_construction():
 	status = Status.EXPECTING_RESOURCES
 	turns_remaining = 0
 	cost_per_turn.clear()
+
+# === Upgrade System ===
+
+func is_upgrading() -> bool:
+	"""Check if this building is currently being upgraded"""
+	return upgrading_to != ""
+
+func is_upgrade_paused() -> bool:
+	"""Check if upgrade is paused due to missing resources"""
+	# We track this implicitly - if upgrading but didn't progress last turn
+	return is_upgrading() and upgrade_cost_per_turn.size() > 0
+
+func can_start_upgrade() -> bool:
+	"""Check if this building can start an upgrade"""
+	# Cannot upgrade if:
+	# - Already upgrading
+	# - Under construction
+	# - Disabled
+	# - No upgrade target defined
+	if is_upgrading():
+		return false
+	if is_under_construction():
+		return false
+	if is_disabled():
+		return false
+	
+	var target = Registry.buildings.get_upgrade_target(building_id)
+	return target != ""
+
+func get_upgrade_target() -> String:
+	"""Get the building this can upgrade to"""
+	return Registry.buildings.get_upgrade_target(building_id)
+
+func start_upgrade(target_building_id: String, total_turns: int, per_turn_cost: Dictionary):
+	"""Start upgrading this building to another building type"""
+	upgrading_to = target_building_id
+	upgrade_turns_remaining = total_turns
+	upgrade_total_turns = total_turns
+	upgrade_cost_per_turn = per_turn_cost.duplicate()
+	print("BuildingInstance: Started upgrade from %s to %s at %v (%d turns)" % [
+		building_id, target_building_id, tile_coord, total_turns
+	])
+
+func advance_upgrade() -> bool:
+	"""Advance upgrade by one turn. Returns true if completed."""
+	if not is_upgrading():
+		return false
+	
+	upgrade_turns_remaining -= 1
+	if upgrade_turns_remaining <= 0:
+		return true  # Upgrade complete - caller handles the replacement
+	return false
+
+func cancel_upgrade() -> Dictionary:
+	"""Cancel the current upgrade. Returns info about what was cancelled."""
+	var info = {
+		"target": upgrading_to,
+		"turns_remaining": upgrade_turns_remaining,
+		"total_turns": upgrade_total_turns
+	}
+	upgrading_to = ""
+	upgrade_turns_remaining = 0
+	upgrade_total_turns = 0
+	upgrade_cost_per_turn.clear()
+	return info
+
+func get_upgrade_progress_percent() -> float:
+	"""Get upgrade progress as percentage (0-100)"""
+	if not is_upgrading() or upgrade_total_turns == 0:
+		return 0.0
+	return float(upgrade_total_turns - upgrade_turns_remaining) / float(upgrade_total_turns) * 100.0
+
+func complete_upgrade() -> String:
+	"""
+	Complete the upgrade - transforms this building into the target.
+	Returns the new building_id.
+	Note: Stored resources are preserved if the new building can store them.
+	"""
+	var new_building_id = upgrading_to
+	var old_building_id = building_id
+	var preserved_resources = stored_resources.duplicate()
+	
+	# Update to new building
+	building_id = new_building_id
+	_building_data = Registry.buildings.get_building(new_building_id)
+	
+	# Clear upgrade state
+	upgrading_to = ""
+	upgrade_turns_remaining = 0
+	upgrade_total_turns = 0
+	upgrade_cost_per_turn.clear()
+	
+	# Re-initialize storage for new building
+	stored_resources.clear()
+	_init_storage()
+	
+	# Transfer resources that the new building can store
+	for resource_id in preserved_resources.keys():
+		var amount = preserved_resources[resource_id]
+		if amount > 0 and can_store(resource_id):
+			var capacity = get_storage_capacity(resource_id)
+			stored_resources[resource_id] = min(amount, capacity)
+			if amount > capacity:
+				print("  Upgrade spillage: %.1f %s (exceeded new capacity)" % [amount - capacity, resource_id])
+	
+	print("BuildingInstance: Completed upgrade from %s to %s at %v" % [
+		old_building_id, new_building_id, tile_coord
+	])
+	
+	return new_building_id
 
 # === Resource Storage ===
 
@@ -313,7 +437,11 @@ func to_dict() -> Dictionary:
 		"stored_resources": stored_resources,
 		"training_unit_id": training_unit_id,
 		"training_turns_remaining": training_turns_remaining,
-		"training_total_turns": training_total_turns
+		"training_total_turns": training_total_turns,
+		"upgrading_to": upgrading_to,
+		"upgrade_turns_remaining": upgrade_turns_remaining,
+		"upgrade_total_turns": upgrade_total_turns,
+		"upgrade_cost_per_turn": upgrade_cost_per_turn
 	}
 
 static func from_dict(data: Dictionary) -> BuildingInstance:
@@ -327,4 +455,8 @@ static func from_dict(data: Dictionary) -> BuildingInstance:
 	instance.training_unit_id = data.get("training_unit_id", "")
 	instance.training_turns_remaining = data.get("training_turns_remaining", 0)
 	instance.training_total_turns = data.get("training_total_turns", 0)
+	instance.upgrading_to = data.get("upgrading_to", "")
+	instance.upgrade_turns_remaining = data.get("upgrade_turns_remaining", 0)
+	instance.upgrade_total_turns = data.get("upgrade_total_turns", 0)
+	instance.upgrade_cost_per_turn = data.get("upgrade_cost_per_turn", {})
 	return instance

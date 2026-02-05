@@ -107,8 +107,17 @@ class CityTurnReport extends RefCounted:
 	var constructions_progressed: Array[Dictionary] = []  # [{coord, building_id, turns_remaining}]
 	var constructions_completed: Array[Dictionary] = []  # [{coord, building_id}]
 	var constructions_paused: Array[Dictionary] = []  # [{coord, building_id, missing_resources}]
+	var constructions_queued: Array[Dictionary] = []  # [{coord, building_id, turns_remaining}] - waiting for building capacity
 	var completion_rewards: Dictionary = {}  # resource_id -> amount from building completion
 	var completion_research_rewards: Dictionary = {}  # branch_id -> points from building completion
+	
+	# Upgrades
+	var upgrades_progressed: Array[Dictionary] = []  # [{coord, from_building_id, to_building_id, turns_remaining}]
+	var upgrades_completed: Array[Dictionary] = []  # [{coord, from_building_id, to_building_id}]
+	var upgrades_paused: Array[Dictionary] = []  # [{coord, from_building_id, to_building_id, missing_resources}]
+	
+	# Modifier consumption
+	var modifiers_consumed: Array[Dictionary] = []  # [{building_coord, building_id, tile_coord, modifier_id, transforms_to}]
 	
 	# Decay
 	var decay_summary: Dictionary = {}  # resource_id -> total decayed
@@ -166,6 +175,21 @@ class CityTurnReport extends RefCounted:
 	func add_completion_research_reward(branch_id: String, points: float):
 		"""Track research granted when a building completes construction"""
 		completion_research_rewards[branch_id] = completion_research_rewards.get(branch_id, 0.0) + points
+	
+	func add_construction_queued(coord: Vector2i, building_id: String, turns_left: int):
+		constructions_queued.append({"coord": coord, "building_id": building_id, "turns_remaining": turns_left})
+	
+	func add_modifier_consumed(building_coord: Vector2i, building_id: String, tile_coord: Vector2i, modifier_id: String, transforms_to: String):
+		modifiers_consumed.append({"building_coord": building_coord, "building_id": building_id, "tile_coord": tile_coord, "modifier_id": modifier_id, "transforms_to": transforms_to})
+	
+	func add_upgrade_progressed(coord: Vector2i, from_building_id: String, to_building_id: String, turns_left: int):
+		upgrades_progressed.append({"coord": coord, "from_building_id": from_building_id, "to_building_id": to_building_id, "turns_remaining": turns_left})
+	
+	func add_upgrade_completed(coord: Vector2i, from_building_id: String, to_building_id: String):
+		upgrades_completed.append({"coord": coord, "from_building_id": from_building_id, "to_building_id": to_building_id})
+	
+	func add_upgrade_paused(coord: Vector2i, from_building_id: String, to_building_id: String, missing: Dictionary):
+		upgrades_paused.append({"coord": coord, "from_building_id": from_building_id, "to_building_id": to_building_id, "missing_resources": missing})
 	
 	func add_decay(resource_id: String, amount: float):
 		decay_summary[resource_id] = decay_summary.get(resource_id, 0.0) + amount
@@ -230,6 +254,26 @@ class CityTurnReport extends RefCounted:
 		
 		if not constructions_paused.is_empty():
 			lines.append("  Construction paused: %d buildings" % constructions_paused.size())
+		
+		if not constructions_queued.is_empty():
+			lines.append("  Construction queued (no capacity): %d buildings" % constructions_queued.size())
+		
+		if not modifiers_consumed.is_empty():
+			for event in modifiers_consumed:
+				if event.transforms_to != "":
+					lines.append("  Modifier: %s -> %s at %v" % [event.modifier_id, event.transforms_to, event.tile_coord])
+				else:
+					lines.append("  Modifier depleted: %s at %v" % [event.modifier_id, event.tile_coord])
+		
+		# Upgrades
+		if not upgrades_completed.is_empty():
+			for upgrade in upgrades_completed:
+				var from_name = Registry.get_name_label("building", upgrade.from_building_id)
+				var to_name = Registry.get_name_label("building", upgrade.to_building_id)
+				lines.append("  Upgraded: %s -> %s" % [from_name, to_name])
+		
+		if not upgrades_paused.is_empty():
+			lines.append("  Upgrade paused: %d buildings" % upgrades_paused.size())
 		
 		# Research
 		if not research_generated.is_empty():

@@ -8,6 +8,7 @@ signal closed
 var current_city: City
 var vbox: VBoxContainer
 var construction_section: VBoxContainer
+var upgrade_section: VBoxContainer
 var training_section: VBoxContainer
 
 func _ready():
@@ -61,6 +62,17 @@ func _setup_panel():
 	construction_section.add_theme_constant_override("separation", 4)
 	vbox.add_child(construction_section)
 	
+	# Upgrade section
+	var upgrade_header = Label.new()
+	upgrade_header.text = "Upgrades"
+	upgrade_header.add_theme_font_size_override("font_size", 14)
+	upgrade_header.add_theme_color_override("font_color", Color(0.6, 0.7, 1.0))
+	vbox.add_child(upgrade_header)
+	
+	upgrade_section = VBoxContainer.new()
+	upgrade_section.add_theme_constant_override("separation", 4)
+	vbox.add_child(upgrade_section)
+	
 	# Training section
 	var train_header = Label.new()
 	train_header.text = "Training"
@@ -102,6 +114,7 @@ func update_display():
 		return
 	
 	_update_construction_section()
+	_update_upgrade_section()
 	_update_training_section()
 
 func _update_construction_section():
@@ -125,6 +138,28 @@ func _update_construction_section():
 		empty_label.add_theme_font_size_override("font_size", 12)
 		empty_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 		construction_section.add_child(empty_label)
+
+func _update_upgrade_section():
+	# Clear existing entries
+	for child in upgrade_section.get_children():
+		child.queue_free()
+	
+	var has_upgrades = false
+	
+	for coord in current_city.building_instances.keys():
+		var instance: BuildingInstance = current_city.building_instances[coord]
+		
+		if instance.is_upgrading():
+			has_upgrades = true
+			var entry = _create_upgrade_entry(instance)
+			upgrade_section.add_child(entry)
+	
+	if not has_upgrades:
+		var empty_label = Label.new()
+		empty_label.text = "No upgrades in progress"
+		empty_label.add_theme_font_size_override("font_size", 12)
+		empty_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+		upgrade_section.add_child(empty_label)
 
 func _update_training_section():
 	# Clear existing entries
@@ -174,6 +209,42 @@ func _create_construction_entry(instance: BuildingInstance) -> HBoxContainer:
 		status_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
 	status_label.add_theme_font_size_override("font_size", 12)
 	progress_container.add_child(status_label)
+	
+	return entry
+
+func _create_upgrade_entry(instance: BuildingInstance) -> VBoxContainer:
+	var entry = VBoxContainer.new()
+	entry.add_theme_constant_override("separation", 2)
+	
+	# Top row: From -> To and turns
+	var top_row = HBoxContainer.new()
+	top_row.add_theme_constant_override("separation", 8)
+	entry.add_child(top_row)
+	
+	# Upgrade path: Building Name → Target Name
+	var from_name = Registry.get_name_label("building", instance.building_id)
+	var to_name = Registry.get_name_label("building", instance.upgrading_to)
+	
+	var path_label = Label.new()
+	path_label.text = "%s → %s" % [from_name, to_name]
+	path_label.add_theme_font_size_override("font_size", 13)
+	path_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top_row.add_child(path_label)
+	
+	# Turns remaining
+	var turns_label = Label.new()
+	turns_label.text = "%d turns" % instance.upgrade_turns_remaining
+	turns_label.add_theme_font_size_override("font_size", 12)
+	turns_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	top_row.add_child(turns_label)
+	
+	# Progress bar
+	var progress_bar = ProgressBar.new()
+	progress_bar.custom_minimum_size = Vector2(0, 6)
+	progress_bar.max_value = 100
+	progress_bar.value = instance.get_upgrade_progress_percent()
+	progress_bar.show_percentage = false
+	entry.add_child(progress_bar)
 	
 	return entry
 

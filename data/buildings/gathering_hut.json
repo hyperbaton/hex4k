@@ -32,7 +32,7 @@
 	"production": {
 		"per_turn_produces": {
 			"food": 1,
-			"wood": 0.5,
+			"wood": 1,
 			"stone": 0.5
 		},
 		"per_turn_consumes": {
@@ -62,14 +62,6 @@
 			}
 		}
 	],
-	"modifier_bonuses": {
-		"berry_bushes": {
-			"food": 2
-		},
-		"freshwater_spring": {
-			"food": 0.5
-		}
-	},
 	"provides": {
 		"population_storage": 0,
 		"resource_storage": {},

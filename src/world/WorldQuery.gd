@@ -110,7 +110,8 @@ func can_build_here(coord: Vector2i, building_id: String) -> Dictionary:
 
 func check_terrain_adjacency_requirements(coord: Vector2i, building_id: String) -> Dictionary:
 	"""
-	Check if terrain adjacency requirements are met for a building.
+	Check if terrain/modifier adjacency requirements are met for a building.
+	Supports terrain_types, modifiers, and or_self options.
 	Returns {met: bool, reason: String}
 	"""
 	var building = Registry.buildings.get_building(building_id)
@@ -122,30 +123,70 @@ func check_terrain_adjacency_requirements(coord: Vector2i, building_id: String) 
 		return {met = true, reason = ""}
 	
 	var adj_reqs = reqs.required_adjacent
+	var min_count = adj_reqs.get("min_count", 1)
+	var max_distance = adj_reqs.get("max_distance", 1)
+	var or_self = adj_reqs.get("or_self", false)  # If true, being on the terrain/modifier counts
 	
-	# Check terrain type adjacency
-	if adj_reqs.has("terrain_types") and adj_reqs.terrain_types.size() > 0:
-		var min_count = adj_reqs.get("min_count", 1)
-		var max_distance = adj_reqs.get("max_distance", 1)
-		var required_terrains = adj_reqs.terrain_types
+	var required_terrains = adj_reqs.get("terrain_types", [])
+	var required_modifiers = adj_reqs.get("modifiers", [])
+	
+	# Nothing to check
+	if required_terrains.is_empty() and required_modifiers.is_empty():
+		return {met = true, reason = ""}
+	
+	# Count matching terrain and modifiers
+	var matching_count = 0
+	
+	# Check "or_self" - if the building is ON matching terrain/modifier, that counts
+	if or_self:
+		var self_terrain = get_terrain_id(coord)
+		var self_data = get_terrain_data(coord)
 		
-		# Count matching adjacent terrains
-		var matching_count = 0
-		var neighbors = get_tiles_in_range(coord, 1, max_distance)
+		# Check if self terrain matches
+		if self_terrain in required_terrains:
+			matching_count += 1
 		
-		print("  [Adjacency Check] %s at %v needs %s (min %d)" % [building_id, coord, required_terrains, min_count])
+		# Check if self has any required modifier
+		if self_data:
+			for mod_id in required_modifiers:
+				if self_data.has_modifier(mod_id):
+					matching_count += 1
+					break  # Only count self once even if multiple modifiers match
+	
+	# Check adjacent tiles
+	var neighbors = get_tiles_in_range(coord, 1, max_distance)
+	
+	for neighbor_coord in neighbors:
+		var neighbor_terrain = get_terrain_id(neighbor_coord)
+		var neighbor_data = get_terrain_data(neighbor_coord)
 		
-		for neighbor_coord in neighbors:
-			var neighbor_terrain = get_terrain_id(neighbor_coord)
-			if neighbor_terrain in required_terrains:
-				matching_count += 1
-				print("    Found: %s at %v" % [neighbor_terrain, neighbor_coord])
+		# Check terrain match
+		if neighbor_terrain in required_terrains:
+			matching_count += 1
+			continue  # Don't double-count if terrain matches
 		
-		print("    Total matching: %d" % matching_count)
+		# Check modifier match
+		if neighbor_data:
+			for mod_id in required_modifiers:
+				if neighbor_data.has_modifier(mod_id):
+					matching_count += 1
+					break  # Only count this tile once even if multiple modifiers match
+	
+	if matching_count < min_count:
+		# Build a user-friendly reason message
+		var requirements_list: Array[String] = []
+		if not required_terrains.is_empty():
+			requirements_list.append(", ".join(required_terrains))
+		if not required_modifiers.is_empty():
+			# Get readable modifier names
+			var mod_names: Array[String] = []
+			for mod_id in required_modifiers:
+				var mod_name = Registry.modifiers.get_modifier_name(mod_id)
+				mod_names.append(mod_name)
+			requirements_list.append(", ".join(mod_names))
 		
-		if matching_count < min_count:
-			var terrain_names = ", ".join(required_terrains)
-			return {met = false, reason = "Requires adjacent %s (found %d, need %d)" % [terrain_names, matching_count, min_count]}
+		var requirements_str = " or ".join(requirements_list)
+		return {met = false, reason = "Requires adjacent %s (found %d, need %d)" % [requirements_str, matching_count, min_count]}
 	
 	return {met = true, reason = ""}
 

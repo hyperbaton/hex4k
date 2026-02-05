@@ -317,6 +317,10 @@ func _on_building_action_requested(action: String, coord: Vector2i):
 			_handle_disable_building(coord)
 		"demolish":
 			_handle_demolish_building(coord)
+		"upgrade":
+			_handle_upgrade_building(coord)
+		"cancel_upgrade":
+			_handle_cancel_upgrade_building(coord)
 		_:
 			push_warning("Unknown building action: " + action)
 
@@ -391,6 +395,61 @@ func _handle_demolish_building(coord: Vector2i):
 	else:
 		var check = current_city.can_demolish_building(coord)
 		_show_toast_error("Cannot demolish: " + check.reason)
+
+func _handle_upgrade_building(coord: Vector2i):
+	"""Start upgrading a building"""
+	var instance = current_city.get_building_instance(coord)
+	if not instance:
+		return
+	
+	var building_name = Registry.get_name_label("building", instance.building_id)
+	var success = current_city.start_upgrade_building(coord)
+	
+	if success:
+		var upgrade_info = Registry.buildings.get_upgrade_info(instance.building_id)
+		var target_name = Registry.get_name_label("building", upgrade_info.target)
+		_show_toast_success("Started upgrade: %s → %s" % [building_name, target_name])
+		
+		# Update displays
+		current_city.recalculate_city_stats()
+		city_header.update_display()
+		if queue_panel:
+			queue_panel.update_display()
+		
+		# Refresh the tile info panel
+		if tile_info_panel:
+			tile_info_panel.refresh()
+	else:
+		var check = current_city.can_upgrade_building(coord)
+		_show_toast_error("Cannot upgrade: " + check.reason)
+
+func _handle_cancel_upgrade_building(coord: Vector2i):
+	"""Cancel an in-progress upgrade"""
+	var instance = current_city.get_building_instance(coord)
+	if not instance:
+		return
+	
+	if not instance.is_upgrading():
+		_show_toast_error("Building is not being upgraded")
+		return
+	
+	var target_name = Registry.get_name_label("building", instance.upgrading_to)
+	var success = current_city.cancel_upgrade_building(coord)
+	
+	if success:
+		_show_toast_warning("Cancelled upgrade to %s (resources not refunded)" % target_name)
+		
+		# Update displays
+		current_city.recalculate_city_stats()
+		city_header.update_display()
+		if queue_panel:
+			queue_panel.update_display()
+		
+		# Refresh the tile info panel
+		if tile_info_panel:
+			tile_info_panel.refresh()
+	else:
+		_show_toast_error("Cannot cancel upgrade")
 
 func is_click_outside_ui(pos: Vector2) -> bool:
 	"""Check if click is outside all UI elements"""

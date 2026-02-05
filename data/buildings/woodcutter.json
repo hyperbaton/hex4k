@@ -20,6 +20,7 @@
 			"building_ids": [],
 			"building_categories": [],
 			"terrain_types": ["forest"],
+			"modifiers": ["dense_forest", "sparse_forest", "dense_jungle", "sparse_jungle"],
 			"min_count": 1,
 			"max_distance": 1,
 			"or_self": true
@@ -76,6 +77,19 @@
 			"wood": 1
 		}
 	},
+	"modifier_consumption": [
+		{
+			"modifier_id": "dense_forest",
+			"chance_percent": 1,
+			"radius": 1,
+			"transforms_to": "sparse_forest"
+		},
+		{
+			"modifier_id": "sparse_forest",
+			"chance_percent": 1,
+			"radius": 1
+		}
+	],
 	"provides": {
 		"population_storage": 0,
 		"resource_storage": {

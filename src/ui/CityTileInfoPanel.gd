@@ -4,7 +4,7 @@ class_name CityTileInfoPanel
 # Left sidebar panel that displays tile and building information in city view
 
 signal closed
-signal building_action_requested(action: String, coord: Vector2i)  # action: "enable", "disable", "demolish"
+signal building_action_requested(action: String, coord: Vector2i)  # action: "enable", "disable", "demolish", "upgrade", "cancel_upgrade"
 
 var current_coord: Vector2i
 var current_city: City
@@ -20,6 +20,8 @@ var close_button: Button
 var enable_button: Button
 var disable_button: Button
 var demolish_button: Button
+var upgrade_button: Button
+var cancel_upgrade_button: Button
 
 const PANEL_WIDTH := 300
 const SECTION_MARGIN := 12
@@ -214,6 +216,16 @@ func _create_actions_section() -> PanelContainer:
 	buttons_vbox.name = "Content"
 	buttons_vbox.add_theme_constant_override("separation", 8)
 	content_margin.add_child(buttons_vbox)
+	
+	# Upgrade button
+	upgrade_button = _create_action_button("Upgrade", Color(0.4, 0.6, 0.9), "Upgrade this building")
+	upgrade_button.pressed.connect(_on_upgrade_pressed)
+	buttons_vbox.add_child(upgrade_button)
+	
+	# Cancel upgrade button
+	cancel_upgrade_button = _create_action_button("Cancel Upgrade", Color(0.8, 0.5, 0.3), "Cancel the ongoing upgrade")
+	cancel_upgrade_button.pressed.connect(_on_cancel_upgrade_pressed)
+	buttons_vbox.add_child(cancel_upgrade_button)
 	
 	# Enable button
 	enable_button = _create_action_button("Enable", Color(0.3, 0.7, 0.4), "Reactivate this building")
@@ -429,6 +441,13 @@ func _populate_building_info(tile_view: TileView, city: City):
 		# Show turns remaining if under construction
 		if instance.is_under_construction() and instance.turns_remaining > 0:
 			content.add_child(_create_info_row("⏱", "%d turns remaining" % instance.turns_remaining, Color(0.8, 0.7, 0.4)))
+		
+		# Show upgrade progress if upgrading
+		if instance.is_upgrading():
+			var target_name = Registry.get_name_label("building", instance.upgrading_to)
+			var progress = instance.get_upgrade_progress_percent()
+			content.add_child(_create_info_row("⬆", "Upgrading to %s" % target_name, Color(0.5, 0.7, 1.0)))
+			content.add_child(_create_info_row("⏱", "%d turns remaining (%.0f%%)" % [instance.upgrade_turns_remaining, progress], Color(0.6, 0.7, 0.9)))
 	
 	# Calculate production bonuses from terrain, modifiers, and adjacency
 	var bonuses = _calculate_building_bonuses(building_id, tile_view)
@@ -745,35 +764,122 @@ func _update_actions_section(city: City):
 		actions_section.visible = false
 		return
 	
-	# Check if it's a city center (no actions allowed)
-	if Registry.buildings.is_city_center(instance.building_id):
-		actions_section.visible = false
-		return
+	# Check if it's a city center - only allow upgrade if available
+	var is_city_center = Registry.buildings.is_city_center(instance.building_id)
 	
-	# Check if under construction (no actions allowed)
+	# Check if under construction (no actions allowed except for city centers that might upgrade)
 	if instance.is_under_construction():
 		actions_section.visible = false
 		return
 	
-	# Update Enable button
-	var can_enable = city.can_enable_building(current_coord)
-	enable_button.visible = instance.is_disabled()
-	enable_button.disabled = not can_enable.can_enable
-	if can_enable.can_enable:
-		enable_button.tooltip_text = "Reactivate this building"
-	else:
-		enable_button.tooltip_text = can_enable.reason
+	# Track if any button is visible
+	var any_visible = false
 	
-	# Update Disable button
-	var can_disable = city.can_disable_building(current_coord)
-	disable_button.visible = not instance.is_disabled()
-	disable_button.disabled = not can_disable.can_disable
-	if can_disable.can_disable:
-		disable_button.tooltip_text = "Stop production and consumption"
-	else:
-		disable_button.tooltip_text = can_disable.reason
+	# === Upgrade button ===
+	# Show if: building has an upgrade path, is not currently upgrading, and milestones are met
+	var can_upgrade = city.can_upgrade_building(current_coord)
+	var has_upgrade_path = Registry.buildings.can_upgrade(instance.building_id)
 	
-	# Update Demolish button
+	# Check if milestones for target building are unlocked
+	var milestones_met = true
+	if has_upgrade_path:
+		var target_id = Registry.buildings.get_upgrade_target(instance.building_id)
+		var required_milestones = Registry.buildings.get_required_milestones(target_id)
+		milestones_met = Registry.has_all_milestones(required_milestones)
+	
+	if has_upgrade_path and not instance.is_upgrading() and milestones_met:
+		upgrade_button.visible = true
+		upgrade_button.disabled = not can_upgrade.can_upgrade
+		
+		# Build upgrade tooltip with cost and target info
+		var upgrade_info = can_upgrade.upgrade_info
+		var upgrade_tooltip = "Upgrade this building"
+		var target_name = ""
+		
+		# Get target name from upgrade_info or directly from registry
+		if not upgrade_info.is_empty():
+			target_name = Registry.get_name_label("building", upgrade_info.target)
+		else:
+			var target_id = Registry.buildings.get_upgrade_target(instance.building_id)
+			if target_id != "":
+				target_name = Registry.get_name_label("building", target_id)
+		
+		# Update button text to include target
+		if target_name != "":
+			upgrade_button.text = "Upgrade → %s" % target_name
+			upgrade_tooltip = "Upgrade to %s" % target_name
+		else:
+			upgrade_button.text = "Upgrade"
+		
+		if not upgrade_info.is_empty():
+			if not upgrade_info.initial_cost.is_empty():
+				upgrade_tooltip += "\nCost: "
+				var cost_parts = []
+				for res_id in upgrade_info.initial_cost.keys():
+					var res_name = Registry.get_name_label("resource", res_id)
+					cost_parts.append("%s x%.0f" % [res_name, upgrade_info.initial_cost[res_id]])
+				upgrade_tooltip += ", ".join(cost_parts)
+			if upgrade_info.total_turns > 0:
+				upgrade_tooltip += "\nTime: %d turns" % upgrade_info.total_turns
+		
+		if not can_upgrade.can_upgrade:
+			upgrade_tooltip += "\n" + can_upgrade.reason
+		
+		upgrade_button.tooltip_text = upgrade_tooltip
+		any_visible = true
+	else:
+		upgrade_button.visible = false
+	
+	# === Cancel Upgrade button ===
+	# Show only if currently upgrading
+	if instance.is_upgrading():
+		cancel_upgrade_button.visible = true
+		cancel_upgrade_button.disabled = false
+		var target_name = Registry.get_name_label("building", instance.upgrading_to)
+		var progress = instance.get_upgrade_progress_percent()
+		cancel_upgrade_button.tooltip_text = "Cancel upgrade to %s (%.0f%% complete)\nResources will not be refunded" % [target_name, progress]
+		any_visible = true
+	else:
+		cancel_upgrade_button.visible = false
+	
+	# City centers can only upgrade, no other actions
+	if is_city_center:
+		enable_button.visible = false
+		disable_button.visible = false
+		demolish_button.visible = false
+		actions_section.visible = any_visible
+		return
+	
+	# === Enable button ===
+	# Show only if building is disabled
+	if instance.is_disabled():
+		var can_enable = city.can_enable_building(current_coord)
+		enable_button.visible = true
+		enable_button.disabled = not can_enable.can_enable
+		if can_enable.can_enable:
+			enable_button.tooltip_text = "Reactivate this building"
+		else:
+			enable_button.tooltip_text = can_enable.reason
+		any_visible = true
+	else:
+		enable_button.visible = false
+	
+	# === Disable button ===
+	# Show only if building is NOT disabled
+	if not instance.is_disabled():
+		var can_disable = city.can_disable_building(current_coord)
+		disable_button.visible = true
+		disable_button.disabled = not can_disable.can_disable
+		if can_disable.can_disable:
+			disable_button.tooltip_text = "Stop production and consumption"
+		else:
+			disable_button.tooltip_text = can_disable.reason
+		any_visible = true
+	else:
+		disable_button.visible = false
+	
+	# === Demolish button ===
+	# Always show for non-city-center buildings (may be disabled if can't afford)
 	var can_demolish = city.can_demolish_building(current_coord)
 	demolish_button.visible = true
 	demolish_button.disabled = not can_demolish.can_demolish
@@ -792,6 +898,9 @@ func _update_actions_section(city: City):
 		demolish_tooltip += "\n" + can_demolish.reason
 	
 	demolish_button.tooltip_text = demolish_tooltip
+	any_visible = true
+	
+	actions_section.visible = any_visible
 
 func _on_enable_pressed():
 	"""Handle enable button click"""
@@ -804,6 +913,14 @@ func _on_disable_pressed():
 func _on_demolish_pressed():
 	"""Handle demolish button click"""
 	emit_signal("building_action_requested", "demolish", current_coord)
+
+func _on_upgrade_pressed():
+	"""Handle upgrade button click"""
+	emit_signal("building_action_requested", "upgrade", current_coord)
+
+func _on_cancel_upgrade_pressed():
+	"""Handle cancel upgrade button click"""
+	emit_signal("building_action_requested", "cancel_upgrade", current_coord)
 
 func _on_close_pressed():
 	"""Handle close button click"""

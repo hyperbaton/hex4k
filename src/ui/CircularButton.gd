@@ -8,6 +8,7 @@ signal pressed
 @export var button_text: String = "Button"
 @export var button_color: Color = Color.BLUE
 @export var radius: float = 40.0
+@export var icon: Texture2D = null
 
 var is_hovered := false
 var is_pressed := false
@@ -39,9 +40,25 @@ func _draw():
 	var font = ThemeDB.fallback_font
 	var font_size = 12
 	var text_size = font.get_string_size(button_text, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size)
-	var text_pos = center - text_size / 2
 	
-	draw_string(font, text_pos, button_text, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size, text_color)
+	if icon:
+		# Draw icon above text, both vertically centered together
+		var icon_size = radius * 0.7  # Icon fits comfortably inside the circle
+		var icon_rect_size = Vector2(icon_size, icon_size)
+		var total_height = icon_size + 2 + text_size.y  # icon + gap + text
+		var start_y = center.y - total_height / 2
+		
+		# Draw icon
+		var icon_pos = Vector2(center.x - icon_size / 2, start_y)
+		draw_texture_rect(icon, Rect2(icon_pos, icon_rect_size), false)
+		
+		# Draw text below icon
+		var text_pos = Vector2(center.x - text_size.x / 2, start_y + icon_size + 2 + text_size.y * 0.75)
+		draw_string(font, text_pos, button_text, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size, text_color)
+	else:
+		# No icon - center text as before
+		var text_pos = center - text_size / 2
+		draw_string(font, text_pos, button_text, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size, text_color)
 
 func _gui_input(event):
 	if event is InputEventMouseButton:

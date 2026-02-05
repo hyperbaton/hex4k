@@ -211,3 +211,62 @@ func is_city_center(building_id: String) -> bool:
 	"""Check if this building is a city center (cannot be demolished or disabled)"""
 	var building = get_building(building_id)
 	return building.get("is_city_center", false)
+
+func get_upgrade_target(building_id: String) -> String:
+	"""Get the building ID this can upgrade to, or empty string if none"""
+	var building = get_building(building_id)
+	var target = building.get("upgrades_to", null)
+	if target == null or target == "":
+		return ""
+	return target
+
+func can_upgrade(building_id: String) -> bool:
+	"""Check if this building can be upgraded"""
+	return get_upgrade_target(building_id) != ""
+
+func get_upgrade_info(building_id: String) -> Dictionary:
+	"""
+	Get upgrade information for a building.
+	Returns: {target: String, initial_cost: Dictionary, cost_per_turn: Dictionary, total_turns: int}
+	or empty dict if no upgrade available.
+	"""
+	var target = get_upgrade_target(building_id)
+	if target == "":
+		return {}
+	
+	# Get construction info from target building
+	var target_building = get_building(target)
+	if target_building.is_empty():
+		return {}
+	
+	var construction = target_building.get("construction", {})
+	
+	return {
+		"target": target,
+		"initial_cost": construction.get("initial_cost", {}),
+		"cost_per_turn": construction.get("cost_per_turn", {}),
+		"total_turns": construction.get("total_turns", 1)
+	}
+
+func get_building_capacity(building_id: String) -> int:
+	"""Get the building capacity this building provides (how many constructions it enables)"""
+	var building = get_building(building_id)
+	if building.has("provides"):
+		return building.provides.get("building_capacity", 0)
+	return 0
+
+func get_modifier_consumption(building_id: String) -> Array:
+	"""Get modifier consumption rules for this building.
+	Returns array of dicts: [{modifier_id, chance_percent, radius, transforms_to?}]"""
+	var building = get_building(building_id)
+	return building.get("modifier_consumption", [])
+
+func get_required_adjacent_modifiers(building_id: String) -> Array:
+	"""Get list of modifier IDs required adjacent to the building"""
+	var building = get_building(building_id)
+	if not building.has("requirements"):
+		return []
+	var reqs = building.requirements
+	if not reqs.has("required_adjacent"):
+		return []
+	return reqs.required_adjacent.get("modifiers", [])

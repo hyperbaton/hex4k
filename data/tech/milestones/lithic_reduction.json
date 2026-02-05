@@ -2,7 +2,7 @@
 	"name": "Lithic Reduction",
 	"description": "Shaping stone through controlled flaking techniques.",
 	"branch": "gathering_and_crafting",
-	"requirements": [{ "branch": "gathering_and_crafting", "level": 5.0 }],
+	"requirements": [{ "branch": "gathering_and_crafting", "level": 3.0 }],
 	"visibility": { "always_visible": false, "show_when": [{ "branch": "gathering_and_crafting", "level": 1.0 }] },
 	"visual": { "icon": "res://assets/icons/milestones/lithic_reduction.png" }
 }

@@ -91,13 +91,19 @@ func _process_city_turn(city: City) -> TurnReport.CityTurnReport:
 	# Phase 2: Production (all operational buildings produce FIRST)
 	_phase_production(city, report)
 	
+	# Phase 2b: Modifier consumption (active buildings may consume nearby modifiers)
+	_phase_modifier_consumption(city, report)
+	
 	# Phase 3: Consumption (two-pass system, penalties if consumption fails)
 	_phase_consumption(city, report)
 	
 	# Phase 4: Construction processing
 	_phase_construction(city, report)
 	
-	# Phase 4b: Training processing
+	# Phase 4b: Upgrade processing
+	_phase_upgrades(city, report)
+	
+	# Phase 4c: Training processing
 	_phase_training(city, report)
 	
 	# Phase 5: Population update
@@ -306,6 +312,61 @@ func _count_adjacent_sources(coord: Vector2i, source_type: String, source_id: St
 	
 	return count
 
+# === Phase 2b: Modifier Consumption ===
+
+func _phase_modifier_consumption(city: City, report: TurnReport.CityTurnReport):
+	"""Active buildings may consume nearby modifiers each turn based on chance.
+	This represents resource exploitation (deforestation, mining depletion, etc.)."""
+	if not world_query:
+		return
+	
+	for coord in city.building_instances.keys():
+		var instance: BuildingInstance = city.building_instances[coord]
+		
+		# Only active buildings consume modifiers
+		if not instance.is_active():
+			continue
+		
+		var consumption_rules = Registry.buildings.get_modifier_consumption(instance.building_id)
+		if consumption_rules.is_empty():
+			continue
+		
+		for rule in consumption_rules:
+			var modifier_id: String = rule.get("modifier_id", "")
+			var chance_percent: float = rule.get("chance_percent", 0.0)
+			var radius: int = rule.get("radius", 1)
+			var transforms_to: String = rule.get("transforms_to", "")
+			
+			if modifier_id == "" or chance_percent <= 0.0:
+				continue
+			
+			# Check own tile first, then tiles within radius
+			var tiles_to_check: Array[Vector2i] = [coord]
+			if radius > 0:
+				tiles_to_check.append_array(world_query.get_tiles_in_range(coord, 1, radius))
+			
+			for target_coord in tiles_to_check:
+				var terrain_data = world_query.get_terrain_data(target_coord)
+				if not terrain_data:
+					continue
+				
+				if not terrain_data.has_modifier(modifier_id):
+					continue
+				
+				# Roll the dice
+				var roll = randf() * 100.0
+				if roll < chance_percent:
+					# Consume the modifier
+					terrain_data.remove_modifier(modifier_id)
+					
+					if transforms_to != "":
+						terrain_data.add_modifier(transforms_to)
+						report.add_modifier_consumed(coord, instance.building_id, target_coord, modifier_id, transforms_to)
+						print("    Modifier consumed: %s -> %s at %v (by %s)" % [modifier_id, transforms_to, target_coord, instance.building_id])
+					else:
+						report.add_modifier_consumed(coord, instance.building_id, target_coord, modifier_id, "")
+						print("    Modifier consumed: %s removed at %v (by %s)" % [modifier_id, target_coord, instance.building_id])
+
 # === Phase 3: Consumption ===
 
 func _phase_consumption(city: City, report: TurnReport.CityTurnReport):
@@ -387,11 +448,23 @@ func _process_building_consumption(city: City, instance: BuildingInstance, repor
 # === Phase 4: Construction ===
 
 func _phase_construction(city: City, report: TurnReport.CityTurnReport):
-	"""Process construction for all buildings being built"""
-	for coord in city.building_instances.keys():
+	"""Process construction for buildings being built, limited by building capacity.
+	Only the first X constructions in the queue progress each turn,
+	where X = total building capacity from operational buildings."""
+	var building_capacity = city.get_total_building_capacity()
+	var construction_coords = city.get_constructions_in_progress()
+	var constructions_processed: int = 0
+	
+	print("  Building capacity: %d, constructions queued: %d" % [building_capacity, construction_coords.size()])
+	
+	for coord in construction_coords:
 		var instance: BuildingInstance = city.building_instances[coord]
 		
-		if not instance.is_under_construction():
+		# Check if we've hit the building capacity limit
+		if constructions_processed >= building_capacity:
+			# This construction is queued but cannot progress this turn
+			report.add_construction_queued(coord, instance.building_id, instance.turns_remaining)
+			print("    Construction queued (no capacity): %s at %v" % [instance.building_id, coord])
 			continue
 		
 		var cost = instance.cost_per_turn
@@ -400,6 +473,7 @@ func _phase_construction(city: City, report: TurnReport.CityTurnReport):
 		if cost.is_empty():
 			instance.set_constructing()
 			var completed = instance.advance_construction()
+			constructions_processed += 1
 			
 			if completed:
 				_on_construction_completed(city, instance, report)
@@ -426,14 +500,16 @@ func _phase_construction(city: City, report: TurnReport.CityTurnReport):
 			# Advance construction
 			instance.set_constructing()
 			var completed = instance.advance_construction()
+			constructions_processed += 1
 			
 			if completed:
 				_on_construction_completed(city, instance, report)
 			else:
 				report.add_construction_progressed(coord, instance.building_id, instance.turns_remaining)
 		else:
-			# Pause construction
+			# Pause construction (still uses a capacity slot)
 			instance.set_construction_paused()
+			constructions_processed += 1
 			report.add_construction_paused(coord, instance.building_id, missing)
 			print("    Construction paused: %s at %v (missing resources)" % [instance.building_id, coord])
 
@@ -467,7 +543,96 @@ func _on_construction_completed(city: City, instance: BuildingInstance, report: 
 			report.add_completion_research_reward(branch_id, points)
 			print("      Research reward: +%.2f %s" % [points, branch_id])
 
-# === Phase 4b: Training ===
+# === Phase 4b: Upgrades ===
+
+func _phase_upgrades(city: City, report: TurnReport.CityTurnReport):
+	"""Process building upgrades - buildings continue operating while upgrading"""
+	for coord in city.building_instances.keys():
+		var instance: BuildingInstance = city.building_instances[coord]
+		
+		if not instance.is_upgrading():
+			continue
+		
+		var cost = instance.upgrade_cost_per_turn
+		
+		# If no per-turn cost, just advance the upgrade
+		if cost.is_empty():
+			var completed = instance.advance_upgrade()
+			
+			if completed:
+				_on_upgrade_completed(city, instance, report)
+			else:
+				report.add_upgrade_progressed(coord, instance.building_id, instance.upgrading_to, instance.upgrade_turns_remaining)
+			continue
+		
+		# Check if city can afford this turn's cost
+		var can_afford = true
+		var missing: Dictionary = {}
+		
+		for resource_id in cost.keys():
+			var needed = cost[resource_id]
+			var available = city.get_total_resource(resource_id)
+			if available < needed:
+				can_afford = false
+				missing[resource_id] = needed - available
+		
+		if can_afford:
+			# Consume resources
+			for resource_id in cost.keys():
+				city.consume_resource(resource_id, cost[resource_id])
+			
+			# Advance upgrade
+			var completed = instance.advance_upgrade()
+			
+			if completed:
+				_on_upgrade_completed(city, instance, report)
+			else:
+				report.add_upgrade_progressed(coord, instance.building_id, instance.upgrading_to, instance.upgrade_turns_remaining)
+		else:
+			# Can't afford - upgrade is paused this turn (but building still operates)
+			report.add_upgrade_paused(coord, instance.building_id, instance.upgrading_to, missing)
+			print("    Upgrade paused: %s at %v (missing resources)" % [instance.building_id, coord])
+
+func _on_upgrade_completed(city: City, instance: BuildingInstance, report: TurnReport.CityTurnReport):
+	"""Handle building upgrade completion"""
+	var coord = instance.tile_coord
+	var old_building_id = instance.building_id
+	var new_building_id = instance.upgrading_to
+	
+	# Complete the upgrade (transforms the building)
+	instance.complete_upgrade()
+	
+	# Update tile reference
+	var tile = city.get_tile(coord)
+	if tile:
+		tile.building_id = new_building_id
+	
+	report.add_upgrade_completed(coord, old_building_id, new_building_id)
+	print("    Upgrade completed: %s -> %s at %v" % [old_building_id, new_building_id, coord])
+	
+	# Apply on_construction_complete rewards for the new building
+	var rewards = Registry.buildings.get_on_construction_complete(new_building_id)
+	if rewards.is_empty():
+		return
+	
+	# Apply resource rewards
+	if rewards.has("resources"):
+		for resource_id in rewards.resources.keys():
+			var amount = rewards.resources[resource_id]
+			var stored = city.store_resource(resource_id, amount)
+			report.add_completion_reward(resource_id, stored)
+			if stored > 0:
+				print("      Reward: +%.1f %s" % [stored, resource_id])
+	
+	# Apply research rewards
+	if rewards.has("research"):
+		for branch_id in rewards.research.keys():
+			var points = rewards.research[branch_id]
+			Registry.tech.add_research(branch_id, points)
+			report.add_completion_research_reward(branch_id, points)
+			print("      Research reward: +%.2f %s" % [points, branch_id])
+
+# === Phase 4c: Training ===
 
 func _phase_training(city: City, report: TurnReport.CityTurnReport):
 	"""Process unit training for all buildings in the city"""
@@ -692,6 +857,16 @@ func _generate_city_alerts(city: City, city_report: TurnReport.CityTurnReport, r
 			city.city_id,
 			"%s: %d construction(s) paused due to missing resources" % [city.city_name, count],
 			{"constructions": city_report.constructions_paused}
+		)
+	
+	# Construction queued (no building capacity)
+	if not city_report.constructions_queued.is_empty():
+		var count = city_report.constructions_queued.size()
+		report.add_critical_alert(
+			"construction_queued",
+			city.city_id,
+			"%s: %d construction(s) waiting for building capacity" % [city.city_name, count],
+			{"constructions": city_report.constructions_queued}
 		)
 	
 	# Significant spillage

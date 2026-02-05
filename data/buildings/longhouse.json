@@ -55,6 +55,7 @@
 			"population": 10
 		},
 		"admin_capacity": 30.0,
+		"building_capacity": 1,
 		"caravan_capacity": 0,
 		"decay_reduction": {
 			"food": 0.5

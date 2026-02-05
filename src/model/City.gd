@@ -434,6 +434,101 @@ func should_check_abandonment() -> bool:
 	"""Check if this city should be checked for abandonment (population at 0)"""
 	return not is_abandoned and total_population <= 0
 
+# === Building Upgrades ===
+
+func can_upgrade_building(coord: Vector2i) -> Dictionary:
+	"""
+	Check if a building can be upgraded.
+	Returns {can_upgrade: bool, reason: String, upgrade_info: Dictionary}
+	"""
+	if is_abandoned:
+		return {can_upgrade = false, reason = "City is abandoned", upgrade_info = {}}
+	
+	var instance = get_building_instance(coord)
+	if not instance:
+		return {can_upgrade = false, reason = "No building at this location", upgrade_info = {}}
+	
+	# Can't upgrade if already upgrading
+	if instance.is_upgrading():
+		var target_name = Registry.get_name_label("building", instance.upgrading_to)
+		return {can_upgrade = false, reason = "Already upgrading to " + target_name, upgrade_info = {}}
+	
+	# Can't upgrade buildings under construction
+	if instance.is_under_construction():
+		return {can_upgrade = false, reason = "Building is under construction", upgrade_info = {}}
+	
+	# Can't upgrade disabled buildings
+	if instance.is_disabled():
+		return {can_upgrade = false, reason = "Building is disabled", upgrade_info = {}}
+	
+	# Check if building has an upgrade path
+	var upgrade_info = Registry.buildings.get_upgrade_info(instance.building_id)
+	if upgrade_info.is_empty():
+		return {can_upgrade = false, reason = "No upgrade available", upgrade_info = {}}
+	
+	# Check tech requirements for target building
+	var target_id = upgrade_info.target
+	var required_milestones = Registry.buildings.get_required_milestones(target_id)
+	if not Registry.has_all_milestones(required_milestones):
+		var target_name = Registry.get_name_label("building", target_id)
+		return {can_upgrade = false, reason = "Missing technology for " + target_name, upgrade_info = upgrade_info}
+	
+	# Check initial cost
+	var initial_cost = upgrade_info.initial_cost
+	var missing = get_missing_resources(initial_cost)
+	
+	if not missing.is_empty():
+		var missing_str = ""
+		for res_id in missing.keys():
+			var res_name = Registry.get_name_label("resource", res_id)
+			missing_str += "%s (need %.0f more), " % [res_name, missing[res_id]]
+		missing_str = missing_str.trim_suffix(", ")
+		return {can_upgrade = false, reason = "Insufficient resources: " + missing_str, upgrade_info = upgrade_info}
+	
+	return {can_upgrade = true, reason = "", upgrade_info = upgrade_info}
+
+func start_upgrade_building(coord: Vector2i) -> bool:
+	"""Start upgrading a building at the given coordinate"""
+	var check = can_upgrade_building(coord)
+	if not check.can_upgrade:
+		push_warning("Cannot upgrade building at %v: %s" % [coord, check.reason])
+		return false
+	
+	var instance = get_building_instance(coord)
+	var upgrade_info = check.upgrade_info
+	
+	# Pay initial upgrade cost
+	for res_id in upgrade_info.initial_cost.keys():
+		var cost = upgrade_info.initial_cost[res_id]
+		consume_resource(res_id, cost)
+		print("  Deducted upgrade cost: %s x%.0f" % [res_id, cost])
+	
+	# Start the upgrade process
+	instance.start_upgrade(
+		upgrade_info.target,
+		upgrade_info.total_turns,
+		upgrade_info.cost_per_turn
+	)
+	
+	print("City: Started upgrade of %s to %s at %v" % [
+		instance.building_id, upgrade_info.target, coord
+	])
+	return true
+
+func cancel_upgrade_building(coord: Vector2i) -> bool:
+	"""Cancel an in-progress upgrade"""
+	var instance = get_building_instance(coord)
+	if not instance:
+		return false
+	
+	if not instance.is_upgrading():
+		return false
+	
+	var cancelled_info = instance.cancel_upgrade()
+	print("City: Cancelled upgrade to %s at %v" % [cancelled_info.target, coord])
+	# Note: Resources are NOT refunded when cancelling
+	return true
+
 # === Resource Management (Per-Building Storage) ===
 
 func get_total_resource(resource_id: String) -> float:
@@ -544,6 +639,26 @@ func recalculate_city_stats():
 			population_capacity += Registry.buildings.get_population_capacity(instance.building_id)
 	
 	print("City stats: admin %.1f/%.1f, pop capacity %d" % [admin_capacity_used, admin_capacity_available, population_capacity])
+
+# === Building Capacity ===
+
+func get_total_building_capacity() -> int:
+	"""Get total building capacity from all operational buildings.
+	This limits how many constructions can progress per turn."""
+	var total: int = 0
+	for instance in building_instances.values():
+		if instance.is_operational():
+			total += Registry.buildings.get_building_capacity(instance.building_id)
+	return total
+
+func get_constructions_in_progress() -> Array[Vector2i]:
+	"""Get coordinates of all buildings currently under construction, in insertion order."""
+	var coords: Array[Vector2i] = []
+	for coord in building_instances.keys():
+		var instance: BuildingInstance = building_instances[coord]
+		if instance.is_under_construction():
+			coords.append(coord)
+	return coords
 
 # === Legacy Compatibility ===
 

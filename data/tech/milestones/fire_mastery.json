@@ -2,7 +2,7 @@
 	"name": "Fire Mastery",
 	"description": "Controlled use of fire for light, warmth, and cooking.",
 	"branch": "gathering_and_crafting",
-	"requirements": [{ "branch": "gathering_and_crafting", "level": 40.0 }],
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "gathering_and_crafting", "level": 20.0 }] },
+	"requirements": [{ "branch": "gathering_and_crafting", "level": 15.0 }],
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "gathering_and_crafting", "level": 10.0 }] },
 	"visual": { "icon": "res://assets/icons/milestones/pyrotechnology.png" }
 }
