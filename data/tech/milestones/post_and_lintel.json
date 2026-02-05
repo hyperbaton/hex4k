@@ -2,7 +2,7 @@
 	"name": "Post and Lintel",
 	"description": "Vertical posts supporting horizontal beams.",
 	"branch": "construction",
-	"requirements": [{ "branch": "construction", "level": 10.0 }],
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "construction", "level": 3.0 }] },
+	"requirements": [{ "branch": "construction", "level": 4.0 }],
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "construction", "level": 1.0 }] },
 	"visual": { "icon": "res://assets/icons/milestones/post_and_lintel.png" }
 }

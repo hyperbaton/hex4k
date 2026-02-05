@@ -560,8 +560,25 @@ func _on_resource_detail_closed():
 
 func _on_build_requested(building_id: String):
 	"""Player selected a building to place"""
-	selected_building_id = building_id
 	print("Selected building for placement: ", building_id)
+	
+	# Check if player can afford the initial construction cost
+	if current_city:
+		var initial_cost = Registry.buildings.get_initial_construction_cost(building_id)
+		if not current_city.has_resources(initial_cost):
+			var missing = current_city.get_missing_resources(initial_cost)
+			var missing_parts: Array[String] = []
+			for resource_id in missing.keys():
+				var available = current_city.get_total_resource(resource_id)
+				var needed = initial_cost[resource_id]
+				var resource_name = Registry.get_name_label("resource", resource_id)
+				missing_parts.append("%s (need %d, have %d)" % [resource_name, needed, available])
+			var msg = "Not enough resources: " + ", ".join(missing_parts)
+			print("✗ " + msg)
+			_show_toast_error(msg)
+			return
+	
+	selected_building_id = building_id
 	
 	# Hide tile info panel when entering build mode
 	if tile_info_panel:

@@ -33,6 +33,9 @@ func process_turn() -> TurnReport:
 	var report = TurnReport.new()
 	report.turn_number = current_turn
 	
+	# Snapshot milestones before turn processing to detect new unlocks
+	var milestones_before := Registry.tech.get_unlocked_milestones().duplicate()
+	
 	emit_signal("turn_started", current_turn)
 	print("\n========== TURN %d ==========" % current_turn)
 	
@@ -70,6 +73,13 @@ func process_turn() -> TurnReport:
 	
 	# Process global research and milestone unlocks
 	_process_global_research(report)
+	
+	# Detect newly unlocked milestones this turn
+	var milestones_after := Registry.tech.get_unlocked_milestones()
+	for milestone_id in milestones_after:
+		if milestone_id not in milestones_before:
+			report.add_milestone_unlocked(milestone_id)
+			print("  ★ Milestone unlocked: %s" % Registry.tech.get_milestone_name(milestone_id))
 	
 	last_report = report
 	emit_signal("turn_completed", report)

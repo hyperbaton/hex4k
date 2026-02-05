@@ -298,7 +298,7 @@ func _on_tile_selected(tile: HexTile):
 				print("  Unit already selected - checking for city")
 				# Unit already selected - clicking again opens city if applicable
 				var city = city_manager.get_city_at_tile(coord)
-				if city and city.owner.player_id == current_player_id:
+				if city and city.owner and city.owner.player_id == current_player_id:
 					# Deselect unit and open city
 					unit_layer.deselect_unit()
 					tile_highlighter.clear_all()
@@ -347,7 +347,7 @@ func _on_tile_selected(tile: HexTile):
 	if tile_view:
 		# Check if clicking on any tile that belongs to a city owned by the player
 		var city = city_manager.get_city_at_tile(coord)
-		if city and city.owner.player_id == current_player_id:
+		if city and city.owner and city.owner.player_id == current_player_id:
 			# Deselect any selected unit when entering city
 			unit_layer.deselect_unit()
 			tile_highlighter.clear_all()

@@ -61,20 +61,55 @@ func get_summary() -> String:
 	var lines: Array[String] = []
 	lines.append("=== Turn %d Summary ===" % turn_number)
 	
+	# Show milestones prominently at the top
 	if not milestones_unlocked.is_empty():
-		lines.append("Milestones Unlocked: %d" % milestones_unlocked.size())
+		lines.append("")
+		for milestone_id in milestones_unlocked:
+			var milestone_name = Registry.tech.get_milestone_name(milestone_id)
+			lines.append("\u2605 Milestone Unlocked: %s" % milestone_name)
+			# Show what this milestone unlocks
+			var unlocks = _get_milestone_unlocks(milestone_id)
+			if not unlocks.is_empty():
+				lines.append("  Unlocks: %s" % ", ".join(unlocks))
 	
 	for city_id in city_reports.keys():
 		var report = city_reports[city_id]
 		lines.append("\n[%s]" % city_id)
 		lines.append(report.get_summary())
 	
-	if not critical_alerts.is_empty():
-		lines.append("\n!!! Critical Alerts: %d !!!" % critical_alerts.size())
-		for alert in critical_alerts:
+	# Show non-milestone critical alerts
+	var other_alerts: Array[Dictionary] = []
+	for alert in critical_alerts:
+		if alert.type != "milestone":
+			other_alerts.append(alert)
+	
+	if not other_alerts.is_empty():
+		lines.append("\n!!! Alerts: %d !!!" % other_alerts.size())
+		for alert in other_alerts:
 			lines.append("  - %s" % alert.message)
 	
 	return "\n".join(lines)
+
+func _get_milestone_unlocks(milestone_id: String) -> Array[String]:
+	"""Get a list of things unlocked by this milestone (buildings, resources, etc.)"""
+	var unlocks: Array[String] = []
+	
+	# Check buildings that require this milestone
+	for building_id in Registry.buildings.get_all_building_ids():
+		var milestones_req = Registry.buildings.get_required_milestones(building_id)
+		if milestone_id in milestones_req:
+			# Show if all required milestones are now unlocked
+			if Registry.has_all_milestones(milestones_req):
+				unlocks.append(Registry.get_name_label("building", building_id))
+	
+	# Check resources that require this milestone
+	for resource_id in Registry.resources.get_all_resource_ids():
+		var milestones_req = Registry.resources.get_required_milestones(resource_id)
+		if milestone_id in milestones_req:
+			if Registry.has_all_milestones(milestones_req):
+				unlocks.append(Registry.get_name_label("resource", resource_id))
+	
+	return unlocks
 
 
 class CityTurnReport extends RefCounted:

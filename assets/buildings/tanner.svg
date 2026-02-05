@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Tanner - workshop with stretched hides for fur processing -->
+  <defs>
+    <linearGradient id="tannerWallGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B6B45"/>
+      <stop offset="100%" style="stop-color:#5C4530"/>
+    </linearGradient>
+    <linearGradient id="tannerRoofGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#A08060"/>
+      <stop offset="100%" style="stop-color:#6B5230"/>
+    </linearGradient>
+    <linearGradient id="hideGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C4A670"/>
+      <stop offset="100%" style="stop-color:#8B6914"/>
+    </linearGradient>
+    <linearGradient id="furGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#A0845C"/>
+      <stop offset="100%" style="stop-color:#6B5230"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Workshop walls -->
+  <rect x="8" y="34" width="48" height="24" rx="1" fill="url(#tannerWallGrad)" stroke="#3D2815" stroke-width="1"/>
+
+  <!-- Log texture -->
+  <line x1="8" y1="40" x2="56" y2="40" stroke="#3D2815" stroke-width="0.7" opacity="0.4"/>
+  <line x1="8" y1="46" x2="56" y2="46" stroke="#3D2815" stroke-width="0.7" opacity="0.4"/>
+  <line x1="8" y1="52" x2="56" y2="52" stroke="#3D2815" stroke-width="0.7" opacity="0.4"/>
+
+  <!-- Roof -->
+  <polygon points="32,14 4,36 60,36" fill="url(#tannerRoofGrad)" stroke="#4A3520" stroke-width="1"/>
+  <!-- Roof ridge -->
+  <line x1="18" y1="28" x2="24" y2="20" stroke="#8B7355" stroke-width="0.5" opacity="0.5"/>
+  <line x1="32" y1="26" x2="32" y2="16" stroke="#8B7355" stroke-width="0.5" opacity="0.5"/>
+  <line x1="46" y1="28" x2="40" y2="20" stroke="#8B7355" stroke-width="0.5" opacity="0.5"/>
+
+  <!-- Door -->
+  <rect x="27" y="42" width="10" height="16" rx="1" fill="#2C1810" stroke="#1A0F0A" stroke-width="0.5"/>
+  <circle cx="35" cy="50" r="1" fill="#8B6914"/>
+
+  <!-- Stretched hide on frame (left side) -->
+  <g transform="translate(2, 18)">
+    <!-- Frame posts -->
+    <rect x="0" y="0" width="1.5" height="30" fill="#5C4530"/>
+    <rect x="12" y="0" width="1.5" height="30" fill="#5C4530"/>
+    <!-- Cross bars -->
+    <rect x="0" y="0" width="13.5" height="1.5" fill="#5C4530"/>
+    <rect x="0" y="28.5" width="13.5" height="1.5" fill="#5C4530"/>
+    <!-- Stretched hide -->
+    <path d="M2,3 Q7,2 12,3 Q13,15 12,27 Q7,28 2,27 Q1,15 2,3 Z" fill="url(#hideGrad)" stroke="#6B5230" stroke-width="0.5"/>
+    <!-- Lacing ties -->
+    <line x1="2" y1="3" x2="1" y2="1" stroke="#8B7355" stroke-width="0.5"/>
+    <line x1="7" y1="2.5" x2="7" y2="1" stroke="#8B7355" stroke-width="0.5"/>
+    <line x1="12" y1="3" x2="13" y2="1" stroke="#8B7355" stroke-width="0.5"/>
+    <line x1="2" y1="27" x2="1" y2="29" stroke="#8B7355" stroke-width="0.5"/>
+    <line x1="7" y1="27.5" x2="7" y2="29" stroke="#8B7355" stroke-width="0.5"/>
+    <line x1="12" y1="27" x2="13" y2="29" stroke="#8B7355" stroke-width="0.5"/>
+  </g>
+
+  <!-- Fur pile (right side) -->
+  <g transform="translate(44, 44)">
+    <ellipse cx="6" cy="8" rx="8" ry="5" fill="url(#furGrad)" stroke="#5C4530" stroke-width="0.5"/>
+    <ellipse cx="5" cy="5" rx="6" ry="4" fill="#A0845C" stroke="#6B5230" stroke-width="0.5"/>
+    <!-- Fur texture lines -->
+    <line x1="2" y1="4" x2="2" y2="7" stroke="#8B7355" stroke-width="0.4"/>
+    <line x1="4" y1="3" x2="4" y2="8" stroke="#8B7355" stroke-width="0.4"/>
+    <line x1="6" y1="3" x2="6" y2="8" stroke="#8B7355" stroke-width="0.4"/>
+    <line x1="8" y1="4" x2="8" y2="7" stroke="#8B7355" stroke-width="0.4"/>
+  </g>
+
+  <!-- Scraping tool leaning on wall -->
+  <g transform="translate(40, 36)">
+    <line x1="0" y1="0" x2="3" y2="18" stroke="#5C4530" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M-1,-1 Q1,-3 3,-1 L3,1 Q1,2 -1,1 Z" fill="#8B8B8B" stroke="#666" stroke-width="0.5"/>
+  </g>
+
+  <!-- Water trough -->
+  <rect x="20" y="56" width="14" height="3" rx="1" fill="#5C7090" stroke="#3D4F66" stroke-width="0.5"/>
+  <rect x="19" y="55" width="16" height="1.5" rx="0.5" fill="#6B5230" stroke="#4A3520" stroke-width="0.5"/>
+</svg>

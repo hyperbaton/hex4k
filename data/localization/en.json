@@ -102,6 +102,10 @@
 			"name": "Honey",
 			"description": "Sweet golden nectar harvested from managed bee colonies. A precious luxury used for food, medicine, and trade."
 		},
+		"furs": {
+			"name": "Furs",
+			"description": "Animal pelts obtained from hunting, scraped and dried for use in warm clothing and trade goods."
+		},
 		"population": {
 			"name": "Population",
 			"description": "The workforce that powers your civilization."
@@ -269,6 +273,10 @@
 		"elders_dwelling": {
 			"name": "Elder's Dwelling",
 			"description": "A respected elder's residence where wisdom is preserved and shared. Produces significant research but requires comfort, sustenance, and honey as a luxury."
+		},
+		"tanner": {
+			"name": "Tanner",
+			"description": "A workshop where animal hides are scraped, soaked, and worked into supple leather clothing. Benefits from proximity to hunting lodges."
 		},
 		"apiary": {
 			"name": "Apiary",
