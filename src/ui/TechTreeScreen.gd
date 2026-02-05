@@ -104,10 +104,15 @@ func _create_info_popup(parent: Control):
 	info_popup.visible = false
 	info_popup.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
+	var outer_vbox = VBoxContainer.new()
+	outer_vbox.name = "OuterVBox"
+	outer_vbox.add_theme_constant_override("separation", 8)
+	info_popup.add_child(outer_vbox)
+	
 	var hbox = HBoxContainer.new()
 	hbox.name = "HBox"
 	hbox.add_theme_constant_override("separation", 12)
-	info_popup.add_child(hbox)
+	outer_vbox.add_child(hbox)
 	
 	# Icon container with TextureRect
 	var icon_rect = TextureRect.new()
@@ -131,6 +136,26 @@ func _create_info_popup(parent: Control):
 	detail_label.add_theme_font_size_override("font_size", 14)
 	detail_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
 	vbox.add_child(detail_label)
+	
+	# Unlocks section (hidden by default)
+	var unlocks_separator = HSeparator.new()
+	unlocks_separator.name = "UnlocksSeparator"
+	unlocks_separator.visible = false
+	outer_vbox.add_child(unlocks_separator)
+	
+	var unlocks_label = Label.new()
+	unlocks_label.name = "UnlocksLabel"
+	unlocks_label.text = "Unlocks:"
+	unlocks_label.add_theme_font_size_override("font_size", 13)
+	unlocks_label.add_theme_color_override("font_color", Color(0.9, 0.85, 0.5))
+	unlocks_label.visible = false
+	outer_vbox.add_child(unlocks_label)
+	
+	var unlocks_container = HBoxContainer.new()
+	unlocks_container.name = "UnlocksContainer"
+	unlocks_container.add_theme_constant_override("separation", 10)
+	unlocks_container.visible = false
+	outer_vbox.add_child(unlocks_container)
 	
 	parent.add_child(info_popup)
 
@@ -412,9 +437,9 @@ func show_branch_info(branch_id: String, screen_pos: Vector2):
 	var branch_name = Registry.tech.get_branch_name(branch_id)
 	var progress = Registry.tech.get_branch_progress(branch_id)
 	
-	var icon_rect = info_popup.get_node("HBox/Icon") as TextureRect
-	var title = info_popup.get_node("HBox/VBox/Title") as Label
-	var detail = info_popup.get_node("HBox/VBox/Detail") as Label
+	var icon_rect = info_popup.get_node("OuterVBox/HBox/Icon") as TextureRect
+	var title = info_popup.get_node("OuterVBox/HBox/VBox/Title") as Label
+	var detail = info_popup.get_node("OuterVBox/HBox/VBox/Detail") as Label
 	
 	# Set icon if available
 	if branch_icons.has(branch_id):
@@ -427,6 +452,9 @@ func show_branch_info(branch_id: String, screen_pos: Vector2):
 	title.text = branch_name
 	detail.text = "Progress: %.1f" % progress
 	
+	# Hide unlocks section for branches
+	_hide_unlocks_section()
+	
 	_show_popup_at(screen_pos)
 
 func show_milestone_info(milestone_id: String, screen_pos: Vector2):
@@ -434,9 +462,9 @@ func show_milestone_info(milestone_id: String, screen_pos: Vector2):
 	var milestone_branch = Registry.tech.get_milestone_branch(milestone_id)
 	var is_unlocked = Registry.tech.is_milestone_unlocked(milestone_id)
 	
-	var icon_rect = info_popup.get_node("HBox/Icon") as TextureRect
-	var title = info_popup.get_node("HBox/VBox/Title") as Label
-	var detail = info_popup.get_node("HBox/VBox/Detail") as Label
+	var icon_rect = info_popup.get_node("OuterVBox/HBox/Icon") as TextureRect
+	var title = info_popup.get_node("OuterVBox/HBox/VBox/Title") as Label
+	var detail = info_popup.get_node("OuterVBox/HBox/VBox/Detail") as Label
 	
 	# Set branch icon if available
 	if milestone_branch != "" and branch_icons.has(milestone_branch):
@@ -452,7 +480,101 @@ func show_milestone_info(milestone_id: String, screen_pos: Vector2):
 	var status = "Unlocked" if is_unlocked else "Locked"
 	detail.text = "%s\nBranch: %s" % [status, branch_name]
 	
+	# Populate unlocks section
+	var unlocks = _get_milestone_unlock_items(milestone_id)
+	_populate_unlocks_section(unlocks)
+	
 	_show_popup_at(screen_pos)
+
+func _get_milestone_unlock_items(milestone_id: String) -> Array[Dictionary]:
+	"""Get buildings and resources unlocked by this milestone, with icon paths and names."""
+	var items: Array[Dictionary] = []
+	
+	# Check buildings
+	for building_id in Registry.buildings.get_all_building_ids():
+		var milestones_req = Registry.buildings.get_required_milestones(building_id)
+		if milestone_id in milestones_req:
+			var building = Registry.buildings.get_building(building_id)
+			var icon_path = building.get("visual", {}).get("sprite", "")
+			items.append({
+				"id": building_id,
+				"name": Registry.get_name_label("building", building_id),
+				"icon_path": icon_path,
+				"type": "building"
+			})
+	
+	# Check resources
+	for resource_id in Registry.resources.get_all_resource_ids():
+		var milestones_req = Registry.resources.get_required_milestones(resource_id)
+		if milestone_id in milestones_req:
+			var resource = Registry.resources.get_resource(resource_id)
+			var icon_path = resource.get("visual", {}).get("icon", "")
+			items.append({
+				"id": resource_id,
+				"name": Registry.get_name_label("resource", resource_id),
+				"icon_path": icon_path,
+				"type": "resource"
+			})
+	
+	return items
+
+func _populate_unlocks_section(unlocks: Array[Dictionary]):
+	"""Show or hide the unlocks section and populate it with icons."""
+	var separator = info_popup.get_node("OuterVBox/UnlocksSeparator")
+	var label = info_popup.get_node("OuterVBox/UnlocksLabel")
+	var container = info_popup.get_node("OuterVBox/UnlocksContainer") as HBoxContainer
+	
+	# Clear previous icons
+	for child in container.get_children():
+		child.queue_free()
+	
+	if unlocks.is_empty():
+		_hide_unlocks_section()
+		return
+	
+	separator.visible = true
+	label.visible = true
+	container.visible = true
+	
+	for item in unlocks:
+		var item_vbox = VBoxContainer.new()
+		item_vbox.add_theme_constant_override("separation", 2)
+		item_vbox.set_h_size_flags(Control.SIZE_SHRINK_CENTER)
+		
+		# Icon
+		var tex_rect = TextureRect.new()
+		tex_rect.custom_minimum_size = Vector2(32, 32)
+		tex_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		
+		if item.icon_path != "" and ResourceLoader.exists(item.icon_path):
+			tex_rect.texture = load(item.icon_path)
+		
+		item_vbox.add_child(tex_rect)
+		
+		# Name label
+		var name_label = Label.new()
+		name_label.text = item.name
+		name_label.add_theme_font_size_override("font_size", 11)
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		
+		# Color-code by type
+		if item.type == "building":
+			name_label.add_theme_color_override("font_color", Color(0.7, 0.9, 1.0))
+		else:
+			name_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.6))
+		
+		item_vbox.add_child(name_label)
+		container.add_child(item_vbox)
+
+func _hide_unlocks_section():
+	"""Hide the unlocks section of the info popup."""
+	var separator = info_popup.get_node("OuterVBox/UnlocksSeparator")
+	var label = info_popup.get_node("OuterVBox/UnlocksLabel")
+	var container = info_popup.get_node("OuterVBox/UnlocksContainer")
+	separator.visible = false
+	label.visible = false
+	container.visible = false
 
 func _show_popup_at(screen_pos: Vector2):
 	info_popup.visible = true
