@@ -11,11 +11,11 @@ const BRANCH_WIDTH = 12.0  # Width of branch lines
 const MILESTONE_RADIUS = 16.0  # Radius of milestone circles
 const BRANCH_SPACING = 120.0  # Vertical spacing between branches
 const LEVEL_SCALE = 60.0  # Pixels per research level unit
-const MARGIN_LEFT = 100.0  # Left margin
+const MARGIN_LEFT = 130.0  # Left margin
 const MARGIN_TOP = 100.0  # Top margin
 const FORK_DIAGONAL_LENGTH = 40.0  # How far child branches travel diagonally
 const ICON_SIZE = 40.0  # Size of branch icons
-const ICON_OFFSET = 60.0  # How far before branch start the icon appears
+const ICON_OFFSET = 90.0  # How far before branch start the icon appears
 
 var is_open := false
 
@@ -40,6 +40,9 @@ var info_popup: PanelContainer  # Popup for branch/milestone info
 # Layout data (computed once, deterministic)
 var branch_y_positions: Dictionary = {}  # branch_id -> y position
 var branch_layouts: Dictionary = {}  # branch_id -> {start_x, y, color, milestones: [{x, id, visible, unlocked}]}
+
+# Currently displayed branch in popup (for focus button)
+var _popup_branch_id: String = ""
 
 func _ready():
 	layer = 100  # Above everything else
@@ -102,7 +105,7 @@ func _create_info_popup(parent: Control):
 	info_popup = PanelContainer.new()
 	info_popup.name = "InfoPopup"
 	info_popup.visible = false
-	info_popup.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	info_popup.mouse_filter = Control.MOUSE_FILTER_STOP
 	
 	var outer_vbox = VBoxContainer.new()
 	outer_vbox.name = "OuterVBox"
@@ -156,6 +159,15 @@ func _create_info_popup(parent: Control):
 	unlocks_container.add_theme_constant_override("separation", 10)
 	unlocks_container.visible = false
 	outer_vbox.add_child(unlocks_container)
+	
+	# Focus Research button (hidden by default, shown for branches)
+	var focus_button = Button.new()
+	focus_button.name = "FocusButton"
+	focus_button.text = "⬤ Focus Research Here"
+	focus_button.add_theme_font_size_override("font_size", 13)
+	focus_button.visible = false
+	focus_button.pressed.connect(_on_focus_research_pressed)
+	outer_vbox.add_child(focus_button)
 	
 	parent.add_child(info_popup)
 
@@ -381,15 +393,17 @@ func _compute_branch_layout(branch_id: String):
 	# Sort milestones by X position
 	milestones_data.sort_custom(func(a, b): return a.x < b.x)
 	
-	# Compute end X (furthest milestone + some extra)
-	var end_x = start_x + 100.0  # Minimum length
-	for m in milestones_data:
-		if m.x + 50.0 > end_x:
-			end_x = m.x + 50.0
-	
 	# Get current progress
 	var progress = Registry.tech.get_branch_progress(branch_id)
 	var progress_x = progress * LEVEL_SCALE
+	
+	# Compute end X: max of furthest VISIBLE milestone and current progress, plus padding
+	var furthest_x = start_x  # Baseline
+	for m in milestones_data:
+		if m.visible and m.x > furthest_x:
+			furthest_x = m.x
+	
+	var end_x = max(furthest_x, progress_x) + 50.0
 	
 	branch_layouts[branch_id] = {
 		"start_x": start_x,
@@ -440,6 +454,7 @@ func show_branch_info(branch_id: String, screen_pos: Vector2):
 	var icon_rect = info_popup.get_node("OuterVBox/HBox/Icon") as TextureRect
 	var title = info_popup.get_node("OuterVBox/HBox/VBox/Title") as Label
 	var detail = info_popup.get_node("OuterVBox/HBox/VBox/Detail") as Label
+	var focus_btn = info_popup.get_node("OuterVBox/FocusButton") as Button
 	
 	# Set icon if available
 	if branch_icons.has(branch_id):
@@ -454,6 +469,17 @@ func show_branch_info(branch_id: String, screen_pos: Vector2):
 	
 	# Hide unlocks section for branches
 	_hide_unlocks_section()
+	
+	# Show focus research button
+	_popup_branch_id = branch_id
+	var current_focus = Registry.tech.get_preferred_research_branch()
+	if current_focus == branch_id:
+		focus_btn.text = "\u2b24 Research Focused Here"
+		focus_btn.disabled = true
+	else:
+		focus_btn.text = "\u2b24 Focus Research Here"
+		focus_btn.disabled = false
+	focus_btn.visible = true
 	
 	_show_popup_at(screen_pos)
 
@@ -484,7 +510,37 @@ func show_milestone_info(milestone_id: String, screen_pos: Vector2):
 	var unlocks = _get_milestone_unlock_items(milestone_id)
 	_populate_unlocks_section(unlocks)
 	
+	# Hide focus button for milestones
+	var focus_btn = info_popup.get_node("OuterVBox/FocusButton") as Button
+	focus_btn.visible = false
+	_popup_branch_id = ""
+	
 	_show_popup_at(screen_pos)
+
+func _on_focus_research_pressed():
+	"""Handle the Focus Research button press"""
+	if _popup_branch_id == "":
+		return
+	
+	var current_focus = Registry.tech.get_preferred_research_branch()
+	if current_focus == _popup_branch_id:
+		# Already focused — unfocus (back to random)
+		Registry.tech.set_preferred_research_branch("")
+	else:
+		Registry.tech.set_preferred_research_branch(_popup_branch_id)
+	
+	# Update button state
+	var focus_btn = info_popup.get_node("OuterVBox/FocusButton") as Button
+	var new_focus = Registry.tech.get_preferred_research_branch()
+	if new_focus == _popup_branch_id:
+		focus_btn.text = "\u2b24 Research Focused Here"
+		focus_btn.disabled = true
+	else:
+		focus_btn.text = "\u2b24 Focus Research Here"
+		focus_btn.disabled = false
+	
+	# Redraw to update visual indicator
+	tree_drawer.queue_redraw()
 
 func _get_milestone_unlock_items(milestone_id: String) -> Array[Dictionary]:
 	"""Get buildings and resources unlocked by this milestone, with icon paths and names."""
@@ -615,6 +671,9 @@ class TechTreeDrawer extends Node2D:
 		# Third pass: Draw branch icons
 		for branch_id in tech_screen.branch_layouts.keys():
 			_draw_branch_icon(branch_id)
+		
+		# Fourth pass: Draw focus indicator on preferred branch
+		_draw_focus_indicator()
 	
 	func _draw_branch_shadow(branch_id: String):
 		var layout = tech_screen.branch_layouts[branch_id]
@@ -769,3 +828,40 @@ class TechTreeDrawer extends Node2D:
 		var draw_size = tex_size * scale_factor
 		var draw_rect = Rect2(icon_pos - draw_size / 2.0, draw_size)
 		draw_texture_rect(texture, draw_rect, false)
+	
+	func _draw_focus_indicator():
+		"""Draw a visual indicator at the beginning of the focused branch"""
+		var focused_branch = Registry.tech.get_preferred_research_branch()
+		if focused_branch == "" or not tech_screen.branch_layouts.has(focused_branch):
+			return
+		
+		var layout = tech_screen.branch_layouts[focused_branch]
+		var y = layout.y
+		var start_x = layout.start_x
+		var has_parent = layout.has_parent
+		var color = layout.color
+		
+		# Position beacon at branch start (after elbow for child branches)
+		var beacon_x = start_x
+		if has_parent:
+			beacon_x = start_x + tech_screen.FORK_DIAGONAL_LENGTH
+		
+		# Offset to the left of the branch line start
+		var beacon_pos = Vector2(beacon_x - 40, y)
+		
+		# Outer glow
+		var glow_color = Color(0.9, 0.85, 0.4, 0.3)
+		draw_circle(beacon_pos, 18, glow_color)
+		
+		# Inner circle with branch color
+		draw_circle(beacon_pos, 12, color)
+		draw_circle(beacon_pos, 9, color.lightened(0.3))
+		
+		# Simple star/compass shape to indicate focus
+		var icon_color = Color(1, 1, 1, 0.9)
+		var r = 5.0
+		for i in range(4):
+			var angle = i * PI / 2.0
+			var from_pt = beacon_pos + Vector2(cos(angle), sin(angle)) * r
+			var to_pt = beacon_pos - Vector2(cos(angle), sin(angle)) * r
+			draw_line(from_pt, to_pt, icon_color, 1.5)

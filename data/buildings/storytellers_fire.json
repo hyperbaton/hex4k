@@ -38,7 +38,7 @@
 			"wood": 0.5
 		},
 		"branch_specific_research": {
-			"oral_tradition": 0.2
+			"mysticism": 0.2
 		}
 	},
 	"per_turn_penalty": {},

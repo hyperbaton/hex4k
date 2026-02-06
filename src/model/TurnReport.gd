@@ -159,6 +159,8 @@ class CityTurnReport extends RefCounted:
 	
 	# Research
 	var research_generated: Dictionary = {}  # branch_id -> points
+	var generic_research_produced: float = 0.0  # Generic research from production
+	var generic_research_target: String = ""  # Branch it was directed to
 	
 	# Population
 	var population_change: float = 0.0
@@ -311,11 +313,15 @@ class CityTurnReport extends RefCounted:
 			lines.append("  Upgrade paused: %d buildings" % upgrades_paused.size())
 		
 		# Research
-		if not research_generated.is_empty():
+		if not research_generated.is_empty() or generic_research_produced > 0.0:
 			var research_parts: Array[String] = []
 			for branch_id in research_generated.keys():
 				research_parts.append("%s: +%.2f" % [branch_id, research_generated[branch_id]])
-			lines.append("  Research: " + ", ".join(research_parts))
+			if not research_parts.is_empty():
+				lines.append("  Research: " + ", ".join(research_parts))
+			if generic_research_produced > 0.0 and generic_research_target != "":
+				var target_name = Registry.tech.get_branch_name(generic_research_target)
+				lines.append("  Generic research: +%.2f → %s" % [generic_research_produced, target_name])
 		
 		# Population
 		if population_change != 0:

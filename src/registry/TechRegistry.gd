@@ -8,6 +8,7 @@ var milestones := {}
 # Track player's research progress
 var branch_progress := {}  # branch_id -> float (research points)
 var unlocked_milestones := []  # Array of milestone_ids
+var preferred_research_branch: String = ""  # Branch to direct generic research to (empty = random)
 
 func load_data():
 	load_branches()
@@ -331,3 +332,28 @@ func get_max_level_in_data() -> float:
 		if level > max_level:
 			max_level = level
 	return max_level
+
+func set_preferred_research_branch(branch_id: String):
+	"""Set the branch where generic research is directed"""
+	if branch_id == "" or branch_exists(branch_id):
+		preferred_research_branch = branch_id
+		print("Preferred research branch set to: %s" % (branch_id if branch_id != "" else "(random)"))
+
+func get_preferred_research_branch() -> String:
+	return preferred_research_branch
+
+func get_generic_research_target() -> String:
+	"""Get the branch to direct generic research to. Returns preferred if set, otherwise random visible branch."""
+	if preferred_research_branch != "" and branch_exists(preferred_research_branch):
+		return preferred_research_branch
+	
+	# Pick a random visible branch
+	var visible: Array[String] = []
+	for branch_id in branches.keys():
+		if is_branch_visible(branch_id):
+			visible.append(branch_id)
+	
+	if visible.is_empty():
+		return ""
+	
+	return visible[randi() % visible.size()]

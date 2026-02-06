@@ -209,6 +209,14 @@ func _phase_production(city: City, report: TurnReport.CityTurnReport):
 			var raw_amount = base_amount + bonus_amount
 			var adjusted_amount = raw_amount * efficiency
 			
+			# Generic research is intercepted and redirected to a branch
+			if resource_id == "research":
+				report.generic_research_produced += adjusted_amount
+				report.add_production(resource_id, raw_amount, adjusted_amount)
+				if bonus_amount > 0:
+					print("    %s: base %.1f + bonus %.1f = %.1f" % [resource_id, base_amount, bonus_amount, raw_amount])
+				continue
+			
 			# Try to store the produced resources (partial storage supported)
 			var stored = city.store_resource(resource_id, adjusted_amount)
 			var spilled = adjusted_amount - stored
@@ -789,13 +797,31 @@ func _phase_decay(city: City, report: TurnReport.CityTurnReport):
 func _process_global_research(report: TurnReport):
 	"""Aggregate research from all cities and apply to tech tree"""
 	var total_research: Dictionary = {}
+	var total_generic: float = 0.0
 	
-	# Sum research from all cities
+	# Sum branch-specific research from all cities
 	for city_id in report.city_reports.keys():
 		var city_report = report.city_reports[city_id]
 		for branch_id in city_report.research_generated.keys():
 			var points = city_report.research_generated[branch_id]
 			total_research[branch_id] = total_research.get(branch_id, 0.0) + points
+		# Sum generic research from production
+		total_generic += city_report.generic_research_produced
+	
+	# Redirect generic research to preferred branch (or random)
+	if total_generic > 0.0:
+		var target_branch = Registry.tech.get_generic_research_target()
+		if target_branch != "":
+			total_research[target_branch] = total_research.get(target_branch, 0.0) + total_generic
+			print("  Generic research: %.2f -> %s" % [total_generic, target_branch])
+			# Record in each city report where their generic research went
+			for city_id in report.city_reports.keys():
+				var city_report = report.city_reports[city_id]
+				if city_report.generic_research_produced > 0.0:
+					city_report.generic_research_target = target_branch
+					city_report.add_research(target_branch, city_report.generic_research_produced)
+		else:
+			print("  Generic research: %.2f lost (no visible branches)" % total_generic)
 	
 	# Apply to tech tree
 	for branch_id in total_research.keys():
