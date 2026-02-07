@@ -2,7 +2,7 @@
 	"name": "Pottery Kiln",
 	"description": "Specialized ovens for firing clay into durable ceramics.",
 	"branch": "gathering_and_crafting",
-	"requirements": [{ "branch": "gathering_and_crafting", "level": 100.0 }],
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "gathering_and_crafting", "level": 40.0 }] },
+	"requirements": [{ "branch": "gathering_and_crafting", "level": 20.0 }],
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "gathering_and_crafting", "level": 15.0 }] },
 	"visual": { "icon": "res://assets/icons/milestones/pottery_kiln.png" }
 }

@@ -39,7 +39,16 @@
 		"branch_specific_research": {}
 	},
 	"per_turn_penalty": {},
-	"adjacency_bonuses": [],
+	"adjacency_bonuses": [		
+		{
+			"source_type": "building",
+			"source_id": "hut",
+			"radius": 1,
+			"yields": {
+				"population": 0.25
+			}
+		}
+	],
 	"provides": {
 		"population_storage": 4,
 		"resource_storage": {

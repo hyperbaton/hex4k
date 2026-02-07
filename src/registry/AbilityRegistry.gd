@@ -148,6 +148,64 @@ func _check_single_condition(condition: Dictionary, unit: Unit, context: Diction
 				if not has_enemy:
 					return {passed = false, message = message}
 		
+		"on_city":
+			var city_manager = context.get("city_manager")
+			if city_manager:
+				var city = city_manager.get_city_at_tile(unit.coord)
+				if not city:
+					return {passed = false, message = message}
+				# Must be same owner
+				if city.owner and city.owner.player_id != unit.owner_id:
+					return {passed = false, message = "Not your city"}
+		
+		"has_cargo_capacity":
+			if not unit.has_cargo_capacity():
+				return {passed = false, message = message}
+		
+		"tile_allows_infrastructure":
+			var world_query = context.get("world_query")
+			if world_query:
+				var build_id = _get_unit_build_target(unit)
+				if build_id == "":
+					return {passed = false, message = "No buildable infrastructure"}
+				var mod_data = Registry.modifiers.get_modifier(build_id)
+				var terrain_data = world_query.get_terrain_data(unit.coord)
+				if not terrain_data:
+					return {passed = false, message = message}
+				# Check if already has the modifier or a conflicting one
+				if terrain_data.has_modifier(build_id):
+					return {passed = false, message = "Path already exists here"}
+				var conflicts = mod_data.get("conflicts_with", [])
+				for conflict_id in conflicts:
+					if terrain_data.has_modifier(conflict_id):
+						return {passed = false, message = "A road already exists here"}
+				# Check prohibited modifiers
+				var conditions_data = mod_data.get("conditions", {})
+				var prohibited = conditions_data.get("prohibits_modifiers", [])
+				for p in prohibited:
+					if terrain_data.has_modifier(p):
+						return {passed = false, message = message}
+				# Check terrain type is allowed
+				var allowed_terrain = conditions_data.get("terrain_types", [])
+				if not allowed_terrain.is_empty():
+					var terrain_id = world_query.get_terrain_id(unit.coord)
+					if terrain_id not in allowed_terrain:
+						return {passed = false, message = "Terrain not suitable"}
+				# Check milestones
+				var req_milestones = mod_data.get("milestones_required", [])
+				if not Registry.has_all_milestones(req_milestones):
+					return {passed = false, message = "Technology not researched"}
+		
+		"has_cargo_for_build":
+			var build_id = _get_unit_build_target(unit)
+			if build_id != "":
+				var mod_data = Registry.modifiers.get_modifier(build_id)
+				var construction = mod_data.get("construction", {})
+				var cost = construction.get("cost", {})
+				for resource_id in cost.keys():
+					if not unit.has_cargo(resource_id, cost[resource_id]):
+						return {passed = false, message = "Need %s in cargo" % resource_id}
+		
 		_:
 			push_warning("AbilityRegistry: Unknown condition type: " + condition_type)
 	
@@ -207,7 +265,7 @@ func execute_ability(ability_id: String, unit: Unit, params: Dictionary, context
 
 func _apply_costs(unit: Unit, costs: Dictionary):
 	var movement_cost = costs.get("movement", 0)
-	if movement_cost == "all":
+	if movement_cost is String and movement_cost == "all":
 		unit.current_movement = 0
 	elif movement_cost is int or movement_cost is float:
 		unit.current_movement = max(0, unit.current_movement - int(movement_cost))
@@ -228,6 +286,13 @@ func _execute_effect(effect: Dictionary, unit: Unit, params: Dictionary, context
 		
 		"melee_combat":
 			return _effect_melee_combat(effect, unit, params, context)
+		
+		"open_cargo_dialog":
+			# Signal to UI layer to open the cargo management dialog
+			return {success = true, message = "", data = {open_dialog = "cargo"}}
+		
+		"build_modifier":
+			return _effect_build_modifier(unit, params, context)
 		
 		_:
 			push_warning("AbilityRegistry: Unknown effect type: " + effect_type)
@@ -288,14 +353,67 @@ func get_available_abilities(unit: Unit, context: Dictionary) -> Array:
 	var unit_abilities = get_unit_abilities(unit)
 	
 	for ability_ref in unit_abilities:
-		var ability_id = ability_ref.get("ability_id", "")
+		var ability_id: String = ""
+		var params: Dictionary = {}
+		
+		if ability_ref is Dictionary:
+			ability_id = ability_ref.get("ability_id", "")
+			params = ability_ref.get("params", {})
+		elif ability_ref is String:
+			ability_id = ability_ref
+		
+		if ability_id == "":
+			continue
+		
 		var check = check_conditions(ability_id, unit, context)
 		
 		available.append({
 			ability_id = ability_id,
-			params = ability_ref.get("params", {}),
+			params = params,
 			can_use = check.can_use,
 			reason = check.reason
 		})
 	
 	return available
+
+# === Infrastructure Building ===
+
+func _get_unit_build_target(unit: Unit) -> String:
+	"""Get the infrastructure modifier ID this unit can build.
+	Looks at the build_infrastructure ability params for the 'builds' list."""
+	var params = unit.get_ability_params("build_infrastructure")
+	var builds = params.get("builds", [])
+	if builds.is_empty():
+		return ""
+	# Return the first buildable infrastructure
+	return builds[0]
+
+func _effect_build_modifier(unit: Unit, params: Dictionary, context: Dictionary) -> Dictionary:
+	"""Build an infrastructure modifier on the unit's current tile."""
+	var world_query = context.get("world_query")
+	if not world_query:
+		return {success = false, message = "No world query available", data = {}}
+	
+	var build_id = _get_unit_build_target(unit)
+	if build_id == "":
+		return {success = false, message = "No buildable infrastructure", data = {}}
+	
+	var mod_data = Registry.modifiers.get_modifier(build_id)
+	var construction = mod_data.get("construction", {})
+	var cost = construction.get("cost", {})
+	
+	# Consume resources from cargo
+	for resource_id in cost.keys():
+		var amount = cost[resource_id]
+		var removed = unit.remove_cargo(resource_id, amount)
+		if removed < amount:
+			return {success = false, message = "Not enough %s in cargo" % resource_id, data = {}}
+	
+	# Apply the modifier to the terrain
+	var terrain_data = world_query.get_terrain_data(unit.coord)
+	if terrain_data:
+		terrain_data.add_modifier(build_id)
+		print("Built %s at %v" % [build_id, unit.coord])
+		return {success = true, message = "", data = {built_modifier = build_id, coord = unit.coord}}
+	
+	return {success = false, message = "Failed to modify terrain", data = {}}

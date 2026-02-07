@@ -15,6 +15,8 @@ var turn_manager: TurnManager
 var unit_manager: UnitManager
 var unit_layer: UnitLayer
 var unit_ability_bar: UnitAbilityBar
+var unit_info_panel: UnitInfoPanel
+var cargo_dialog: CargoDialog
 var end_turn_button: Button
 var turn_label: Label
 var turn_report_panel: PanelContainer
@@ -54,6 +56,12 @@ func _ready():
 	
 	# Create unit ability bar (in UI layer)
 	_create_unit_ability_bar()
+	
+	# Create unit info panel (right side)
+	_create_unit_info_panel()
+	
+	# Create cargo dialog (modal, centered)
+	_create_cargo_dialog()
 	
 	# Connect signals
 	chunk_manager.tile_selected.connect(_on_tile_selected)
@@ -202,6 +210,51 @@ func _create_unit_ability_bar():
 	unit_ability_bar.ability_requested.connect(_on_ability_requested)
 	ui_root.add_child(unit_ability_bar)
 
+func _create_unit_info_panel():
+	"""Create the unit info panel (right side of screen)"""
+	var ui_root = $UI/Root
+	
+	unit_info_panel = UnitInfoPanel.new()
+	unit_info_panel.name = "UnitInfoPanel_Unit"
+	# Position on the right side
+	unit_info_panel.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
+	unit_info_panel.anchor_left = 1.0
+	unit_info_panel.anchor_right = 1.0
+	unit_info_panel.anchor_top = 0.5
+	unit_info_panel.anchor_bottom = 0.5
+	unit_info_panel.offset_left = -240
+	unit_info_panel.offset_right = -10
+	unit_info_panel.offset_top = -200
+	unit_info_panel.offset_bottom = 200
+	unit_info_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	unit_info_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	ui_root.add_child(unit_info_panel)
+
+func _create_cargo_dialog():
+	"""Create the cargo transfer dialog (centered modal)"""
+	var ui_root = $UI/Root
+	
+	cargo_dialog = CargoDialog.new()
+	cargo_dialog.name = "CargoDialog"
+	cargo_dialog.transfer_completed.connect(_on_cargo_transfer_completed)
+	cargo_dialog.dialog_closed.connect(_on_cargo_dialog_closed)
+	ui_root.add_child(cargo_dialog)
+
+func _on_cargo_transfer_completed():
+	"""Cargo was transferred - refresh unit displays"""
+	var unit = unit_layer.selected_unit
+	if unit:
+		if unit_info_panel:
+			unit_info_panel.refresh()
+		if unit_ability_bar:
+			unit_ability_bar.refresh()
+		# Refresh movement range (cargo weight doesn't affect it, but abilities might change)
+		_show_unit_movement_range(unit)
+
+func _on_cargo_dialog_closed():
+	"""Cargo dialog was cancelled"""
+	pass
+
 func _on_end_turn_pressed():
 	"""Handle End Turn button press"""
 	# Disable button during processing
@@ -281,6 +334,10 @@ func _on_tile_selected(tile: HexTile):
 	if turn_report_panel and turn_report_panel.visible:
 		return
 	
+	# Don't handle if cargo dialog is open
+	if cargo_dialog and cargo_dialog.visible:
+		return
+	
 	# Get tile coordinate
 	var coord = Vector2i(tile.data.q, tile.data.r)
 	print("World._on_tile_selected: coord=", coord)
@@ -304,6 +361,8 @@ func _on_tile_selected(tile: HexTile):
 					tile_highlighter.clear_all()
 					if unit_ability_bar:
 						unit_ability_bar.hide_bar()
+					if unit_info_panel:
+						unit_info_panel.hide_panel()
 					tile_info_panel.hide_panel()
 					if city_tile_dimmer:
 						city_tile_dimmer.activate(city)
@@ -317,6 +376,9 @@ func _on_tile_selected(tile: HexTile):
 				print("Selecting unit: ", unit_at_tile.unit_id, " (", unit_at_tile.unit_type, ")")
 				unit_layer.select_unit(unit_at_tile)
 				tile_info_panel.hide_panel()
+				# Show unit info panel
+				if unit_info_panel:
+					unit_info_panel.show_unit(unit_at_tile)
 				# Show movement range
 				_show_unit_movement_range(unit_at_tile)
 				return
@@ -340,6 +402,8 @@ func _on_tile_selected(tile: HexTile):
 			tile_highlighter.clear_all()
 			if unit_ability_bar:
 				unit_ability_bar.hide_bar()
+			if unit_info_panel:
+				unit_info_panel.hide_panel()
 	
 	# Check for city
 	var tile_view = world_query.get_tile_view(coord)
@@ -353,6 +417,8 @@ func _on_tile_selected(tile: HexTile):
 			tile_highlighter.clear_all()
 			if unit_ability_bar:
 				unit_ability_bar.hide_bar()
+			if unit_info_panel:
+				unit_info_panel.hide_panel()
 			# Hide tile info panel
 			tile_info_panel.hide_panel()
 			# Activate tile dimmer for this city
@@ -416,6 +482,10 @@ func _move_selected_unit_to(coord: Vector2i):
 	
 	print("Moved unit from ", from_coord, " to ", coord, " (cost: ", move_cost, ", remaining: ", unit.current_movement, ")")
 	
+	# Refresh unit info panel
+	if unit_info_panel:
+		unit_info_panel.refresh()
+	
 	# Update movement highlights
 	if unit.current_movement > 0:
 		# Still has movement - show new range
@@ -467,6 +537,17 @@ func _on_ability_requested(ability_id: String, params: Dictionary):
 	if result.success:
 		print("✓ Ability executed: ", result.message)
 		
+		# Check if we need to open a dialog
+		if result.results.get("open_dialog", "") == "cargo":
+			# Open cargo dialog for unit at its current city
+			var city = city_manager.get_city_at_tile(unit.coord)
+			if city and cargo_dialog:
+				print("  Opening cargo dialog for %s at %s" % [unit.unit_id, city.city_name])
+				cargo_dialog.open(unit, city)
+			else:
+				print("✗ Cannot open cargo dialog - no city at unit location")
+			return
+		
 		# Check if unit was consumed
 		if result.results.get("unit_consumed", false):
 			print("  Unit consumed by ability")
@@ -476,6 +557,8 @@ func _on_ability_requested(ability_id: String, params: Dictionary):
 			tile_highlighter.clear_all()
 			if unit_ability_bar:
 				unit_ability_bar.hide_bar()
+			if unit_info_panel:
+				unit_info_panel.hide_panel()
 			
 			# If a city was founded, show it
 			if result.results.has("city"):
@@ -486,9 +569,25 @@ func _on_ability_requested(ability_id: String, params: Dictionary):
 				if center_tile:
 					var building_id = city.get_building_instance(city.city_center_coord).building_id
 					center_tile.set_building(building_id)
-		else:
-			# Unit still exists - refresh displays
-			_show_unit_movement_range(unit)
+			return
+		
+		# Check if infrastructure was built - refresh tile visual
+		if result.results.has("built_modifier"):
+			var built_coord = result.results.get("coord", unit.coord)
+			var tile = chunk_manager.get_tile_at_coord(built_coord)
+			if tile:
+				# Refresh tile data to pick up the new modifier
+				var terrain_data = world_query.get_terrain_data(built_coord)
+				if terrain_data:
+					tile.modifier_ids = terrain_data.modifiers.duplicate()
+					tile.queue_redraw()
+					tile.update_modifier_visuals()
+				print("  Path built at %v - tile refreshed" % built_coord)
+		
+		# Unit still exists - refresh displays
+		_show_unit_movement_range(unit)
+		if unit_info_panel:
+			unit_info_panel.refresh()
 	else:
 		print("✗ Ability failed: ", result.message)
 

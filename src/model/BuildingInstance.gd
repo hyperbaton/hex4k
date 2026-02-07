@@ -335,8 +335,9 @@ func get_decay_reduction(resource_id: String) -> float:
 	var decay_reduction = Registry.buildings.get_storage_decay_reduction(building_id)
 	return decay_reduction.get(resource_id, 1.0)
 
-func apply_decay() -> Dictionary:
-	"""Apply decay to stored resources. Returns dictionary of decayed amounts."""
+func apply_decay(adjacency_decay_bonus: Dictionary = {}) -> Dictionary:
+	"""Apply decay to stored resources. Returns dictionary of decayed amounts.
+	adjacency_decay_bonus: resource_id -> float modifier from nearby buildings (negative = less decay)"""
 	var decayed: Dictionary = {}
 	
 	for resource_id in stored_resources.keys():
@@ -345,6 +346,9 @@ func apply_decay() -> Dictionary:
 			continue
 		
 		var decay_modifier = get_decay_reduction(resource_id)
+		# Apply adjacency bonuses (can reduce further, clamp to minimum 0.05)
+		decay_modifier += adjacency_decay_bonus.get(resource_id, 0.0)
+		decay_modifier = max(0.05, decay_modifier)
 		var actual_decay_rate = base_decay_rate * decay_modifier
 		
 		var stored = stored_resources[resource_id]

@@ -121,13 +121,16 @@ func get_reachable_tiles(unit: Unit, world_query) -> Dictionary:
 		var neighbors = _get_hex_neighbors(current_coord)
 		
 		for neighbor in neighbors:
-			# Get terrain type
-			var terrain_id = world_query.get_terrain_id(neighbor)
-			if terrain_id == "":
+			# Get terrain data
+			var terrain_data = world_query.get_terrain_data(neighbor)
+			if not terrain_data:
 				continue  # No terrain data
 			
-			# Get movement cost
-			var move_cost = unit.get_movement_cost(terrain_id)
+			var terrain_id = terrain_data.terrain_id
+			
+			# Get movement cost (considering modifiers like paths)
+			var move_cost = Registry.units.get_effective_movement_cost(
+				unit.movement_type, terrain_id, terrain_data.modifiers)
 			if move_cost < 0:
 				continue  # Impassable
 			
@@ -167,6 +170,166 @@ func _get_hex_neighbors(coord: Vector2i) -> Array[Vector2i]:
 	for dir in directions:
 		neighbors.append(coord + dir)
 	return neighbors
+
+# === Cargo Operations ===
+
+func load_cargo_from_city(unit: Unit, city, resource_id: String, amount: float) -> float:
+	"""Load resources from a city into a unit's cargo.
+	Unit must be on a tile belonging to the city.
+	Returns the amount actually loaded."""
+	if not unit.has_cargo_capacity():
+		print("UnitManager: Unit %s has no cargo capacity" % unit.unit_id)
+		return 0.0
+	
+	# Check unit is on a city tile
+	if not city.has_tile(unit.coord):
+		print("UnitManager: Unit %s is not on a tile of city %s" % [unit.unit_id, city.city_name])
+		return 0.0
+	
+	# Calculate how much we can take
+	var available = city.get_total_resource(resource_id)
+	var space = unit.get_cargo_space()
+	var to_load = min(amount, min(available, space))
+	
+	if to_load <= 0:
+		return 0.0
+	
+	# Transfer: city -> unit
+	var consumed = city.consume_resource(resource_id, to_load)
+	var loaded = unit.add_cargo(resource_id, consumed)
+	
+	print("UnitManager: Loaded %.1f %s from %s onto %s" % [loaded, resource_id, city.city_name, unit.unit_id])
+	return loaded
+
+func unload_cargo_to_city(unit: Unit, city, resource_id: String, amount: float) -> float:
+	"""Unload resources from a unit's cargo into a city.
+	Unit must be on a tile belonging to the city.
+	Returns the amount actually unloaded."""
+	if not unit.has_cargo_capacity():
+		return 0.0
+	
+	# Check unit is on a city tile
+	if not city.has_tile(unit.coord):
+		print("UnitManager: Unit %s is not on a tile of city %s" % [unit.unit_id, city.city_name])
+		return 0.0
+	
+	var carried = unit.get_cargo_amount(resource_id)
+	var to_unload = min(amount, carried)
+	
+	if to_unload <= 0:
+		return 0.0
+	
+	# Transfer: unit -> city
+	var stored = city.store_resource(resource_id, to_unload)
+	var removed = unit.remove_cargo(resource_id, stored)
+	
+	print("UnitManager: Unloaded %.1f %s from %s to %s" % [removed, resource_id, unit.unit_id, city.city_name])
+	return removed
+
+func unload_all_cargo_to_city(unit: Unit, city) -> Dictionary:
+	"""Unload all cargo from unit to city. Returns dict of resource_id -> amount unloaded."""
+	var unloaded: Dictionary = {}
+	var cargo_copy = unit.get_all_cargo()
+	
+	for resource_id in cargo_copy.keys():
+		var amount = unload_cargo_to_city(unit, city, resource_id, cargo_copy[resource_id])
+		if amount > 0:
+			unloaded[resource_id] = amount
+	
+	return unloaded
+
+# === Infrastructure Building ===
+
+func can_build_infrastructure(unit: Unit, modifier_id: String, world_query) -> Dictionary:
+	"""Check if a unit can build infrastructure at its current location.
+	Returns {can_build: bool, reason: String}"""
+	# Check unit has the build_infrastructure ability
+	if not unit.has_ability("build_infrastructure"):
+		return {"can_build": false, "reason": "Unit cannot build infrastructure"}
+	
+	# Check modifier is in the unit's buildable list
+	var params = unit.get_ability_params("build_infrastructure")
+	var buildable = params.get("builds", [])
+	if modifier_id not in buildable:
+		return {"can_build": false, "reason": "Unit cannot build this type of infrastructure"}
+	
+	# Check unit hasn't acted this turn
+	if unit.has_acted:
+		return {"can_build": false, "reason": "Unit has already acted this turn"}
+	
+	# Get terrain data
+	var terrain_data = world_query.get_terrain_data(unit.coord)
+	if not terrain_data:
+		return {"can_build": false, "reason": "Invalid terrain"}
+	
+	# Check modifier not already present
+	if terrain_data.has_modifier(modifier_id):
+		return {"can_build": false, "reason": "Infrastructure already exists here"}
+	
+	# Load infrastructure data to check terrain validity and costs
+	var infra_data = _load_infrastructure_data(modifier_id)
+	if infra_data.is_empty():
+		return {"can_build": false, "reason": "Unknown infrastructure type"}
+	
+	# Check terrain is valid
+	var valid_terrains = infra_data.get("conditions", {}).get("terrain_types", [])
+	if not valid_terrains.is_empty() and terrain_data.terrain_id not in valid_terrains:
+		return {"can_build": false, "reason": "Cannot build on this terrain"}
+	
+	# Check conflicts
+	var conflicts = infra_data.get("conflicts_with", [])
+	for conflict_id in conflicts:
+		if terrain_data.has_modifier(conflict_id):
+			return {"can_build": false, "reason": "Conflicts with existing infrastructure"}
+	
+	# Check construction cost against unit cargo
+	var cost = infra_data.get("construction", {}).get("cost", {})
+	for resource_id in cost.keys():
+		if not unit.has_cargo(resource_id, cost[resource_id]):
+			return {"can_build": false, "reason": "Not enough %s in cargo (need %.1f)" % [
+				resource_id, cost[resource_id]]}
+	
+	# Check milestone requirements
+	var milestones = infra_data.get("milestones_required", [])
+	for milestone_id in milestones:
+		if not Registry.tech.is_milestone_unlocked(milestone_id):
+			return {"can_build": false, "reason": "Required technology not unlocked"}
+	
+	return {"can_build": true, "reason": ""}
+
+func build_infrastructure(unit: Unit, modifier_id: String, world_query) -> bool:
+	"""Build infrastructure at the unit's current location.
+	Consumes resources from cargo and places the modifier on the terrain.
+	Returns true if successful."""
+	var check = can_build_infrastructure(unit, modifier_id, world_query)
+	if not check.can_build:
+		print("UnitManager: Cannot build %s: %s" % [modifier_id, check.reason])
+		return false
+	
+	var terrain_data = world_query.get_terrain_data(unit.coord)
+	var infra_data = _load_infrastructure_data(modifier_id)
+	var cost = infra_data.get("construction", {}).get("cost", {})
+	
+	# Consume resources from cargo
+	for resource_id in cost.keys():
+		unit.remove_cargo(resource_id, cost[resource_id])
+	
+	# Place the modifier on the terrain
+	terrain_data.add_modifier(modifier_id)
+	
+	# Mark unit as having acted
+	unit.has_acted = true
+	
+	print("UnitManager: %s built %s at %v" % [unit.unit_id, modifier_id, unit.coord])
+	return true
+
+func _load_infrastructure_data(modifier_id: String) -> Dictionary:
+	"""Get infrastructure modifier data from the registry.
+	Returns the full modifier dict if it's infrastructure type, empty dict otherwise."""
+	var data = Registry.modifiers.get_modifier(modifier_id)
+	if data.get("type", "") == "infrastructure":
+		return data
+	return {}
 
 # === Save/Load ===
 

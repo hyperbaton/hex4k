@@ -1,0 +1,8 @@
+{
+	"name": "Preservation Methods",
+	"description": "Techniques to store food for extended periods.",
+	"branch": "gathering_and_crafting",
+	"requirements": [{ "branch": "gathering_and_crafting", "level": 25.0 }],
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "gathering_and_crafting", "level": 15.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/preservation_methods.png" }
+}

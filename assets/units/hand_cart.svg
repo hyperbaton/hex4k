@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Hand Cart - simple two-wheeled cart pushed by a person -->
+  <defs>
+    <linearGradient id="cartWood" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#C4A060"/>
+      <stop offset="100%" style="stop-color:#8B6914"/>
+    </linearGradient>
+    <linearGradient id="cartGoods" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#DAA520"/>
+      <stop offset="100%" style="stop-color:#B8860B"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Cart body -->
+  <rect x="6" y="28" width="28" height="14" rx="1" fill="url(#cartWood)" stroke="#6B4E10" stroke-width="1.2"/>
+  <!-- Cart bed planks -->
+  <line x1="8" y1="33" x2="32" y2="33" stroke="#A0822A" stroke-width="0.5" opacity="0.6"/>
+  <line x1="8" y1="37" x2="32" y2="37" stroke="#A0822A" stroke-width="0.5" opacity="0.6"/>
+  <!-- Side rails -->
+  <rect x="6" y="24" width="2" height="18" rx="0.5" fill="#8B6914" stroke="#6B4E10" stroke-width="0.5"/>
+  <rect x="32" y="26" width="2" height="16" rx="0.5" fill="#8B6914" stroke="#6B4E10" stroke-width="0.5"/>
+
+  <!-- Goods in cart -->
+  <rect x="10" y="24" width="10" height="6" rx="1" fill="url(#cartGoods)" stroke="#8B6914" stroke-width="0.5"/>
+  <rect x="21" y="26" width="8" height="4" rx="1" fill="#CD853F" stroke="#8B5A2B" stroke-width="0.5"/>
+  <circle cx="14" cy="22" r="3" fill="#C4956A" stroke="#8B5A2B" stroke-width="0.5"/>
+
+  <!-- Wheel -->
+  <circle cx="20" cy="46" r="8" fill="#6B4E10" stroke="#4A3510" stroke-width="1.5"/>
+  <circle cx="20" cy="46" r="5.5" fill="none" stroke="#8B6914" stroke-width="1"/>
+  <circle cx="20" cy="46" r="2" fill="#4A3510"/>
+  <!-- Spokes -->
+  <line x1="20" y1="38" x2="20" y2="54" stroke="#8B6914" stroke-width="1"/>
+  <line x1="12" y1="46" x2="28" y2="46" stroke="#8B6914" stroke-width="1"/>
+  <line x1="14.5" y1="40.5" x2="25.5" y2="51.5" stroke="#8B6914" stroke-width="0.8"/>
+  <line x1="25.5" y1="40.5" x2="14.5" y2="51.5" stroke="#8B6914" stroke-width="0.8"/>
+
+  <!-- Handles (extending right) -->
+  <line x1="34" y1="30" x2="46" y2="26" stroke="#8B6914" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="34" y1="38" x2="46" y2="34" stroke="#8B6914" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Person pushing -->
+  <g transform="translate(44, 4)">
+    <!-- Head -->
+    <circle cx="8" cy="6" r="5" fill="#DEB887" stroke="#A0826D" stroke-width="0.8"/>
+    <!-- Hair -->
+    <path d="M4,4 Q8,0 12,4" fill="#5C3A1E"/>
+    <!-- Eyes -->
+    <circle cx="6.5" cy="5.5" r="0.8" fill="#2F1F0A"/>
+    <circle cx="9.5" cy="5.5" r="0.8" fill="#2F1F0A"/>
+    <!-- Body/tunic -->
+    <path d="M4,11 L2,36 L14,36 L12,11 Z" fill="#A0826D" stroke="#8B6914" stroke-width="0.8"/>
+    <!-- Belt -->
+    <rect x="3" y="22" width="10" height="2" fill="#6B4E10"/>
+    <!-- Arms gripping handles -->
+    <line x1="3" y1="14" x2="-2" y2="22" stroke="#DEB887" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="3" y1="14" x2="0" y2="26" stroke="#DEB887" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Legs -->
+    <line x1="5" y1="34" x2="3" y2="46" stroke="#8B6914" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="11" y1="34" x2="13" y2="46" stroke="#8B6914" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Feet -->
+    <ellipse cx="2" cy="47" rx="2.5" ry="1.5" fill="#3D2B1F"/>
+    <ellipse cx="14" cy="47" rx="2.5" ry="1.5" fill="#3D2B1F"/>
+  </g>
+</svg>

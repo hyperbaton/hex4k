@@ -13,5 +13,9 @@
 		"floodplains": 1,
 		"marsh": 2,
 		"beach": 1
+	},
+	"modifier_costs": {
+		"path": 1,
+		"paved_road": 1
 	}
 }

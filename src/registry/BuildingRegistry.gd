@@ -261,6 +261,12 @@ func get_modifier_consumption(building_id: String) -> Array:
 	var building = get_building(building_id)
 	return building.get("modifier_consumption", [])
 
+func get_adjacency_decay_bonuses(building_id: String) -> Array:
+	"""Get adjacency-based decay reduction bonuses for this building.
+	Returns array of dicts: [{source_type, source_id, radius, requires_active, decay_reduction}]"""
+	var building = get_building(building_id)
+	return building.get("adjacency_decay_bonuses", [])
+
 func get_required_adjacent_modifiers(building_id: String) -> Array:
 	"""Get list of modifier IDs required adjacent to the building"""
 	var building = get_building(building_id)

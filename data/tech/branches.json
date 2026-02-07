@@ -45,7 +45,10 @@
 			"branch": "construction",
 			"milestone": "masonry"
 		},
-		"visibility": { "always_visible": false }
+		"visibility": {
+			"always_visible": false ,
+			"show_when": [{ "branch": "construction", "level": 10.0 }]
+		}
 	},
 	"mysticism": {
 		"name": "Mysticism",

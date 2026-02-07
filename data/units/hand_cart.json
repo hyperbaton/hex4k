@@ -1,0 +1,45 @@
+{
+	"category": "civil",
+	"trained_at": ["longhouse", "tribal_camp"],
+	"milestones_required": ["wheel"],
+	"training": {
+		"cost": {
+			"wood": 15,
+			"tools": 2
+		},
+		"turns": 3
+	},
+	"stats": {
+		"health": 60,
+		"movement": 3,
+		"vision": 1,
+		"cargo_capacity": 40
+	},
+	"combat": {
+		"attack": 0,
+		"defense": 2,
+		"can_attack": false,
+		"can_capture": false
+	},
+	"movement_type": "cart",
+	"maintenance": {
+		"population": 1
+	},
+	"abilities": [
+		{
+			"ability_id": "transport",
+			"params": {}
+		},
+		{
+			"ability_id": "build_infrastructure",
+			"params": {
+				"builds": ["path"],
+				"turns_per_build": 1
+			}
+		}
+	],
+	"visual": {
+		"sprite": "res://assets/units/hand_cart.svg",
+		"color": "#A0825A"
+	}
+}

@@ -781,16 +781,69 @@ func _phase_research(city: City, report: TurnReport.CityTurnReport):
 # === Phase 7: Decay ===
 
 func _phase_decay(city: City, report: TurnReport.CityTurnReport):
-	"""Apply decay to resources in storage buildings"""
+	"""Apply decay to resources in storage buildings, including adjacency-based decay bonuses"""
 	for coord in city.building_instances.keys():
 		var instance: BuildingInstance = city.building_instances[coord]
 		
-		var decayed = instance.apply_decay()
+		# Calculate adjacency-based decay reduction from nearby active buildings
+		var adjacency_bonus = _calculate_adjacency_decay_bonus(city, coord, instance.building_id)
+		
+		var decayed = instance.apply_decay(adjacency_bonus)
 		for resource_id in decayed.keys():
 			report.add_decay(resource_id, decayed[resource_id])
 	
 	if not report.decay_summary.is_empty():
 		print("  Decay: %s" % str(report.decay_summary))
+
+func _calculate_adjacency_decay_bonus(city: City, coord: Vector2i, building_id: String) -> Dictionary:
+	"""Calculate decay reduction bonuses from nearby active buildings.
+	Returns resource_id -> float (negative values reduce decay multiplier)."""
+	var bonuses: Dictionary = {}
+	
+	var decay_bonus_rules = Registry.buildings.get_adjacency_decay_bonuses(building_id)
+	if decay_bonus_rules.is_empty():
+		return bonuses
+	
+	if not world_query:
+		return bonuses
+	
+	for rule in decay_bonus_rules:
+		var source_type: String = rule.get("source_type", "")
+		var source_id: String = rule.get("source_id", "")
+		var radius: int = rule.get("radius", 1)
+		var requires_active: bool = rule.get("requires_active", true)
+		var decay_reduction: Dictionary = rule.get("decay_reduction", {})
+		
+		if source_id == "" or decay_reduction.is_empty():
+			continue
+		
+		# Check tiles within radius for matching source buildings
+		var neighbors = world_query.get_tiles_in_range(coord, 1, radius)
+		var found_match = false
+		
+		for neighbor_coord in neighbors:
+			if not city.has_building(neighbor_coord):
+				continue
+			
+			var neighbor_instance = city.get_building_instance(neighbor_coord)
+			var matched = false
+			
+			match source_type:
+				"building":
+					matched = (neighbor_instance.building_id == source_id)
+				"building_category":
+					var neighbor_building = Registry.buildings.get_building(neighbor_instance.building_id)
+					matched = (neighbor_building.get("category", "") == source_id)
+			
+			if matched:
+				if requires_active and not neighbor_instance.is_active():
+					continue
+				
+				# Apply the decay reduction bonus (stacks per matching building)
+				for resource_id in decay_reduction.keys():
+					bonuses[resource_id] = bonuses.get(resource_id, 0.0) + decay_reduction[resource_id]
+	
+	return bonuses
 
 # === Global Research Processing ===
 

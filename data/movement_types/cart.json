@@ -1,0 +1,21 @@
+{
+	"name": "Cart",
+	"description": "Wheeled transport. Slow on rough terrain but benefits greatly from roads and paths.",
+	"terrain_costs": {
+		"grassland": 2,
+		"plains": 2,
+		"meadow": 2,
+		"forest": 3,
+		"rolling_hills": 3,
+		"sharp_hills": -1,
+		"steppe": 2,
+		"savannah": 2,
+		"floodplains": 3,
+		"marsh": -1,
+		"beach": 2
+	},
+	"modifier_costs": {
+		"path": 1,
+		"paved_road": 1
+	}
+}

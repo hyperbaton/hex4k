@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Smoke House - food curing structure -->
+  <defs>
+    <linearGradient id="smokeWall" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#7A5A2A"/>
+      <stop offset="100%" style="stop-color:#6A4A1A"/>
+    </linearGradient>
+    <linearGradient id="smokeUp" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#808080;stop-opacity:0.5"/>
+      <stop offset="100%" style="stop-color:#C0C0C0;stop-opacity:0"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Shadow -->
+  <ellipse cx="32" cy="58" rx="22" ry="5" fill="rgba(0,0,0,0.2)"/>
+  
+  <!-- Ground -->
+  <ellipse cx="32" cy="54" rx="24" ry="6" fill="#6A5A3A" stroke="#5A4A2A" stroke-width="0.5"/>
+  
+  <!-- Structure walls -->
+  <rect x="14" y="28" width="36" height="26" rx="1" fill="url(#smokeWall)" stroke="#5A3A1A" stroke-width="1"/>
+  
+  <!-- Horizontal log texture -->
+  <line x1="14" y1="34" x2="50" y2="34" stroke="#5A3A1A" stroke-width="0.5"/>
+  <line x1="14" y1="40" x2="50" y2="40" stroke="#5A3A1A" stroke-width="0.5"/>
+  <line x1="14" y1="46" x2="50" y2="46" stroke="#5A3A1A" stroke-width="0.5"/>
+  
+  <!-- Roof -->
+  <path d="M10,28 L32,14 L54,28 Z" fill="#8B6914" stroke="#6A4A0A" stroke-width="1"/>
+  <line x1="32" y1="14" x2="32" y2="28" stroke="#6A4A0A" stroke-width="0.5"/>
+  
+  <!-- Smoke vent at top of roof -->
+  <rect x="28" y="12" width="8" height="4" rx="1" fill="#5A3A1A" stroke="#4A2A0A" stroke-width="0.5"/>
+  
+  <!-- Smoke rising -->
+  <path d="M30,12 Q28,6 32,2" stroke="#909090" stroke-width="1.5" fill="none" opacity="0.4"/>
+  <path d="M34,12 Q36,4 32,-2" stroke="#A0A0A0" stroke-width="1.2" fill="none" opacity="0.3"/>
+  <path d="M32,10 Q30,4 34,0" stroke="#B0B0B0" stroke-width="1" fill="none" opacity="0.25"/>
+  
+  <!-- Door -->
+  <rect x="26" y="38" width="12" height="16" rx="1" fill="#4A2A0A" stroke="#3A1A00" stroke-width="0.5"/>
+  <!-- Door handle -->
+  <circle cx="36" cy="46" r="1" fill="#8A7A5A"/>
+  
+  <!-- Hanging meat/fish visible through gaps -->
+  <g transform="translate(16, 30)">
+    <line x1="2" y1="0" x2="2" y2="6" stroke="#A0705A" stroke-width="1.5"/>
+    <line x1="6" y1="0" x2="6" y2="5" stroke="#B0806A" stroke-width="1.2"/>
+  </g>
+  <g transform="translate(40, 30)">
+    <line x1="2" y1="0" x2="2" y2="5" stroke="#B0806A" stroke-width="1.2"/>
+    <line x1="6" y1="0" x2="6" y2="6" stroke="#A0705A" stroke-width="1.5"/>
+  </g>
+  
+  <!-- Woodpile next to structure -->
+  <g transform="translate(52, 44)">
+    <line x1="0" y1="8" x2="8" y2="8" stroke="#7A5A2A" stroke-width="2"/>
+    <line x1="1" y1="5" x2="7" y2="5" stroke="#8B6914" stroke-width="2"/>
+    <line x1="2" y1="2" x2="6" y2="2" stroke="#7A5A2A" stroke-width="2"/>
+  </g>
+</svg>

@@ -2,7 +2,7 @@
 	"name": "Masonry",
 	"description": "Building with shaped and fitted stone blocks.",
 	"branch": "construction",
-	"requirements": [{ "branch": "construction", "level": 40.0 }],
-	"visibility": { "always_visible": false, "show_when": [{ "branch": "construction", "level": 20.0 }] },
+	"requirements": [{ "branch": "construction", "level": 12.0 }],
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "construction", "level": 8.0 }] },
 	"visual": { "icon": "res://assets/icons/milestones/masonry.png" }
 }

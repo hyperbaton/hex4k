@@ -1,0 +1,26 @@
+{
+	"id": "transport",
+	"name": "Load / Unload Cargo",
+	"description": "Transfer resources between this unit and a city. The unit must be on a city tile.",
+	"icon": "res://assets/icons/abilities/transport.svg",
+	"category": "logistics",
+	"conditions": [
+		{
+			"type": "on_city",
+			"message": "Must be on a city tile to load or unload cargo"
+		},
+		{
+			"type": "has_cargo_capacity",
+			"message": "This unit cannot carry cargo"
+		}
+	],
+	"costs": {
+		"movement": 1,
+		"ends_turn": false
+	},
+	"effects": [
+		{
+			"type": "open_cargo_dialog"
+		}
+	]
+}

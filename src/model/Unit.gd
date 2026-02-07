@@ -27,6 +27,10 @@ var defense: int = 0
 # Movement
 var movement_type: String = "foot"  # References movement_types JSON
 
+# Cargo/Inventory (for transport units)
+var cargo: Dictionary = {}  # resource_id -> float
+var cargo_capacity: int = 0  # Max total cargo weight
+
 # State
 var is_fortified: bool = false
 var has_acted: bool = false  # Has performed an action this turn (attack, ability, etc.)
@@ -59,6 +63,7 @@ func _load_stats_from_registry():
 	defense = combat.get("defense", 0)
 	
 	movement_type = unit_data.get("movement_type", "foot")
+	cargo_capacity = stats.get("cargo_capacity", 0)
 
 func start_turn():
 	"""Called at the start of each turn"""
@@ -136,6 +141,78 @@ func get_display_name() -> String:
 func get_health_percent() -> float:
 	return float(current_health) / float(max_health) * 100.0
 
+# === Cargo/Inventory ===
+
+func has_cargo_capacity() -> bool:
+	"""Check if this unit can carry cargo"""
+	return cargo_capacity > 0
+
+func get_total_cargo() -> float:
+	"""Get the total amount of cargo currently carried"""
+	var total: float = 0.0
+	for amount in cargo.values():
+		total += amount
+	return total
+
+func get_cargo_space() -> float:
+	"""Get remaining cargo space"""
+	return max(0.0, cargo_capacity - get_total_cargo())
+
+func add_cargo(resource_id: String, amount: float) -> float:
+	"""Add resources to cargo. Returns amount actually loaded."""
+	var space = get_cargo_space()
+	var to_load = min(amount, space)
+	if to_load <= 0:
+		return 0.0
+	cargo[resource_id] = cargo.get(resource_id, 0.0) + to_load
+	return to_load
+
+func remove_cargo(resource_id: String, amount: float) -> float:
+	"""Remove resources from cargo. Returns amount actually removed."""
+	var carried = cargo.get(resource_id, 0.0)
+	var to_remove = min(amount, carried)
+	if to_remove <= 0:
+		return 0.0
+	cargo[resource_id] = carried - to_remove
+	if cargo[resource_id] <= 0:
+		cargo.erase(resource_id)
+	return to_remove
+
+func get_cargo_amount(resource_id: String) -> float:
+	"""Get amount of a specific resource in cargo"""
+	return cargo.get(resource_id, 0.0)
+
+func has_cargo(resource_id: String, amount: float) -> bool:
+	"""Check if unit has at least this much of a resource in cargo"""
+	return cargo.get(resource_id, 0.0) >= amount
+
+func get_all_cargo() -> Dictionary:
+	"""Get a copy of all cargo"""
+	return cargo.duplicate()
+
+func has_ability(ability_id: String) -> bool:
+	"""Check if this unit has a specific ability"""
+	var unit_data = Registry.units.get_unit(unit_type)
+	var abilities = unit_data.get("abilities", [])
+	for ability in abilities:
+		if ability is Dictionary:
+			if ability.get("ability_id", "") == ability_id:
+				return true
+		elif ability is String:
+			if ability == ability_id:
+				return true
+	return false
+
+func get_ability_params(ability_id: String) -> Dictionary:
+	"""Get the params for a specific ability"""
+	var unit_data = Registry.units.get_unit(unit_type)
+	var abilities = unit_data.get("abilities", [])
+	for ability in abilities:
+		if ability is Dictionary:
+			if ability.get("ability_id", "") == ability_id:
+				return ability.get("params", {})
+	return {}
+
 # === Save/Load ===
 
 func get_save_data() -> Dictionary:
@@ -148,7 +225,8 @@ func get_save_data() -> Dictionary:
 		"current_health": current_health,
 		"current_movement": current_movement,
 		"is_fortified": is_fortified,
-		"has_acted": has_acted
+		"has_acted": has_acted,
+		"cargo": cargo.duplicate()
 	}
 
 static func from_save_data(data: Dictionary) -> Unit:
@@ -164,4 +242,5 @@ static func from_save_data(data: Dictionary) -> Unit:
 	unit.current_movement = data.get("current_movement", unit.max_movement)
 	unit.is_fortified = data.get("is_fortified", false)
 	unit.has_acted = data.get("has_acted", false)
+	unit.cargo = data.get("cargo", {})
 	return unit

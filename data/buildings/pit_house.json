@@ -3,9 +3,11 @@
 	"construction": {
 		"initial_cost": {
 			"wood": 12,
-			"stone": 8
+			"bricks": 10
 		},
-		"cost_per_turn": {},
+		"cost_per_turn": {
+			"population": 1
+		},
 		"total_turns": 3
 	},
 	"admin_cost": {
@@ -32,7 +34,7 @@
 	},
 	"production": {
 		"per_turn_produces": {
-			"population": 1.5
+			"population": 3
 		},
 		"per_turn_consumes": {
 			"food": 1.5,
@@ -48,10 +50,7 @@
 	"adjacency_bonuses": [],
 	"provides": {
 		"population_storage": 8,
-		"resource_storage": {
-			"food": 15,
-			"clothing": 10
-		},
+		"resource_storage": {},
 		"admin_capacity": 0,
 		"caravan_capacity": 0,
 		"decay_reduction": {}

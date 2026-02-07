@@ -183,6 +183,44 @@ func get_terrain_cost(movement_type_id: String, terrain_type: String) -> int:
 	
 	return terrain_costs.get(terrain_type, -1)
 
+func get_modifier_cost(movement_type_id: String, modifier_id: String) -> int:
+	"""Get the movement cost override from a modifier. Returns -1 if no override defined."""
+	var mt = get_movement_type(movement_type_id)
+	var modifier_costs = mt.get("modifier_costs", {})
+	return modifier_costs.get(modifier_id, -1)
+
+func get_effective_movement_cost(movement_type_id: String, terrain_type: String, modifiers: Array) -> int:
+	"""Get the effective movement cost considering terrain and any modifiers.
+	Returns -1 if impassable."""
+	var base_cost = get_terrain_cost(movement_type_id, terrain_type)
+	if base_cost < 0:
+		return -1  # Impassable terrain stays impassable
+	
+	# Check if any modifier provides a cheaper cost
+	for modifier_id in modifiers:
+		var mod_cost = get_modifier_cost(movement_type_id, modifier_id)
+		if mod_cost > 0 and mod_cost < base_cost:
+			base_cost = mod_cost
+	
+	return base_cost
+
 func can_traverse_terrain(movement_type_id: String, terrain_type: String) -> bool:
 	"""Check if a movement type can traverse a specific terrain"""
 	return get_terrain_cost(movement_type_id, terrain_type) > 0
+
+func get_infrastructure_data(modifier_id: String) -> Dictionary:
+	"""Get infrastructure build data from modifier definition.
+	Returns construction info if the modifier is buildable infrastructure, empty dict otherwise."""
+	var mod_data = Registry.modifiers.get_modifier(modifier_id) if Registry.has("modifiers") else {}
+	if mod_data.is_empty():
+		# Try loading from modifier files directly
+		var path = "res://data/modifiers/%s.json" % modifier_id
+		var file = FileAccess.open(path, FileAccess.READ)
+		if file:
+			var json = JSON.new()
+			if json.parse(file.get_as_text()) == OK:
+				mod_data = json.data
+			file.close()
+	if mod_data.get("type", "") != "infrastructure":
+		return {}
+	return mod_data.get("construction", {})

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Brick Kiln - rectangular kiln with bricks and smoke -->
+  <defs>
+    <linearGradient id="bkilnGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#CD7F4A"/>
+      <stop offset="50%" style="stop-color:#A0522D"/>
+      <stop offset="100%" style="stop-color:#6B3A20"/>
+    </linearGradient>
+    <linearGradient id="bkilnFire" x1="50%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF4500"/>
+      <stop offset="50%" style="stop-color:#FF8C00"/>
+      <stop offset="100%" style="stop-color:#FFD700"/>
+    </linearGradient>
+    <radialGradient id="bkilnHeat" cx="50%" cy="70%" r="50%">
+      <stop offset="0%" style="stop-color:#FF4500;stop-opacity:0.25"/>
+      <stop offset="100%" style="stop-color:#FF4500;stop-opacity:0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Heat glow -->
+  <ellipse cx="26" cy="44" rx="22" ry="16" fill="url(#bkilnHeat)"/>
+
+  <!-- Kiln base platform -->
+  <rect x="4" y="52" width="44" height="6" rx="1" fill="#6B5230" stroke="#4A3520" stroke-width="1"/>
+
+  <!-- Main kiln body - rectangular with arched top -->
+  <rect x="8" y="28" width="36" height="24" rx="2" fill="url(#bkilnGrad)" stroke="#5C3A20" stroke-width="1.5"/>
+  <path d="M8,30 Q26,16 44,30" fill="#CD7F4A" stroke="#5C3A20" stroke-width="1.5"/>
+
+  <!-- Brick texture on kiln walls -->
+  <line x1="10" y1="34" x2="42" y2="34" stroke="#8B4513" stroke-width="0.8" opacity="0.5"/>
+  <line x1="10" y1="40" x2="42" y2="40" stroke="#8B4513" stroke-width="0.8" opacity="0.5"/>
+  <line x1="10" y1="46" x2="42" y2="46" stroke="#8B4513" stroke-width="0.8" opacity="0.5"/>
+  <line x1="20" y1="34" x2="20" y2="40" stroke="#8B4513" stroke-width="0.6" opacity="0.4"/>
+  <line x1="32" y1="34" x2="32" y2="40" stroke="#8B4513" stroke-width="0.6" opacity="0.4"/>
+  <line x1="14" y1="40" x2="14" y2="46" stroke="#8B4513" stroke-width="0.6" opacity="0.4"/>
+  <line x1="26" y1="40" x2="26" y2="46" stroke="#8B4513" stroke-width="0.6" opacity="0.4"/>
+  <line x1="38" y1="40" x2="38" y2="46" stroke="#8B4513" stroke-width="0.6" opacity="0.4"/>
+
+  <!-- Fire opening -->
+  <rect x="18" y="46" width="16" height="8" rx="2" fill="#2D1F15"/>
+  <rect x="20" y="47" width="12" height="6" rx="1" fill="#1A1208"/>
+
+  <!-- Fire inside -->
+  <path d="M22,52 Q20,48 24,44 Q26,42 28,44 Q32,48 30,52 Z" fill="url(#bkilnFire)" opacity="0.85"/>
+
+  <!-- Chimney -->
+  <rect x="34" y="14" width="6" height="16" rx="1" fill="#8B5A2B" stroke="#5C3A20" stroke-width="1"/>
+
+  <!-- Smoke from chimney -->
+  <path d="M37,14 Q35,8 37,4 Q39,0 37,-2" stroke="#808080" stroke-width="2" fill="none" opacity="0.5"/>
+  <path d="M39,12 Q41,6 39,2" stroke="#808080" stroke-width="1.5" fill="none" opacity="0.35"/>
+
+  <!-- Finished bricks stacked outside -->
+  <rect x="52" y="50" width="8" height="4" rx="0.3" fill="#B5651D" stroke="#8B4513" stroke-width="0.5"/>
+  <rect x="52" y="45" width="8" height="4" rx="0.3" fill="#CD7F4A" stroke="#8B4513" stroke-width="0.5"/>
+  <rect x="54" y="40" width="6" height="4" rx="0.3" fill="#B5651D" stroke="#8B4513" stroke-width="0.5"/>
+
+  <!-- Raw clay pile -->
+  <ellipse cx="4" cy="54" rx="4" ry="3" fill="#CD853F" stroke="#8B5A2B" stroke-width="0.5"/>
+  <ellipse cx="6" cy="50" rx="3" ry="2" fill="#CD853F" stroke="#8B5A2B" stroke-width="0.5"/>
+
+  <!-- Fiber bundle -->
+  <line x1="50" y1="58" x2="54" y2="54" stroke="#C4A86A" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="52" y1="60" x2="56" y2="56" stroke="#B89A5C" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="54" y1="62" x2="58" y2="58" stroke="#C4A86A" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

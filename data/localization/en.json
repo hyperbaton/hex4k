@@ -98,6 +98,10 @@
 			"name": "Pottery",
 			"description": "Fired clay vessels for storage, cooking, and trade. Essential for food preservation and daily life."
 		},
+		"bricks": {
+			"name": "Bricks",
+			"description": "Sun-dried and kiln-fired clay blocks mixed with fiber for strength. A durable building material for permanent structures."
+		},
 		"honey": {
 			"name": "Honey",
 			"description": "Sweet golden nectar harvested from managed bee colonies. A precious luxury used for food, medicine, and trade."
@@ -183,6 +187,10 @@
 		"wild_game": {
 			"name": "Wild Game",
 			"description": "Area frequented by wild animals, excellent for hunting."
+		},
+		"path": {
+			"name": "Path",
+			"description": "A cleared dirt trail that speeds travel for all units, especially wheeled transport."
 		}
 	},
 	"building": {
@@ -270,6 +278,10 @@
 			"name": "Pottery Kiln",
 			"description": "A domed oven for firing clay into durable pottery. Transforms raw clay into vessels for storage and trade."
 		},
+		"brick_kiln": {
+			"name": "Brick Kiln",
+			"description": "A long rectangular kiln where clay mixed with fiber is shaped and fired into sturdy bricks. Benefits from nearby clay pits."
+		},
 		"elders_dwelling": {
 			"name": "Elder's Dwelling",
 			"description": "A respected elder's residence where wisdom is preserved and shared. Produces significant research but requires comfort, sustenance, and honey as a luxury."
@@ -281,6 +293,18 @@
 		"apiary": {
 			"name": "Apiary",
 			"description": "A collection of woven skep hives where bees are kept for honey production. Thrives near flowering crops and meadows."
+		},
+		"stone_quarry": {
+			"name": "Stone Quarry",
+			"description": "A site where workers extract and shape stone blocks from hillside rock faces. Best suited for elevated terrain with exposed stone."
+		},
+		"sacred_barrow": {
+			"name": "Sacred Barrow",
+			"description": "A monumental burial mound honoring the ancestors. Its lengthy construction demands sustained effort, but the completed site becomes a lasting source of spiritual knowledge."
+		},
+		"smoke_house": {
+			"name": "Smoke House",
+			"description": "A low timber structure where meat and fish are cured over smoldering wood. Nearby granaries benefit from reduced food spoilage."
 		},
 		"city_center": {
 			"name": "City Center",
@@ -454,6 +478,10 @@
 			"name": "Apiculture",
 			"description": "The art of managing bee colonies in woven hives to harvest honey and wax. Requires understanding of both animals and flowering plants."
 		},
+		"burial_rites": {
+			"name": "Burial Rites",
+			"description": "Formalized ceremonies for honoring the dead, binding communities through shared spiritual practice and reverence for ancestors."
+		},
 		"agriculture_1": {
 			"name": "Plant Domestication",
 			"description": "Understanding which plants can be cultivated. Unlocks basic farms."
@@ -479,6 +507,10 @@
 		"explorer": {
 			"name": "Explorer",
 			"description": "A swift scout who can traverse difficult terrain with ease. Reveals the map and discovers new lands."
+		},
+		"hand_cart": {
+			"name": "Hand Cart",
+			"description": "A simple two-wheeled cart pushed by a worker. Can carry goods between cities and build paths along the way."
 		}
 	},
 	"perk": {

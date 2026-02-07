@@ -1,0 +1,8 @@
+{
+	"name": "Burial Rites",
+	"description": "Formalized ceremonies for honoring the dead, binding communities through shared spiritual practice.",
+	"branch": "mysticism",
+	"requirements": [{ "branch": "mysticism", "level": 1.0 }],
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "mysticism", "level": 0.1 }] },
+	"visual": { "icon": "res://assets/icons/milestones/burial_rites.png" }
+}

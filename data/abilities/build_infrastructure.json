@@ -1,0 +1,34 @@
+{
+	"id": "build_infrastructure",
+	"name": "Build Path",
+	"description": "Construct a path on the current tile using resources from cargo. Paths allow wheeled units to move faster.",
+	"icon": "res://assets/icons/modifiers/path.svg",
+	"category": "construction",
+	"conditions": [
+		{
+			"type": "has_movement",
+			"message": "No movement remaining"
+		},
+		{
+			"type": "not_acted",
+			"message": "Already acted this turn"
+		},
+		{
+			"type": "tile_allows_infrastructure",
+			"message": "Cannot build here (terrain not suitable or path already exists)"
+		},
+		{
+			"type": "has_cargo_for_build",
+			"message": "Not enough resources in cargo"
+		}
+	],
+	"costs": {
+		"movement": "all",
+		"ends_turn": true
+	},
+	"effects": [
+		{
+			"type": "build_modifier"
+		}
+	]
+}
