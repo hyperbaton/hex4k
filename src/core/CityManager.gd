@@ -1,7 +1,8 @@
 extends Node
 class_name CityManager
 
-# Global manager for all cities in the game session
+# Global manager for all cities in the game session.
+# Uses settlement types for founding, tile costs, and expansion limits.
 
 var cities: Dictionary = {}  # city_id -> City
 var tile_ownership: Dictionary = {}  # Vector2i -> city_id
@@ -41,8 +42,8 @@ func get_all_players() -> Array[Player]:
 
 # === City Management ===
 
-func found_city(city_name: String, center_coord: Vector2i, owner_id: String, city_center_building: String = "city_center") -> City:
-	"""Found a new city at the given location"""
+func found_city(city_name: String, center_coord: Vector2i, owner_id: String, settlement_type: String = "encampment") -> City:
+	"""Found a new city at the given location using settlement type configuration."""
 	
 	# Check if tile is already owned
 	if tile_ownership.has(center_coord):
@@ -55,10 +56,22 @@ func found_city(city_name: String, center_coord: Vector2i, owner_id: String, cit
 		push_error("Cannot found city - player not found: %s" % owner_id)
 		return null
 	
+	# Validate settlement type exists
+	if not Registry.settlements.type_exists(settlement_type):
+		push_error("Cannot found city - unknown settlement type: %s" % settlement_type)
+		return null
+	
+	# Get founding config from settlement type
+	var founding = Registry.settlements.get_founding_info(settlement_type)
+	var initial_buildings = founding.get("initial_buildings", ["longhouse"])
+	var initial_resources = founding.get("initial_resources", {})
+	var city_center_building = initial_buildings[0] if not initial_buildings.is_empty() else "longhouse"
+	
 	# Create city
 	var city_id = generate_city_id()
 	var city = City.new(city_id, city_name, center_coord)
 	city.owner = owner
+	city.settlement_type = settlement_type
 	
 	# Add city center tile
 	var center_tile = city.add_tile(center_coord, true)
@@ -66,11 +79,16 @@ func found_city(city_name: String, center_coord: Vector2i, owner_id: String, cit
 	
 	# Create BuildingInstance for city center (already built, active)
 	var center_instance = BuildingInstance.new(city_center_building, center_coord)
-	center_instance.set_active()  # City center starts active
+	center_instance.set_active()
 	city.building_instances[center_coord] = center_instance
 	
-	# Give starting resources
-	_give_starting_resources(city)
+	# Give starting resources from settlement type
+	for resource_id in initial_resources.keys():
+		var amount = initial_resources[resource_id]
+		city.store_resource(resource_id, amount)
+	
+	# Give starting population (stored in population-tagged pools)
+	city.store_resource("population", 5)
 	
 	# Register city
 	cities[city_id] = city
@@ -81,18 +99,9 @@ func found_city(city_name: String, center_coord: Vector2i, owner_id: String, cit
 	city.recalculate_city_stats()
 	
 	emit_signal("city_founded", city)
-	print("Founded city: %s at %v" % [city_name, center_coord])
+	print("Founded city: %s at %v (type: %s)" % [city_name, center_coord, settlement_type])
 	
 	return city
-
-func _give_starting_resources(city: City):
-	"""Give a newly founded city starting resources"""
-	# Store initial resources in the city center's storage
-	city.store_resource("food", 50)
-	city.store_resource("wood", 30)
-	city.store_resource("stone", 20)
-	city.store_resource("tools", 10)  # For testing unit training
-	city.total_population = 5  # Starting population
 
 func destroy_city(city_id: String):
 	"""Destroy a city and remove all its tiles from ownership"""
@@ -124,19 +133,14 @@ func abandon_city(city_id: String) -> Player:
 		return null
 	
 	if city.is_abandoned:
-		return null  # Already abandoned
+		return null
 	
-	# Get the previous owner before abandoning
 	var previous_owner = city.owner
-	
-	# Abandon the city (disables buildings, clears perishables, removes owner)
 	city.abandon()
 	
-	# Emit signal for UI updates
 	emit_signal("city_abandoned", city, previous_owner)
 	print("City %s has been abandoned" % city.city_name)
 	
-	# Check if the previous owner has lost the game (no more cities)
 	if previous_owner and previous_owner.get_city_count() == 0:
 		_handle_player_defeat(previous_owner)
 	
@@ -218,6 +222,13 @@ func can_city_expand_to_tile(city_id: String, coord: Vector2i) -> Dictionary:
 	if city.is_abandoned:
 		return {can_expand = false, reason = "City is abandoned"}
 	
+	# Check tile limit from settlement type
+	if not city.can_expand_tiles():
+		var max_tiles = city.get_max_tiles()
+		if max_tiles > 0:
+			return {can_expand = false, reason = "Tile limit reached (%d/%d)" % [city.get_tile_count(), max_tiles]}
+		return {can_expand = false, reason = "Expansion not allowed for this settlement type"}
+	
 	# Check if tile is already owned
 	if is_tile_owned(coord):
 		return {can_expand = false, reason = "Tile already owned"}
@@ -226,12 +237,16 @@ func can_city_expand_to_tile(city_id: String, coord: Vector2i) -> Dictionary:
 	if not city.is_contiguous(coord):
 		return {can_expand = false, reason = "Would break contiguity"}
 	
-	# Check admin capacity for the tile
+	# Check cap resources for the new tile cost
 	var distance = city.calculate_distance_from_center(coord)
-	var admin_cost = city.calculate_tile_claim_cost(distance)
+	var tile_costs = city.calculate_tile_claim_cost(distance)
 	
-	if admin_cost > city.get_available_admin_capacity():
-		return {can_expand = false, reason = "Insufficient administrative capacity"}
+	for res_id in tile_costs.keys():
+		var cost = tile_costs[res_id]
+		var remaining = city.get_cap_remaining(res_id)
+		if cost > remaining:
+			var res_name = Registry.get_name_label("resource", res_id)
+			return {can_expand = false, reason = "Insufficient %s" % res_name}
 	
 	return {can_expand = true, reason = ""}
 
@@ -245,6 +260,9 @@ func expand_city_to_tile(city_id: String, coord: Vector2i) -> bool:
 	var city = get_city(city_id)
 	city.add_tile(coord)
 	tile_ownership[coord] = city_id
+	
+	# Recalculate stats since tile costs changed
+	city.recalculate_city_stats()
 	
 	print("City %s expanded to tile %v" % [city.city_name, coord])
 	return true
@@ -299,8 +317,6 @@ func can_found_city_here(coord: Vector2i) -> Dictionary:
 		var distance = calculate_hex_distance(coord, city.city_center_coord)
 		if distance < min_distance:
 			return {can_found = false, reason = "Too close to another city"}
-	
-	# TODO: Check terrain requirements (plains, fresh water, etc.)
 	
 	return {can_found = true, reason = ""}
 

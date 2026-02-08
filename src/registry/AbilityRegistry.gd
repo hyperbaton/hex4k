@@ -304,15 +304,15 @@ func _effect_found_city(effect: Dictionary, unit: Unit, params: Dictionary, cont
 		return {success = false, message = "No city manager", data = {}}
 	
 	# Resolve parameters (replace ${param} with actual values)
-	var building_id = _resolve_param(effect.get("city_center_building", "city_center"), params)
+	var settlement_type = _resolve_param(effect.get("settlement_type", "encampment"), params)
 	var name_prefix = _resolve_param(effect.get("city_name_prefix", "New "), params)
 	
 	# Generate city name
 	var city_count = city_manager.get_all_cities().size() + 1
 	var city_name = name_prefix + "Settlement " + str(city_count)
 	
-	# Found the city
-	var city = city_manager.found_city(city_name, unit.coord, unit.owner_id, building_id)
+	# Found the city (settlement type determines initial buildings and resources)
+	var city = city_manager.found_city(city_name, unit.coord, unit.owner_id, settlement_type)
 	
 	if city:
 		return {success = true, message = "", data = {city = city, city_id = city.city_id}}

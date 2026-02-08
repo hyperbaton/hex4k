@@ -1,11 +1,7 @@
 {
-	"type": "flow",
-	"storage": {
-		"max_stack": 0,
-		"decay": {
-			"enabled": false,
-			"base_rate_per_turn": 0.0
-		}
+	"tags": ["flow", "knowledge"],
+	"knowledge": {
+		"accepted_by_branches": ["all"]
 	},
 	"visual": {
 		"icon": "res://assets/icons/research.svg",

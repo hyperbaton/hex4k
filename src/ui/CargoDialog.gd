@@ -183,10 +183,10 @@ func _build_resource_rows():
 		# Only show resources that are present or could be produced
 		if city_amount > 0 or cargo_amount > 0:
 			# Don't allow transferring population
-			if Registry.resources.is_population_resource(resource_id):
+			if Registry.resources.has_tag(resource_id, "population"):
 				continue
 			# Skip non-storable flow resources (admin_capacity, etc.)
-			if not Registry.resources.is_storable(resource_id):
+			if not Registry.resources.has_tag(resource_id, "storable"):
 				continue
 			resource_ids.append(resource_id)
 	

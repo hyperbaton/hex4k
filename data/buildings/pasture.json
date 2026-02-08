@@ -8,10 +8,6 @@
 		"cost_per_turn": {},
 		"total_turns": 3
 	},
-	"admin_cost": {
-		"base": 1.2,
-		"distance_multiplier": 0.1
-	},
 	"requirements": {
 		"terrain_types": ["rolling_hills", "sharp_hills", "steppe", "meadow"],
 		"terrain_exclude": ["ocean", "mountain", "lake", "forest", "marsh"],
@@ -31,50 +27,37 @@
 		"milestones_required": ["pastoral_management"]
 	},
 	"production": {
-		"per_turn_produces": {
-			"food": 6
-		},
-		"per_turn_consumes": {
-			"population": 1,
-			"tools": 0.5
-		},
-		"branch_specific_research": {
-			"animal_husbandry": 0.25
-		}
+		"produces": [
+			{ "resource": "food", "quantity": 6 },
+			{ "resource": "research", "quantity": 0.25, "branch": "animal_husbandry" }
+		],
+		"consumes": [
+			{ "resource": "population", "quantity": 1 },
+			{ "resource": "tools", "quantity": 0.5 },
+			{ "resource": "admin_capacity", "quantity": 1.2, "distance_cost": { "multiplier": 0.1, "distance_to": "nearest_source" } }
+		]
 	},
-	"per_turn_penalty": {},
+	"per_turn_penalty": [],
 	"adjacency_bonuses": [
 		{
 			"source_type": "terrain",
 			"source_id": "river",
 			"radius": 1,
-			"yields": {
-				"food": 1
-			}
+			"yields": { "food": 1 }
 		},
 		{
 			"source_type": "terrain",
 			"source_id": "lake",
 			"radius": 1,
-			"yields": {
-				"food": 1
-			}
+			"yields": { "food": 1 }
 		}
 	],
 	"terrain_bonuses": {
-		"steppe": {
-			"food": 1.5
-		},
-		"meadow": {
-			"food": 1
-		}
+		"steppe": { "food": 1.5 },
+		"meadow": { "food": 1 }
 	},
 	"provides": {
-		"population_storage": 0,
-		"resource_storage": {},
-		"admin_capacity": 0,
-		"caravan_capacity": 0,
-		"decay_reduction": {}
+		"storage": []
 	},
 	"on_construction_complete": {
 		"research": {

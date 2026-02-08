@@ -50,7 +50,7 @@ func _calculate_city_flows():
 		return
 	
 	# Calculate admin efficiency (same formula as TurnManager)
-	var admin_ratio = current_city.admin_capacity_used / max(current_city.admin_capacity_available, 0.001)
+	var admin_ratio = current_city.get_cap_used("admin_capacity") / max(current_city.get_cap_available("admin_capacity"), 0.001)
 	var efficiency = _calculate_production_efficiency(admin_ratio)
 	
 	# Iterate through all building instances
@@ -59,7 +59,13 @@ func _calculate_city_flows():
 		
 		# Production: Only ACTIVE buildings produce
 		if instance.is_active():
-			var base_production = instance.get_production()
+			# Flatten array-format produces into {resource_id: quantity}
+			var base_production := {}
+			for entry in instance.get_production():
+				var res_id = entry.get("resource", "")
+				if res_id != "":
+					base_production[res_id] = base_production.get(res_id, 0.0) + entry.get("quantity", 0.0)
+			
 			var bonuses = _calculate_production_bonuses(coord, instance.building_id)
 			
 			for resource_id in base_production.keys():
@@ -82,10 +88,12 @@ func _calculate_city_flows():
 		
 		# Consumption: ACTIVE and EXPECTING_RESOURCES buildings consume
 		if instance.is_active() or instance.is_expecting_resources():
-			var consumption = instance.get_consumption()
-			for resource_id in consumption.keys():
-				var amount = consumption[resource_id]
-				calculated_consumption[resource_id] = calculated_consumption.get(resource_id, 0.0) + amount
+			# Flatten array-format consumes into {resource_id: quantity}
+			for entry in instance.get_consumption():
+				var res_id = entry.get("resource", entry.get("tag", ""))
+				var amount = entry.get("quantity", 0.0)
+				if res_id != "":
+					calculated_consumption[res_id] = calculated_consumption.get(res_id, 0.0) + amount
 	
 	# Calculate decay based on current storage
 	for resource_id in Registry.resources.get_all_resource_ids():
@@ -222,9 +230,9 @@ func update_display():
 		resource_list.add_child(sep)
 	
 	# Show efficiency warning if admin overloaded
-	var admin_ratio = current_city.admin_capacity_used / max(current_city.admin_capacity_available, 0.001)
-	if admin_ratio > 1.0 and not current_city.is_abandoned:
-		var efficiency = _calculate_production_efficiency(admin_ratio)
+	var admin_ratio2 = current_city.get_cap_used("admin_capacity") / max(current_city.get_cap_available("admin_capacity"), 0.001)
+	if admin_ratio2 > 1.0 and not current_city.is_abandoned:
+		var efficiency = _calculate_production_efficiency(admin_ratio2)
 		var warning_label = Label.new()
 		warning_label.text = "⚠ Admin overloaded! Production efficiency: %.0f%%" % (efficiency * 100)
 		warning_label.add_theme_color_override("font_color", Color(1.0, 0.7, 0.3))

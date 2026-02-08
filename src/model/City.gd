@@ -1,11 +1,15 @@
 extends RefCounted
 class_name City
 
-# Represents a city with all its tiles, buildings, and resources
+# Represents a city with all its tiles, buildings, and resources.
+# Uses tag-driven resource system with generic cap tracking and settlement types.
 
 var city_id: String  # Unique identifier
 var city_name: String
 var owner: Player  # Reference to owning player (null if abandoned)
+
+# Settlement type (determines tile costs, building restrictions, etc.)
+var settlement_type: String = "encampment"
 
 # Tiles
 var tiles: Dictionary = {}  # Vector2i -> CityTile
@@ -15,16 +19,12 @@ var frontier_tiles: Array[Vector2i] = []  # Tiles at the edge of the city
 # Buildings (using BuildingInstance for status tracking)
 var building_instances: Dictionary = {}  # Vector2i -> BuildingInstance
 
-# Population
-var total_population: int = 0  # Current population count
-var population_capacity: int = 0  # Max population (from housing)
+# Generic cap state — replaces dedicated admin_capacity fields
+# Structure: { resource_id: { available: float, used: float, ratio: float, efficiency: float } }
+var cap_state: Dictionary = {}
 
 # City state
 var is_abandoned: bool = false  # True if city has been abandoned (population reached 0)
-
-# Administrative capacity
-var admin_capacity_available: float = 0.0
-var admin_capacity_used: float = 0.0
 
 # Legacy resource ledger (for compatibility, will be phased out)
 var resources: ResourceLedger
@@ -126,9 +126,43 @@ func is_contiguous(new_coord: Vector2i) -> bool:
 			return true
 	return false
 
-func calculate_tile_claim_cost(distance: int) -> float:
-	"""Calculate the admin cost to claim/maintain a tile based on distance"""
-	return CityConfig.BASE_TILE_ADMIN_CAPACITY + (distance * CityConfig.TILE_ADMIN_CAPACITY_MULTIPLIER)
+# === Tile Costs (Settlement-Driven) ===
+
+func calculate_tile_claim_cost(distance: int) -> Dictionary:
+	"""Calculate per-resource tile maintenance cost at a given distance.
+	Returns {resource_id: cost} based on settlement type's tile_costs config."""
+	var costs := {}
+	var tile_cost_entries = Registry.settlements.get_tile_costs(settlement_type)
+	
+	for entry in tile_cost_entries:
+		var resource_id = entry.get("resource", "")
+		if resource_id == "":
+			continue
+		
+		var cost = Registry.settlements.calculate_tile_cost(
+			settlement_type, resource_id, distance, false
+		)
+		if cost > 0:
+			costs[resource_id] = cost
+	
+	return costs
+
+func calculate_tile_claim_cost_for_resource(resource_id: String, distance: int, is_center: bool) -> float:
+	"""Calculate tile cost for a specific resource at a given distance."""
+	return Registry.settlements.calculate_tile_cost(settlement_type, resource_id, distance, is_center)
+
+func get_max_tiles() -> int:
+	"""Get maximum tile count for this settlement type. 0 = unlimited."""
+	return Registry.settlements.get_max_tiles(settlement_type)
+
+func can_expand_tiles() -> bool:
+	"""Check if this settlement type allows expansion."""
+	if not Registry.settlements.is_expansion_allowed(settlement_type):
+		return false
+	var max_tiles = get_max_tiles()
+	if max_tiles > 0 and tiles.size() >= max_tiles:
+		return false
+	return true
 
 # === Building Management ===
 
@@ -172,6 +206,10 @@ func can_place_building(coord: Vector2i, building_id: String) -> Dictionary:
 	if has_building(coord):
 		return {can_place = false, reason = "Tile already has a building"}
 	
+	# Check settlement type compatibility
+	if not Registry.settlements.can_build_in(building_id, settlement_type):
+		return {can_place = false, reason = "Cannot build in this settlement type"}
+	
 	# Check max per city limit
 	var max_per_city = Registry.buildings.get_max_per_city(building_id)
 	if max_per_city > 0:
@@ -185,11 +223,25 @@ func can_place_building(coord: Vector2i, building_id: String) -> Dictionary:
 	if not Registry.has_all_milestones(required_milestones):
 		return {can_place = false, reason = "Missing technology"}
 	
-	# Check admin capacity
+	# Check cap resources (generic: check all cap resources this building consumes)
+	var consumes = Registry.buildings.get_consumes(building_id)
 	var tile = get_tile(coord)
-	var admin_cost = Registry.buildings.get_admin_cost(building_id, tile.distance_from_center)
-	if admin_cost > get_available_admin_capacity():
-		return {can_place = false, reason = "Insufficient administrative capacity"}
+	for entry in consumes:
+		var res_id = entry.get("resource", "")
+		if res_id == "" or not Registry.resources.has_tag(res_id, "cap"):
+			continue
+		# Estimate the cost for this building at this distance
+		var base_qty = entry.get("quantity", 0.0)
+		var dist_cost = entry.get("distance_cost", {})
+		var multiplier = dist_cost.get("multiplier", 0.0)
+		var distance = tile.distance_from_center if tile else 0
+		var estimated_cost = base_qty + (pow(distance, 2) * multiplier)
+		
+		var cap_info = cap_state.get(res_id, {})
+		var available_cap = cap_info.get("available", 0.0) - cap_info.get("used", 0.0)
+		if estimated_cost > available_cap:
+			var res_name = Registry.get_name_label("resource", res_id)
+			return {can_place = false, reason = "Insufficient %s" % res_name}
 	
 	# Check initial construction cost
 	var initial_cost = Registry.buildings.get_initial_construction_cost(building_id)
@@ -372,7 +424,6 @@ func abandon() -> Player:
 	
 	# Set abandoned state
 	is_abandoned = true
-	total_population = 0
 	
 	# Disable all buildings
 	for coord in building_instances.keys():
@@ -394,19 +445,13 @@ func abandon() -> Player:
 func _clear_perishable_resources():
 	"""Clear all perishable/decaying resources from all storage buildings"""
 	for instance in building_instances.values():
-		var resources_to_clear: Array[String] = []
-		
-		# Find all decaying resources in this building's storage
-		for resource_id in instance.stored_resources.keys():
-			if Registry.resources.is_decaying(resource_id):
-				resources_to_clear.append(resource_id)
-		
-		# Clear them
-		for resource_id in resources_to_clear:
-			var amount = instance.stored_resources[resource_id]
-			if amount > 0:
-				print("  Cleared %.1f %s (perishable)" % [amount, resource_id])
-				instance.stored_resources[resource_id] = 0.0
+		var all_stored = instance.get_all_stored_resources()
+		for resource_id in all_stored.keys():
+			if Registry.resources.has_tag(resource_id, "decaying"):
+				var amount = all_stored[resource_id]
+				if amount > 0:
+					instance.remove_resource(resource_id, amount)
+					print("  Cleared %.1f %s (perishable)" % [amount, resource_id])
 
 func reclaim(new_owner: Player):
 	"""
@@ -425,14 +470,14 @@ func reclaim(new_owner: Player):
 	new_owner.add_city(self)
 	is_abandoned = false
 	
-	# Give a small starting population so the city can function
-	total_population = 1
+	# Give a small starting population by storing in population pools
+	store_resource("population", 1)
 	
 	print("City %s has been reclaimed by %s" % [city_name, new_owner.player_name])
 
 func should_check_abandonment() -> bool:
 	"""Check if this city should be checked for abandonment (population at 0)"""
-	return not is_abandoned and total_population <= 0
+	return not is_abandoned and get_total_population() <= 0
 
 # === Building Upgrades ===
 
@@ -585,6 +630,43 @@ func consume_resource(resource_id: String, amount: float) -> float:
 	
 	return amount - remaining  # Return amount consumed
 
+func consume_resource_by_tag(tag: String, amount: float) -> Dictionary:
+	"""Consume resources matching a tag, preferring most abundant.
+	Returns {resource_id: amount_consumed} for each resource consumed."""
+	var tagged = get_resources_by_tag(tag)
+	if tagged.is_empty():
+		return {}
+	
+	# Sort by abundance (most first), alphabetical tiebreaker
+	var sorted_ids := tagged.keys()
+	sorted_ids.sort_custom(func(a, b):
+		if tagged[a] != tagged[b]:
+			return tagged[a] > tagged[b]
+		return a < b
+	)
+	
+	var result := {}
+	var remaining = amount
+	
+	for res_id in sorted_ids:
+		if remaining <= 0:
+			break
+		var consumed = consume_resource(res_id, remaining)
+		if consumed > 0:
+			result[res_id] = consumed
+			remaining -= consumed
+	
+	return result
+
+func get_resources_by_tag(tag: String) -> Dictionary:
+	"""Get all stored resources that have a specific tag. Returns {resource_id: total_amount}."""
+	var result := {}
+	for instance in building_instances.values():
+		var tagged = instance.get_resources_by_tag(tag)
+		for res_id in tagged.keys():
+			result[res_id] = result.get(res_id, 0.0) + tagged[res_id]
+	return result
+
 func has_resources(requirements: Dictionary) -> bool:
 	"""Check if the city has all required resources"""
 	for resource_id in requirements.keys():
@@ -602,43 +684,156 @@ func get_missing_resources(requirements: Dictionary) -> Dictionary:
 			missing[resource_id] = needed - available
 	return missing
 
-# === Admin Capacity ===
+# === Population (Derived from Storage Pools) ===
 
-func get_available_admin_capacity() -> float:
-	return max(0.0, admin_capacity_available - admin_capacity_used)
+func get_total_population() -> int:
+	"""Get total population by summing all stored population-tagged resources."""
+	var total := 0.0
+	var pop_resources = Registry.resources.get_resources_by_tag("population")
+	for res_id in pop_resources:
+		total += get_total_resource(res_id)
+	return int(total)
+
+func get_population_capacity() -> int:
+	"""Get total population capacity from all operational building pools that accept population."""
+	var total := 0.0
+	for instance in building_instances.values():
+		if instance.is_operational():
+			for pool in instance.storage_pools:
+				if "population" in pool.accepted_tags:
+					total += pool.capacity
+	return int(total)
+
+# === Cap Resources (Generic) ===
+
+func get_cap_available(resource_id: String) -> float:
+	"""Get available amount for a cap resource."""
+	var info = cap_state.get(resource_id, {})
+	return info.get("available", 0.0)
+
+func get_cap_used(resource_id: String) -> float:
+	"""Get used amount for a cap resource."""
+	var info = cap_state.get(resource_id, {})
+	return info.get("used", 0.0)
+
+func get_cap_remaining(resource_id: String) -> float:
+	"""Get remaining capacity for a cap resource."""
+	return max(0.0, get_cap_available(resource_id) - get_cap_used(resource_id))
+
+func get_cap_ratio(resource_id: String) -> float:
+	"""Get usage ratio for a cap resource."""
+	var info = cap_state.get(resource_id, {})
+	return info.get("ratio", 0.0)
+
+func get_cap_efficiency(resource_id: String) -> float:
+	"""Get production efficiency modifier from a cap resource."""
+	var info = cap_state.get(resource_id, {})
+	return info.get("efficiency", 1.0)
 
 # === Statistics Recalculation ===
 
 func recalculate_city_stats():
-	"""Recalculate all city statistics (call after building changes during player turn)"""
-	population_capacity = 0
-	admin_capacity_available = 0.0
-	admin_capacity_used = 0.0
+	"""Recalculate all city statistics (call after building changes during player turn).
+	Computes generic cap state for all cap resources."""
+	cap_state.clear()
 	
-	# Calculate admin cost for all tiles
-	for coord in tiles.keys():
-		var tile: CityTile = tiles[coord]
-		if not tile.is_city_center:
-			admin_capacity_used += calculate_tile_claim_cost(tile.distance_from_center)
+	# Find all cap resources involved (from tile costs and building production/consumption)
+	var cap_resources := {}  # resource_id -> true
 	
-	# Calculate from each building
-	for coord in building_instances.keys():
-		var instance: BuildingInstance = building_instances[coord]
-		var tile: CityTile = tiles.get(coord)
-		var distance = tile.distance_from_center if tile else 0
-		
-		# Admin capacity provided
-		if instance.is_operational() or instance.is_under_construction():
-			admin_capacity_available += Registry.buildings.get_admin_capacity(instance.building_id)
-		
-		# Admin cost
-		admin_capacity_used += instance.get_admin_cost(distance)
-		
-		# Population capacity (only from operational buildings)
-		if instance.is_operational():
-			population_capacity += Registry.buildings.get_population_capacity(instance.building_id)
+	# Tile costs define which cap resources are needed
+	var tile_cost_resources = Registry.settlements.get_all_tile_cost_resources(settlement_type)
+	for res_id in tile_cost_resources:
+		cap_resources[res_id] = true
 	
-	print("City stats: admin %.1f/%.1f, pop capacity %d" % [admin_capacity_used, admin_capacity_available, population_capacity])
+	# Also find cap resources from buildings
+	for instance in building_instances.values():
+		for entry in Registry.buildings.get_produces(instance.building_id):
+			var res_id = entry.get("resource", "")
+			if res_id != "" and Registry.resources.has_tag(res_id, "cap"):
+				cap_resources[res_id] = true
+		for entry in Registry.buildings.get_consumes(instance.building_id):
+			var res_id = entry.get("resource", "")
+			if res_id != "" and Registry.resources.has_tag(res_id, "cap"):
+				cap_resources[res_id] = true
+	
+	# Calculate each cap resource
+	for res_id in cap_resources.keys():
+		var available := 0.0
+		var used := 0.0
+		
+		# Sum production (available) from operational/constructing buildings
+		for instance in building_instances.values():
+			if instance.is_operational() or instance.is_under_construction():
+				for entry in Registry.buildings.get_produces(instance.building_id):
+					if entry.get("resource", "") == res_id:
+						available += entry.get("quantity", 0.0)
+		
+		# Sum consumption from buildings (with distance costs)
+		for coord in building_instances.keys():
+			var instance: BuildingInstance = building_instances[coord]
+			if instance.is_disabled():
+				var disabled_cost = instance.get_disabled_admin_cost()
+				if disabled_cost > 0 and res_id == "admin_capacity":
+					used += disabled_cost
+				continue
+			
+			for entry in Registry.buildings.get_consumes(instance.building_id):
+				if entry.get("resource", "") == res_id:
+					var base_qty = entry.get("quantity", 0.0)
+					var dist_cost = entry.get("distance_cost", {})
+					if not dist_cost.is_empty():
+						var multiplier = dist_cost.get("multiplier", 0.0)
+						var tile: CityTile = tiles.get(coord)
+						var distance = tile.distance_from_center if tile else 0
+						# TODO: Support "nearest_source" distance_to mode
+						used += base_qty + (pow(distance, 2) * multiplier)
+					else:
+						used += base_qty
+		
+		# Sum tile costs
+		for coord in tiles.keys():
+			var tile: CityTile = tiles[coord]
+			used += Registry.settlements.calculate_tile_cost(
+				settlement_type, res_id, tile.distance_from_center, tile.is_city_center
+			)
+		
+		# Compute ratio and efficiency
+		var ratio = used / max(available, 0.001)
+		var efficiency = _calculate_cap_efficiency(res_id, ratio)
+		
+		cap_state[res_id] = {
+			"available": available,
+			"used": used,
+			"ratio": ratio,
+			"efficiency": efficiency
+		}
+	
+	print("City stats recalculated: %s" % str(cap_state))
+
+func _calculate_cap_efficiency(resource_id: String, ratio: float) -> float:
+	"""Calculate production efficiency based on cap ratio and cap config."""
+	if ratio <= 1.0:
+		return 1.0
+	
+	var cap_config = Registry.resources.get_cap_config(resource_id)
+	var penalties = cap_config.get("penalties", [])
+	
+	for penalty in penalties:
+		var penalty_type = penalty.get("type", "")
+		if penalty_type == "production_penalty":
+			var curve = penalty.get("curve", "quadratic")
+			var overage = ratio - 1.0
+			match curve:
+				"quadratic":
+					return clamp(1.0 - pow(overage, 1.5), 0.0, 1.0)
+				"linear":
+					return clamp(1.0 - overage, 0.0, 1.0)
+				"step":
+					return 0.0 if ratio > 1.0 else 1.0
+				_:
+					return clamp(1.0 - pow(overage, 1.5), 0.0, 1.0)
+	
+	return 1.0
 
 # === Building Capacity ===
 
@@ -660,9 +855,75 @@ func get_constructions_in_progress() -> Array[Vector2i]:
 			coords.append(coord)
 	return coords
 
-# === Legacy Compatibility ===
+# === Settlement Transitions ===
 
-# These methods maintain compatibility with existing code that uses ResourceLedger
+func get_settlement_type() -> String:
+	return settlement_type
+
+func get_available_transitions() -> Array:
+	"""Get all transitions whose requirements are currently met."""
+	var transitions = Registry.settlements.get_transitions(settlement_type)
+	var available := []
+	
+	for transition in transitions:
+		var check = can_transition_to(transition.get("target", ""))
+		if check.get("can", false):
+			available.append(transition)
+	
+	return available
+
+func can_transition_to(target_type: String) -> Dictionary:
+	"""Check if settlement can transition to target type. Returns {can: bool, reason: String}."""
+	var transition = Registry.settlements.get_transition_to(settlement_type, target_type)
+	if transition.is_empty():
+		return {"can": false, "reason": "No transition path to " + target_type}
+	
+	# Check requirements
+	var reqs = transition.get("requirements", {})
+	
+	if reqs.has("min_population"):
+		if get_total_population() < reqs.min_population:
+			return {"can": false, "reason": "Need population %d" % reqs.min_population}
+	
+	if reqs.has("milestones"):
+		for milestone_id in reqs.milestones:
+			if not Registry.tech.is_milestone_unlocked(milestone_id):
+				return {"can": false, "reason": "Missing milestone: " + milestone_id}
+	
+	# Check cost
+	var cost = transition.get("cost", {})
+	var missing = get_missing_resources(cost)
+	if not missing.is_empty():
+		return {"can": false, "reason": "Insufficient resources"}
+	
+	return {"can": true, "reason": ""}
+
+func transition_settlement(new_type: String) -> bool:
+	"""Transition to a new settlement type. Returns true on success."""
+	var check = can_transition_to(new_type)
+	if not check.can:
+		push_warning("Cannot transition to %s: %s" % [new_type, check.reason])
+		return false
+	
+	var transition = Registry.settlements.get_transition_to(settlement_type, new_type)
+	
+	# Pay cost
+	var cost = transition.get("cost", {})
+	for res_id in cost.keys():
+		consume_resource(res_id, cost[res_id])
+	
+	var old_type = settlement_type
+	settlement_type = new_type
+	
+	# Recalculate stats with new tile costs
+	recalculate_city_stats()
+	
+	print("City %s transitioned: %s → %s" % [city_name, old_type, new_type])
+	return true
+
+
+
+# === Legacy Compatibility ===
 
 func get_construction_at_tile(coord: Vector2i) -> Dictionary:
 	"""Get construction info at a tile (legacy compatibility)"""

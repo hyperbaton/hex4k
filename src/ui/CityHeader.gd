@@ -35,7 +35,7 @@ func update_display():
 		city_name_label.remove_theme_color_override("font_color")
 	
 	# Population
-	var pop_text = "%d / %d" % [current_city.total_population, int(current_city.population_capacity)]
+	var pop_text = "%d / %d" % [current_city.get_total_population(), current_city.get_population_capacity()]
 	population_display.get_node("Label").text = pop_text
 	
 	# Resources
@@ -51,7 +51,7 @@ func update_resources():
 	
 	# Display resources that have storage in this city AND are unlocked
 	for resource_id in Registry.resources.get_all_resource_ids():
-		if not Registry.resources.is_storable(resource_id):
+		if not Registry.resources.has_tag(resource_id, "storable"):
 			continue  # Skip non-storable resources for header
 		
 		# Skip resources that haven't been unlocked yet
@@ -93,9 +93,9 @@ func update_admin_display():
 	admin_display.add_child(icon_container)
 	
 	# Admin text: used / total
-	var used = current_city.admin_capacity_used
-	var total = current_city.admin_capacity_available
-	var available = current_city.get_available_admin_capacity()
+	var used = current_city.get_cap_used("admin_capacity")
+	var total = current_city.get_cap_available("admin_capacity")
+	var available = current_city.get_cap_remaining("admin_capacity")
 	
 	var label = Label.new()
 	label.text = "%.1f / %.1f" % [used, total]

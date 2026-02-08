@@ -1,18 +1,5 @@
 {
-	"type": "storable",
-	"category": "luxury",
-	"flags": {
-		"population": false,
-		"decaying": false,
-		"tradeable": true
-	},
-	"storage": {
-		"max_stack": 200,
-		"decay": {
-			"enabled": false,
-			"base_rate_per_turn": 0.0
-		}
-	},
+	"tags": ["storable", "tradeable", "luxury"],
 	"visual": {
 		"icon": "res://assets/icons/honey.svg",
 		"color": "#FFD700"

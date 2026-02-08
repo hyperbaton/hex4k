@@ -729,21 +729,26 @@ func highlight_expandable_tiles():
 	
 	# Get all tiles adjacent to city but not in city
 	var expandable_coords = get_expandable_tile_coords()
-	var available_admin = current_city.get_available_admin_capacity()
-	
 	for coord in expandable_coords:
-		# Calculate admin cost for this tile
-		var admin_cost = calculate_tile_admin_cost(coord)
+		# Calculate per-resource tile costs (generic, settlement-driven)
+		var tile_costs = calculate_tile_costs(coord)
 		
-		# Determine color based on whether we can afford it
+		# Determine color based on whether we can afford all cap costs
+		var can_afford = true
+		for res_id in tile_costs.keys():
+			if tile_costs[res_id] > current_city.get_cap_remaining(res_id):
+				can_afford = false
+				break
+		
 		var color: Color
-		if admin_cost <= available_admin:
+		if can_afford:
 			color = Color.GREEN  # Can afford
 		else:
 			color = Color(1.0, 0.5, 0.0)  # Orange - cannot afford
 		
-		# Highlight with admin cost display
-		tile_highlighter.highlight_tile_with_admin_cost(coord, color, admin_cost)
+		# Display the primary cap cost on tile highlight
+		var display_cost = tile_costs.get("admin_capacity", 0.0)
+		tile_highlighter.highlight_tile_with_admin_cost(coord, color, display_cost)
 
 func get_expandable_tile_coords() -> Array[Vector2i]:
 	"""Get all tiles that are adjacent to the city but not part of it"""
@@ -780,8 +785,8 @@ func get_hex_neighbors(coord: Vector2i) -> Array[Vector2i]:
 		neighbors.append(coord + dir)
 	return neighbors
 
-func calculate_tile_admin_cost(coord: Vector2i) -> float:
-	"""Calculate the admin cost to claim a tile"""
+func calculate_tile_costs(coord: Vector2i) -> Dictionary:
+	"""Calculate per-resource tile costs at this coordinate (settlement-driven)."""
 	var distance = current_city.calculate_distance_from_center(coord)
 	return current_city.calculate_tile_claim_cost(distance)
 
@@ -807,18 +812,21 @@ func try_expand_at_mouse():
 
 func expand_to_tile(coord: Vector2i):
 	"""Attempt to claim a tile for the city"""
-	var admin_cost = calculate_tile_admin_cost(coord)
-	var available_admin = current_city.get_available_admin_capacity()
+	var tile_costs = calculate_tile_costs(coord)
 	
-	if admin_cost > available_admin:
-		print("✗ Cannot expand: Insufficient administrative capacity (need %.1f, have %.1f)" % [admin_cost, available_admin])
-		return
+	# Check all cap resources have remaining capacity
+	for res_id in tile_costs.keys():
+		var remaining = current_city.get_cap_remaining(res_id)
+		if tile_costs[res_id] > remaining:
+			var res_name = Registry.get_name_label("resource", res_id)
+			print("✗ Cannot expand: Insufficient %s (need %.1f, have %.1f)" % [res_name, tile_costs[res_id], remaining])
+			return
 	
 	# Add tile to city
 	current_city.add_tile(coord)
 	city_manager.tile_ownership[coord] = current_city.city_id
 	
-	print("✓ Expanded city to ", coord, " (admin cost: %.1f)" % admin_cost)
+	print("✓ Expanded city to ", coord, " (costs: %s)" % str(tile_costs))
 	
 	# Recalculate stats (this will update admin capacity used)
 	current_city.recalculate_city_stats()

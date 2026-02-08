@@ -7,10 +7,6 @@
 		"cost_per_turn": {},
 		"total_turns": 1
 	},
-	"admin_cost": {
-		"base": 0.3,
-		"distance_multiplier": 0.05
-	},
 	"requirements": {
 		"terrain_types": ["grassland", "plains", "forest", "hills"],
 		"terrain_exclude": ["ocean", "mountain", "lake"],
@@ -30,22 +26,21 @@
 		"milestones_required": ["natural_shelter"]
 	},
 	"production": {
-		"per_turn_produces": {},
-		"per_turn_consumes": {},
-		"branch_specific_research": {}
+		"produces": [],
+		"consumes": [
+			{ "resource": "admin_capacity", "quantity": 0.3, "distance_cost": { "multiplier": 0.05, "distance_to": "nearest_source" } }
+		]
 	},
-	"per_turn_penalty": {},
+	"per_turn_penalty": [],
 	"adjacency_bonuses": [],
 	"provides": {
-		"population_storage": 0,
-		"resource_storage": {
-			"food": 40
-		},
-		"admin_capacity": 0,
-		"caravan_capacity": 0,
-		"decay_reduction": {
-			"food": 0.2
-		}
+		"storage": [
+			{
+				"capacity": 40,
+				"accepted_resources": ["food"],
+				"decay_reduction": { "food": 0.2 }
+			}
+		]
 	},
 	"on_construction_complete": {
 		"research": {

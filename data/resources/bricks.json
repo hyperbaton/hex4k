@@ -1,18 +1,5 @@
 {
-	"type": "storable",
-	"category": "crafted",
-	"flags": {
-		"population": false,
-		"decaying": false,
-		"tradeable": true
-	},
-	"storage": {
-		"max_stack": 500,
-		"decay": {
-			"enabled": false,
-			"base_rate_per_turn": 0.0
-		}
-	},
+	"tags": ["storable", "tradeable", "crafted"],
 	"visual": {
 		"icon": "res://assets/icons/bricks.svg",
 		"color": "#B5651D"

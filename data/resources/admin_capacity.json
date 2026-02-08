@@ -1,14 +1,13 @@
 {
-	"type": "flow",
-	"flags": {
-		"cap": true
-	},
-	"storage": {
-		"max_stack": 0,
-		"decay": {
-			"enabled": false,
-			"base_rate_per_turn": 0.0
-		}
+	"tags": ["cap"],
+	"cap": {
+		"mode": "soft",
+		"penalties": [
+			{
+				"type": "production_penalty",
+				"curve": "quadratic"
+			}
+		]
 	},
 	"visual": {
 		"icon": "res://assets/icons/admin_capacity.svg",

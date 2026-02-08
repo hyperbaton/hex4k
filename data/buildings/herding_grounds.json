@@ -7,10 +7,6 @@
 		"cost_per_turn": {},
 		"total_turns": 2
 	},
-	"admin_cost": {
-		"base": 1.0,
-		"distance_multiplier": 0.1
-	},
 	"requirements": {
 		"terrain_types": ["rolling_hills", "sharp_hills", "steppe", "savannah", "meadow"],
 		"terrain_exclude": ["ocean", "mountain", "lake", "forest"],
@@ -30,49 +26,36 @@
 		"milestones_required": ["livestock_domestication"]
 	},
 	"production": {
-		"per_turn_produces": {
-			"food": 4
-		},
-		"per_turn_consumes": {
-			"population": 1
-		},
-		"branch_specific_research": {
-			"animal_husbandry": 0.15
-		}
+		"produces": [
+			{ "resource": "food", "quantity": 4 },
+			{ "resource": "research", "quantity": 0.15, "branch": "animal_husbandry" }
+		],
+		"consumes": [
+			{ "resource": "population", "quantity": 1 },
+			{ "resource": "admin_capacity", "quantity": 1.0, "distance_cost": { "multiplier": 0.1, "distance_to": "nearest_source" } }
+		]
 	},
-	"per_turn_penalty": {},
+	"per_turn_penalty": [],
 	"adjacency_bonuses": [
 		{
 			"source_type": "terrain",
 			"source_id": "river",
 			"radius": 1,
-			"yields": {
-				"food": 0.5
-			}
+			"yields": { "food": 0.5 }
 		},
 		{
 			"source_type": "terrain",
 			"source_id": "lake",
 			"radius": 1,
-			"yields": {
-				"food": 0.5
-			}
+			"yields": { "food": 0.5 }
 		}
 	],
 	"terrain_bonuses": {
-		"steppe": {
-			"food": 1
-		},
-		"savannah": {
-			"food": 1
-		}
+		"steppe": { "food": 1 },
+		"savannah": { "food": 1 }
 	},
 	"provides": {
-		"population_storage": 0,
-		"resource_storage": {},
-		"admin_capacity": 0,
-		"caravan_capacity": 0,
-		"decay_reduction": {}
+		"storage": []
 	},
 	"on_construction_complete": {
 		"research": {

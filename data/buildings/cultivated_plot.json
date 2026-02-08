@@ -8,10 +8,6 @@
 		"cost_per_turn": {},
 		"total_turns": 2
 	},
-	"admin_cost": {
-		"base": 0.8,
-		"distance_multiplier": 0.1
-	},
 	"requirements": {
 		"terrain_types": ["plains", "meadow", "floodplains", "grassland"],
 		"terrain_exclude": ["ocean", "mountain", "lake", "forest"],
@@ -31,18 +27,17 @@
 		"milestones_required": ["digging_sticks"]
 	},
 	"production": {
-		"per_turn_produces": {
-			"food": 5
-		},
-		"per_turn_consumes": {
-			"population": 1,
-			"tools": 0.5
-		},
-		"branch_specific_research": {
-			"agriculture": 0.15
-		}
+		"produces": [
+			{ "resource": "food", "quantity": 5 },
+			{ "resource": "research", "quantity": 0.15, "branch": "agriculture" }
+		],
+		"consumes": [
+			{ "resource": "population", "quantity": 1 },
+			{ "resource": "tools", "quantity": 0.5 },
+			{ "resource": "admin_capacity", "quantity": 0.8, "distance_cost": { "multiplier": 0.1, "distance_to": "nearest_source" } }
+		]
 	},
-	"per_turn_penalty": {},
+	"per_turn_penalty": [],
 	"adjacency_bonuses": [
 		{
 			"source_type": "terrain",
@@ -67,11 +62,7 @@
 		}
 	},
 	"provides": {
-		"population_storage": 0,
-		"resource_storage": {},
-		"admin_capacity": 0,
-		"caravan_capacity": 0,
-		"decay_reduction": {}
+		"storage": []
 	},
 	"on_construction_complete": {
 		"research": {

@@ -452,15 +452,22 @@ func _populate_building_info(tile_view: TileView, city: City):
 	# Calculate production bonuses from terrain, modifiers, and adjacency
 	var bonuses = _calculate_building_bonuses(building_id, tile_view)
 	
-	# Production (base + bonuses)
-	var production = Registry.buildings.get_production_per_turn(building_id)
-	if not production.is_empty() or not bonuses.is_empty():
+	# Production (base + bonuses) — using new array format
+	var produces_entries = Registry.buildings.get_produces(building_id)
+	# Build flat dict of base production for bonus comparison
+	var base_production := {}
+	for entry in produces_entries:
+		var res_id = entry.get("resource", "")
+		if res_id != "":
+			base_production[res_id] = base_production.get(res_id, 0.0) + entry.get("quantity", 0.0)
+	
+	if not base_production.is_empty() or not bonuses.is_empty():
 		content.add_child(_create_separator())
 		content.add_child(_create_subsection_label("Production"))
 		
 		# Get all resource IDs that have production or bonuses
 		var all_resources: Array[String] = []
-		for res_id in production.keys():
+		for res_id in base_production.keys():
 			if not res_id in all_resources:
 				all_resources.append(res_id)
 		for res_id in bonuses.keys():
@@ -468,47 +475,77 @@ func _populate_building_info(tile_view: TileView, city: City):
 				all_resources.append(res_id)
 		
 		for res_id in all_resources:
-			var base_amount = production.get(res_id, 0.0)
+			var base_amount = base_production.get(res_id, 0.0)
 			var bonus_amount = bonuses.get(res_id, 0.0)
 			var res_name = Registry.localization.get_name("resource", res_id)
 			
 			if bonus_amount != 0:
-				# Show base + bonus breakdown
 				content.add_child(_create_resource_row_with_bonus(res_name, base_amount, bonus_amount))
 			else:
 				content.add_child(_create_resource_row(res_name, base_amount, true))
 	
-	# Consumption
-	var consumption = Registry.buildings.get_consumption_per_turn(building_id)
-	if not consumption.is_empty():
+	# Consumption — using new array format
+	var consumes_entries = Registry.buildings.get_consumes(building_id)
+	if not consumes_entries.is_empty():
 		content.add_child(_create_separator())
 		content.add_child(_create_subsection_label("Consumption"))
-		for res_id in consumption.keys():
-			var res_name = Registry.localization.get_name("resource", res_id)
-			content.add_child(_create_resource_row(res_name, consumption[res_id], false))
+		for entry in consumes_entries:
+			var res_id = entry.get("resource", entry.get("tag", ""))
+			var qty = entry.get("quantity", 0.0)
+			var res_name: String
+			if entry.has("tag"):
+				res_name = "[" + entry.tag.capitalize() + "]"
+			else:
+				res_name = Registry.localization.get_name("resource", res_id)
+			content.add_child(_create_resource_row(res_name, qty, false))
 	
-	# Storage
-	var storage = Registry.buildings.get_storage_provided(building_id)
-	if not storage.is_empty():
+	# Storage pools
+	var storage_pools = Registry.buildings.get_storage_pools(building_id)
+	var has_non_pop_storage := false
+	for pool in storage_pools:
+		var accepted_tags = pool.get("accepted_tags", [])
+		if "population" not in accepted_tags:
+			has_non_pop_storage = true
+			break
+	if has_non_pop_storage:
 		content.add_child(_create_separator())
 		content.add_child(_create_subsection_label("Storage Capacity"))
-		for res_id in storage.keys():
-			var res_name = Registry.localization.get_name("resource", res_id)
-			content.add_child(_create_capacity_row(res_name, storage[res_id]))
+		for pool in storage_pools:
+			var accepted_tags = pool.get("accepted_tags", [])
+			if "population" in accepted_tags:
+				continue
+			var capacity = int(pool.get("capacity", 0))
+			var accepted = pool.get("accepted_resources", [])
+			if not accepted.is_empty():
+				for res_id in accepted:
+					var res_name = Registry.localization.get_name("resource", res_id)
+					content.add_child(_create_capacity_row(res_name, capacity))
+			elif not accepted_tags.is_empty():
+				var tag_label = ", ".join(accepted_tags)
+				content.add_child(_create_capacity_row("[" + tag_label + "]", capacity))
 	
-	# Other stats
-	var admin_cap = Registry.buildings.get_admin_capacity(building_id)
-	var pop_cap = Registry.buildings.get_population_capacity(building_id)
+	# Provides section (admin capacity from produces, housing from pools)
+	var has_provides := false
+	for entry in produces_entries:
+		if entry.get("resource", "") == "admin_capacity":
+			has_provides = true
+			break
+	for pool in storage_pools:
+		if "population" in pool.get("accepted_tags", []):
+			has_provides = true
+			break
 	
-	if admin_cap > 0 or pop_cap > 0:
+	if has_provides:
 		content.add_child(_create_separator())
 		content.add_child(_create_subsection_label("Provides"))
 		
-		if admin_cap > 0:
-			content.add_child(_create_info_row("📋", "Admin capacity: +%.1f" % admin_cap, Color(0.7, 0.6, 0.9)))
+		for entry in produces_entries:
+			if entry.get("resource", "") == "admin_capacity":
+				content.add_child(_create_info_row("📋", "Admin capacity: +%.1f" % entry.get("quantity", 0.0), Color(0.7, 0.6, 0.9)))
 		
-		if pop_cap > 0:
-			content.add_child(_create_info_row("🏠", "Housing: %d" % pop_cap, Color(0.8, 0.7, 0.6)))
+		for pool in storage_pools:
+			if "population" in pool.get("accepted_tags", []):
+				content.add_child(_create_info_row("🏠", "Housing: %d" % int(pool.get("capacity", 0)), Color(0.8, 0.7, 0.6)))
 
 func _create_info_row(icon: String, text: String, color: Color) -> HBoxContainer:
 	"""Create a row with icon and text"""

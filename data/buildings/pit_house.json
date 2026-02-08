@@ -10,10 +10,6 @@
 		},
 		"total_turns": 3
 	},
-	"admin_cost": {
-		"base": 0.6,
-		"distance_multiplier": 0.08
-	},
 	"requirements": {
 		"terrain_types": ["grassland", "plains", "rolling_hills"],
 		"terrain_exclude": ["ocean", "mountain", "lake", "marsh"],
@@ -33,27 +29,27 @@
 		"milestones_required": ["mudbrick"]
 	},
 	"production": {
-		"per_turn_produces": {
-			"population": 3
-		},
-		"per_turn_consumes": {
-			"food": 1.5,
-			"clothing": 0.5
-		},
-		"branch_specific_research": {
-			"construction": 0.1
-		}
+		"produces": [
+			{ "resource": "population", "quantity": 3 },
+			{ "resource": "research", "quantity": 0.1, "branch": "construction" }
+		],
+		"consumes": [
+			{ "resource": "food", "quantity": 1.5 },
+			{ "resource": "clothing", "quantity": 0.5 },
+			{ "resource": "admin_capacity", "quantity": 0.6, "distance_cost": { "multiplier": 0.08, "distance_to": "nearest_source" } }
+		]
 	},
-	"per_turn_penalty": {
-		"population": 2
-	},
+	"per_turn_penalty": [
+		{ "resource": "population", "quantity": 2 }
+	],
 	"adjacency_bonuses": [],
 	"provides": {
-		"population_storage": 8,
-		"resource_storage": {},
-		"admin_capacity": 0,
-		"caravan_capacity": 0,
-		"decay_reduction": {}
+		"storage": [
+			{
+				"capacity": 8,
+				"accepted_tags": ["population"]
+			}
+		]
 	},
 	"on_construction_complete": {
 		"research": {

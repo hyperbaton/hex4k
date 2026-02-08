@@ -29,16 +29,16 @@
   "effects": [
     {
       "type": "found_city",
-      "city_center_building": "${city_center_building}",
+      "settlement_type": "${settlement_type}",
       "city_name_prefix": "${city_name_prefix}"
     }
   ],
   
   "params": {
-    "city_center_building": {
+    "settlement_type": {
       "type": "string",
-      "default": "city_center",
-      "description": "Building to place as city center"
+      "default": "encampment",
+      "description": "Settlement type to found (determines initial buildings and resources)"
     },
     "city_name_prefix": {
       "type": "string", 

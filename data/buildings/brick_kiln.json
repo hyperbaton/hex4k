@@ -9,10 +9,6 @@
 		"cost_per_turn": {},
 		"total_turns": 3
 	},
-	"admin_cost": {
-		"base": 1.0,
-		"distance_multiplier": 0.1
-	},
 	"requirements": {
 		"terrain_types": ["grassland", "plains", "rolling_hills"],
 		"terrain_exclude": ["ocean", "mountain", "lake", "marsh", "forest"],
@@ -32,20 +28,19 @@
 		"milestones_required": ["pottery_kiln", "mudbrick"]
 	},
 	"production": {
-		"per_turn_produces": {
-			"bricks": 3
-		},
-		"per_turn_consumes": {
-			"population": 1,
-			"clay": 2,
-			"wood": 0.5,
-			"fiber": 0.5
-		},
-		"branch_specific_research": {
-			"construction": 0.15
-		}
+		"produces": [
+			{ "resource": "bricks", "quantity": 3 },
+			{ "resource": "research", "quantity": 0.15, "branch": "construction" }
+		],
+		"consumes": [
+			{ "resource": "population", "quantity": 1 },
+			{ "resource": "clay", "quantity": 2 },
+			{ "resource": "wood", "quantity": 0.5 },
+			{ "resource": "fiber", "quantity": 0.5 },
+			{ "resource": "admin_capacity", "quantity": 1.0, "distance_cost": { "multiplier": 0.1, "distance_to": "nearest_source" } }
+		]
 	},
-	"per_turn_penalty": {},
+	"per_turn_penalty": [],
 	"adjacency_bonuses": [
 		{
 			"source_type": "building",
@@ -59,14 +54,9 @@
 	"terrain_bonuses": {},
 	"modifier_bonuses": {},
 	"provides": {
-		"population_storage": 0,
-		"resource_storage": {
-			"bricks": 40,
-			"clay": 15
-		},
-		"admin_capacity": 0,
-		"caravan_capacity": 0,
-		"decay_reduction": {}
+		"storage": [
+			{ "capacity": 55, "accepted_resources": ["bricks", "clay"] }
+		]
 	},
 	"on_construction_complete": {
 		"resources": {

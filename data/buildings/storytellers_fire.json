@@ -8,10 +8,6 @@
 		"cost_per_turn": {},
 		"total_turns": 2
 	},
-	"admin_cost": {
-		"base": 0.6,
-		"distance_multiplier": 0.05
-	},
 	"requirements": {
 		"terrain_types": ["grassland", "plains", "forest", "rolling_hills", "meadow"],
 		"terrain_exclude": ["ocean", "mountain", "lake", "marsh"],
@@ -31,34 +27,27 @@
 		"milestones_required": ["fire_mastery"]
 	},
 	"production": {
-		"per_turn_produces": {
-			"research": 1.5
-		},
-		"per_turn_consumes": {
-			"wood": 0.5
-		},
-		"branch_specific_research": {
-			"mysticism": 0.2
-		}
+		"produces": [
+			{ "resource": "research", "quantity": 1.5 },
+			{ "resource": "research", "quantity": 0.2, "branch": "mysticism" }
+		],
+		"consumes": [
+			{ "resource": "wood", "quantity": 0.5 },
+			{ "resource": "admin_capacity", "quantity": 0.6, "distance_cost": { "multiplier": 0.05, "distance_to": "nearest_source" } }
+		]
 	},
-	"per_turn_penalty": {},
+	"per_turn_penalty": [],
 	"adjacency_bonuses": [
 		{
 			"source_type": "building_category",
 			"source_id": "housing",
 			"radius": 1,
-			"yields": {
-				"research": 0.3
-			}
+			"yields": { "research": 0.3 }
 		}
 	],
 	"terrain_bonuses": {},
 	"provides": {
-		"population_storage": 0,
-		"resource_storage": {},
-		"admin_capacity": 0,
-		"caravan_capacity": 0,
-		"decay_reduction": {}
+		"storage": []
 	},
 	"on_construction_complete": {
 		"research": {

@@ -1,4 +1,7 @@
 class_name CityConfig
 
-const BASE_TILE_ADMIN_CAPACITY := 0.50
-const TILE_ADMIN_CAPACITY_MULTIPLIER := 0.1
+# City configuration constants.
+# Tile costs have been moved to data/settlements/*.json (settlement types).
+# These constants are kept only for non-tile configuration.
+
+# TODO: Phase 6 cleanup - move remaining constants to data files if appropriate.

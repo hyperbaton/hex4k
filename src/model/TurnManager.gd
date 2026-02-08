@@ -1,7 +1,12 @@
 extends RefCounted
 class_name TurnManager
 
-# Orchestrates the turn cycle for all cities
+# Orchestrates the turn cycle for all cities.
+# Uses tag-driven resource processing:
+# - Cap resources computed generically (not hardcoded to admin_capacity)
+# - Production/consumption use array format with tag-based matching
+# - Knowledge resources route to tech tree branches
+# - Population derived from population-tagged storage
 
 signal turn_started(turn_number: int)
 signal turn_completed(report: TurnReport)
@@ -41,7 +46,6 @@ func process_turn() -> TurnReport:
 	
 	# Process unit turn start (refresh movement, etc.)
 	if unit_manager:
-		# For now, process all units (could be per-player in multiplayer)
 		for unit in unit_manager.get_all_units():
 			unit.start_turn()
 		print("  Units refreshed: %d" % unit_manager.get_all_units().size())
@@ -50,7 +54,6 @@ func process_turn() -> TurnReport:
 	var cities_to_abandon: Array[City] = []
 	
 	for city in city_manager.get_all_cities():
-		# Skip abandoned cities - they don't participate in the turn cycle
 		if city.is_abandoned:
 			print("  Skipping abandoned city: %s" % city.city_name)
 			continue
@@ -95,8 +98,8 @@ func _process_city_turn(city: City) -> TurnReport.CityTurnReport:
 	
 	print("\n--- Processing City: %s ---" % city.city_name)
 	
-	# Phase 1: Calculate admin capacity and efficiency
-	_phase_admin_capacity(city, report)
+	# Phase 1: Calculate cap resources and efficiency
+	_phase_caps(city, report)
 	
 	# Phase 2: Production (all operational buildings produce FIRST)
 	_phase_production(city, report)
@@ -116,13 +119,10 @@ func _process_city_turn(city: City) -> TurnReport.CityTurnReport:
 	# Phase 4c: Training processing
 	_phase_training(city, report)
 	
-	# Phase 5: Population update
+	# Phase 5: Population update (derived from population-tagged resources)
 	_phase_population(city, report)
 	
-	# Phase 6: Research generation (only from ACTIVE buildings)
-	_phase_research(city, report)
-	
-	# Phase 7: Resource decay
+	# Phase 6: Resource decay
 	_phase_decay(city, report)
 	
 	# Record final resource totals
@@ -130,105 +130,227 @@ func _process_city_turn(city: City) -> TurnReport.CityTurnReport:
 	
 	return report
 
-# === Phase 1: Admin Capacity ===
+# === Phase 1: Generic Cap Processing ===
 
-func _phase_admin_capacity(city: City, report: TurnReport.CityTurnReport):
-	"""Calculate admin capacity usage and production efficiency"""
-	var used: float = 0.0
-	var available: float = 0.0
+func _phase_caps(city: City, report: TurnReport.CityTurnReport):
+	"""Calculate all cap resources generically. Updates city.cap_state and report."""
+	city.cap_state.clear()
 	
-	# Calculate available admin capacity from buildings
-	for coord in city.building_instances.keys():
-		var instance: BuildingInstance = city.building_instances[coord]
-		if instance.is_operational() or instance.is_under_construction():
-			available += Registry.buildings.get_admin_capacity(instance.building_id)
+	# Gather all cap-tagged resources involved in this city
+	var cap_resource_ids := _gather_cap_resources(city)
 	
-	# Calculate used admin capacity
-	# First: tile costs (all tiles cost admin)
-	for coord in city.tiles.keys():
-		var tile: CityTile = city.tiles[coord]
-		if not tile.is_city_center:
-			used += city.calculate_tile_claim_cost(tile.distance_from_center)
+	# Best efficiency across all caps (used as global production modifier)
+	var worst_efficiency := 1.0
 	
-	# Second: building costs
-	for coord in city.building_instances.keys():
-		var instance: BuildingInstance = city.building_instances[coord]
-		var tile: CityTile = city.tiles.get(coord)
-		var distance = tile.distance_from_center if tile else 0
-		used += instance.get_admin_cost(distance)
+	for res_id in cap_resource_ids:
+		var available := 0.0
+		var used := 0.0
+		
+		# Sum available (production) from operational/constructing buildings
+		for instance in city.building_instances.values():
+			if instance.is_operational() or instance.is_under_construction():
+				for entry in Registry.buildings.get_produces(instance.building_id):
+					if entry.get("resource", "") == res_id:
+						available += entry.get("quantity", 0.0)
+		
+		# Sum used from building consumption
+		for coord in city.building_instances.keys():
+			var instance: BuildingInstance = city.building_instances[coord]
+			if instance.is_disabled():
+				# Disabled buildings may still have a reduced cost
+				used += _get_disabled_cap_cost(instance, res_id)
+				continue
+			
+			used += _calculate_building_cap_consumption(instance, res_id, city, coord)
+		
+		# Sum tile costs from settlement type
+		for coord in city.tiles.keys():
+			var tile: CityTile = city.tiles[coord]
+			used += Registry.settlements.calculate_tile_cost(
+				city.settlement_type, res_id, tile.distance_from_center, tile.is_city_center
+			)
+		
+		# Compute ratio and efficiency
+		var ratio = used / max(available, 0.001)
+		var efficiency = city._calculate_cap_efficiency(res_id, ratio)
+		
+		# Update city cap state
+		city.cap_state[res_id] = {
+			"available": available,
+			"used": used,
+			"ratio": ratio,
+			"efficiency": efficiency
+		}
+		
+		# Report
+		report.set_cap_report(res_id, available, used, ratio, efficiency)
+		
+		# Track worst efficiency for production modifier
+		if efficiency < worst_efficiency:
+			worst_efficiency = efficiency
+		
+		var res_name = Registry.get_name_label("resource", res_id)
+		print("  Cap [%s]: %.1f / %.1f (ratio: %.2f, eff: %.0f%%)" % [
+			res_name, used, available, ratio, efficiency * 100
+		])
 	
-	# Calculate ratio and efficiency
-	var ratio = used / max(available, 0.001)  # Avoid division by zero
-	var efficiency = _calculate_production_efficiency(ratio)
-	
-	report.admin_capacity_used = used
-	report.admin_capacity_available = available
-	report.admin_ratio = ratio
-	report.production_efficiency = efficiency
-	
-	city.admin_capacity_used = used
-	city.admin_capacity_available = available
-	
-	print("  Admin: %.1f / %.1f (ratio: %.2f, efficiency: %.0f%%)" % [used, available, ratio, efficiency * 100])
+	report.production_efficiency = worst_efficiency
 
-func _calculate_production_efficiency(admin_ratio: float) -> float:
-	"""
-	Calculate production efficiency based on admin ratio.
-	f(1.0) = 100%, f(1.5) ≈ 50%, f(2.0) ≈ 0%
-	"""
-	if admin_ratio <= 1.0:
-		return 1.0
+func _gather_cap_resources(city: City) -> Array[String]:
+	"""Find all cap-tagged resources referenced by this city's buildings and settlement."""
+	var found := {}
 	
-	var overage = admin_ratio - 1.0
-	var penalty = pow(overage, 1.5)  # Non-linear curve
-	return clamp(1.0 - penalty, 0.0, 1.0)
+	# From settlement tile costs
+	for res_id in Registry.settlements.get_all_tile_cost_resources(city.settlement_type):
+		found[res_id] = true
+	
+	# From buildings
+	for instance in city.building_instances.values():
+		for entry in Registry.buildings.get_produces(instance.building_id):
+			var res_id = entry.get("resource", "")
+			if res_id != "" and Registry.resources.has_tag(res_id, "cap"):
+				found[res_id] = true
+		for entry in Registry.buildings.get_consumes(instance.building_id):
+			var res_id = entry.get("resource", "")
+			if res_id != "" and Registry.resources.has_tag(res_id, "cap"):
+				found[res_id] = true
+	
+	var result: Array[String] = []
+	for res_id in found.keys():
+		result.append(res_id)
+	return result
+
+func _calculate_building_cap_consumption(instance: BuildingInstance, cap_resource_id: String, city: City, coord: Vector2i) -> float:
+	"""Calculate how much of a cap resource a building consumes, including distance costs."""
+	var total := 0.0
+	
+	for entry in Registry.buildings.get_consumes(instance.building_id):
+		if entry.get("resource", "") != cap_resource_id:
+			continue
+		
+		var base_qty = entry.get("quantity", 0.0)
+		var dist_cost = entry.get("distance_cost", {})
+		
+		if dist_cost.is_empty():
+			total += base_qty
+		else:
+			var multiplier = dist_cost.get("multiplier", 0.0)
+			var distance_to = dist_cost.get("distance_to", "city_center")
+			var distance: int
+			
+			if distance_to == "nearest_source":
+				distance = _find_nearest_producer_distance(city, coord, cap_resource_id)
+			else:  # "city_center" or default
+				var tile: CityTile = city.tiles.get(coord)
+				distance = tile.distance_from_center if tile else 0
+			
+			total += base_qty + (pow(distance, 2) * multiplier)
+	
+	return total
+
+func _find_nearest_producer_distance(city: City, from_coord: Vector2i, resource_id: String) -> int:
+	"""Find hex distance to the nearest building that produces a resource."""
+	var min_distance := 999
+	
+	for coord in city.building_instances.keys():
+		if coord == from_coord:
+			continue
+		var instance = city.building_instances[coord]
+		if not instance.is_operational() and not instance.is_under_construction():
+			continue
+		
+		for entry in Registry.buildings.get_produces(instance.building_id):
+			if entry.get("resource", "") == resource_id:
+				var distance = city.calculate_distance_from_center(coord)
+				# Compute hex distance between the two coords
+				var q_diff = abs(from_coord.x - coord.x)
+				var r_diff = abs(from_coord.y - coord.y)
+				var s_diff = abs((-from_coord.x - from_coord.y) - (-coord.x - coord.y))
+				var hex_dist = int((q_diff + r_diff + s_diff) / 2)
+				if hex_dist < min_distance:
+					min_distance = hex_dist
+				break
+	
+	# If no producer found, use distance from center as fallback
+	if min_distance == 999:
+		var tile: CityTile = city.tiles.get(from_coord)
+		min_distance = tile.distance_from_center if tile else 0
+	
+	return min_distance
+
+func _get_disabled_cap_cost(instance: BuildingInstance, cap_resource_id: String) -> float:
+	"""Get cap cost for a disabled building (usually reduced or zero)."""
+	# Only admin_capacity has disabled cost for now, but check building data
+	if cap_resource_id == "admin_capacity":
+		return instance.get_disabled_admin_cost()
+	return 0.0
 
 # === Phase 2: Production ===
 
 func _phase_production(city: City, report: TurnReport.CityTurnReport):
-	"""Only ACTIVE buildings produce. EXPECTING_RESOURCES buildings skip production."""
+	"""Process production using array format. Handles storable, flow, and knowledge resources."""
 	var efficiency = report.production_efficiency
 	
 	for coord in city.building_instances.keys():
 		var instance: BuildingInstance = city.building_instances[coord]
 		
-		# Only ACTIVE buildings produce (not EXPECTING_RESOURCES)
+		# Only ACTIVE buildings produce
 		if not instance.can_produce():
 			continue
 		
-		var production = instance.get_production()
-		if production.is_empty():
+		var produces = Registry.buildings.get_produces(instance.building_id)
+		if produces.is_empty():
 			continue
 		
-		# Calculate all production bonuses for this building
+		# Calculate production bonuses for this building
 		var bonuses = _calculate_production_bonuses(city, coord, instance.building_id)
 		
-		for resource_id in production.keys():
-			var base_amount = production[resource_id]
-			var bonus_amount = bonuses.get(resource_id, 0.0)
+		for entry in produces:
+			var res_id = entry.get("resource", "")
+			if res_id == "":
+				continue
+			
+			# Skip cap resources (already handled in Phase 1)
+			if Registry.resources.has_tag(res_id, "cap"):
+				continue
+			
+			var base_amount = entry.get("quantity", 0.0)
+			var bonus_amount = bonuses.get(res_id, 0.0)
 			var raw_amount = base_amount + bonus_amount
 			var adjusted_amount = raw_amount * efficiency
 			
-			# Generic research is intercepted and redirected to a branch
-			if resource_id == "research":
-				report.generic_research_produced += adjusted_amount
-				report.add_production(resource_id, raw_amount, adjusted_amount)
+			# Knowledge resources (flow + knowledge tag) — route to tech tree
+			if Registry.resources.has_tag(res_id, "knowledge"):
+				var branch = entry.get("branch", "")
+				if branch != "":
+					# Branch-specific knowledge
+					report.add_knowledge(res_id, branch, adjusted_amount)
+				else:
+					# Generic knowledge (routed to player's chosen branch later)
+					report.add_generic_knowledge(res_id, adjusted_amount)
+				
+				report.add_production(res_id, raw_amount, adjusted_amount)
 				if bonus_amount > 0:
-					print("    %s: base %.1f + bonus %.1f = %.1f" % [resource_id, base_amount, bonus_amount, raw_amount])
+					print("    %s: base %.1f + bonus %.1f = %.1f" % [res_id, base_amount, bonus_amount, raw_amount])
 				continue
 			
-			# Try to store the produced resources (partial storage supported)
-			var stored = city.store_resource(resource_id, adjusted_amount)
+			# Flow resources (non-knowledge) — just track, no storage
+			if Registry.resources.has_tag(res_id, "flow"):
+				report.add_production(res_id, raw_amount, adjusted_amount)
+				continue
+			
+			# Storable resources — store in pools
+			var stored = city.store_resource(res_id, adjusted_amount)
 			var spilled = adjusted_amount - stored
 			
-			report.add_production(resource_id, raw_amount, adjusted_amount)
+			report.add_production(res_id, raw_amount, adjusted_amount)
 			
 			if bonus_amount > 0:
-				print("    %s: base %.1f + bonus %.1f = %.1f" % [resource_id, base_amount, bonus_amount, raw_amount])
+				print("    %s: base %.1f + bonus %.1f = %.1f" % [res_id, base_amount, bonus_amount, raw_amount])
 			
 			if spilled > 0:
-				report.add_spillage(resource_id, spilled)
-				print("    Spillage: %.1f %s (storage full)" % [spilled, resource_id])
+				report.add_spillage(res_id, spilled)
+				print("    Spillage: %.1f %s (storage full)" % [spilled, res_id])
 	
 	print("  Production complete (efficiency: %.0f%%)" % (efficiency * 100))
 
@@ -240,7 +362,6 @@ func _calculate_production_bonuses(city: City, coord: Vector2i, building_id: Str
 	"""
 	var bonuses: Dictionary = {}
 	
-	# Get terrain data if world_query is available
 	if not world_query:
 		return bonuses
 	
@@ -271,7 +392,6 @@ func _calculate_production_bonuses(city: City, coord: Vector2i, building_id: Str
 		var radius = adj_bonus.get("radius", 1)
 		var yields = adj_bonus.get("yields", {})
 		
-		# Count matching adjacent sources
 		var matching_count = _count_adjacent_sources(coord, source_type, source_id, radius, city)
 		
 		if matching_count > 0:
@@ -288,7 +408,6 @@ func _count_adjacent_sources(coord: Vector2i, source_type: String, source_id: St
 	if not world_query:
 		return count
 	
-	# Get all tiles within radius
 	var neighbors = world_query.get_tiles_in_range(coord, 1, radius)
 	
 	for neighbor_coord in neighbors:
@@ -296,31 +415,26 @@ func _count_adjacent_sources(coord: Vector2i, source_type: String, source_id: St
 		
 		match source_type:
 			"terrain":
-				# Check terrain type
 				var terrain_id = world_query.get_terrain_id(neighbor_coord)
 				matched = (terrain_id == source_id)
 			
 			"modifier":
-				# Check for modifier on tile
 				var neighbor_data = world_query.get_terrain_data(neighbor_coord)
 				if neighbor_data:
 					matched = neighbor_data.has_modifier(source_id)
 			
 			"building":
-				# Check for building
 				if city.has_building(neighbor_coord):
 					var neighbor_instance = city.get_building_instance(neighbor_coord)
 					matched = (neighbor_instance.building_id == source_id)
 			
 			"building_category":
-				# Check for building category
 				if city.has_building(neighbor_coord):
 					var neighbor_instance = city.get_building_instance(neighbor_coord)
 					var neighbor_building = Registry.buildings.get_building(neighbor_instance.building_id)
 					matched = (neighbor_building.get("category", "") == source_id)
 			
 			"river":
-				# Check for river
 				var neighbor_data = world_query.get_terrain_data(neighbor_coord)
 				if neighbor_data:
 					matched = neighbor_data.is_river
@@ -333,15 +447,13 @@ func _count_adjacent_sources(coord: Vector2i, source_type: String, source_id: St
 # === Phase 2b: Modifier Consumption ===
 
 func _phase_modifier_consumption(city: City, report: TurnReport.CityTurnReport):
-	"""Active buildings may consume nearby modifiers each turn based on chance.
-	This represents resource exploitation (deforestation, mining depletion, etc.)."""
+	"""Active buildings may consume nearby modifiers each turn based on chance."""
 	if not world_query:
 		return
 	
 	for coord in city.building_instances.keys():
 		var instance: BuildingInstance = city.building_instances[coord]
 		
-		# Only active buildings consume modifiers
 		if not instance.is_active():
 			continue
 		
@@ -358,7 +470,6 @@ func _phase_modifier_consumption(city: City, report: TurnReport.CityTurnReport):
 			if modifier_id == "" or chance_percent <= 0.0:
 				continue
 			
-			# Check own tile first, then tiles within radius
 			var tiles_to_check: Array[Vector2i] = [coord]
 			if radius > 0:
 				tiles_to_check.append_array(world_query.get_tiles_in_range(coord, 1, radius))
@@ -371,10 +482,8 @@ func _phase_modifier_consumption(city: City, report: TurnReport.CityTurnReport):
 				if not terrain_data.has_modifier(modifier_id):
 					continue
 				
-				# Roll the dice
 				var roll = randf() * 100.0
 				if roll < chance_percent:
-					# Consume the modifier
 					terrain_data.remove_modifier(modifier_id)
 					
 					if transforms_to != "":
@@ -388,7 +497,7 @@ func _phase_modifier_consumption(city: City, report: TurnReport.CityTurnReport):
 # === Phase 3: Consumption ===
 
 func _phase_consumption(city: City, report: TurnReport.CityTurnReport):
-	"""Two-pass consumption system"""
+	"""Two-pass consumption using array format. Supports tag-based consumption."""
 	
 	# Separate buildings into lists BEFORE processing
 	var active_buildings: Array[Vector2i] = []
@@ -408,16 +517,25 @@ func _phase_consumption(city: City, report: TurnReport.CityTurnReport):
 		var instance: BuildingInstance = city.building_instances[coord]
 		_process_building_consumption(city, instance, report)
 	
-	# Pass 2: Process EXPECTING_RESOURCES buildings (from original list)
+	# Pass 2: Process EXPECTING_RESOURCES buildings
 	for coord in expecting_buildings:
 		var instance: BuildingInstance = city.building_instances[coord]
 		_process_building_consumption(city, instance, report)
 
 func _process_building_consumption(city: City, instance: BuildingInstance, report: TurnReport.CityTurnReport):
-	"""Process consumption for a single building"""
-	var consumption = instance.get_consumption()
+	"""Process consumption for a single building using array format."""
+	var consumes = Registry.buildings.get_consumes(instance.building_id)
 	
-	if consumption.is_empty():
+	# Filter out cap resources (already handled in Phase 1)
+	var non_cap_consumes := []
+	for entry in consumes:
+		var res_id = entry.get("resource", "")
+		var tag = entry.get("tag", "")
+		if res_id != "" and Registry.resources.has_tag(res_id, "cap"):
+			continue
+		non_cap_consumes.append(entry)
+	
+	if non_cap_consumes.is_empty():
 		# No consumption needed - ensure building is active
 		if not instance.is_active():
 			instance.set_active()
@@ -428,19 +546,41 @@ func _process_building_consumption(city: City, instance: BuildingInstance, repor
 	var can_consume = true
 	var missing: Dictionary = {}
 	
-	for resource_id in consumption.keys():
-		var needed = consumption[resource_id]
-		var available = city.get_total_resource(resource_id)
-		if available < needed:
-			can_consume = false
-			missing[resource_id] = needed - available
+	for entry in non_cap_consumes:
+		var needed = entry.get("quantity", 0.0)
+		var res_id = entry.get("resource", "")
+		var tag = entry.get("tag", "")
+		
+		if res_id != "":
+			# Resource-based consumption
+			var available = city.get_total_resource(res_id)
+			if available < needed:
+				can_consume = false
+				missing[res_id] = needed - available
+		elif tag != "":
+			# Tag-based consumption — check total of all resources with this tag
+			var tagged = city.get_resources_by_tag(tag)
+			var total_available := 0.0
+			for amount in tagged.values():
+				total_available += amount
+			if total_available < needed:
+				can_consume = false
+				missing[tag + " (tag)"] = needed - total_available
 	
 	if can_consume:
 		# Consume resources
-		for resource_id in consumption.keys():
-			var amount = consumption[resource_id]
-			city.consume_resource(resource_id, amount)
-			report.add_consumption(resource_id, amount)
+		for entry in non_cap_consumes:
+			var amount = entry.get("quantity", 0.0)
+			var res_id = entry.get("resource", "")
+			var tag = entry.get("tag", "")
+			
+			if res_id != "":
+				city.consume_resource(res_id, amount)
+				report.add_consumption(res_id, amount)
+			elif tag != "":
+				var consumed = city.consume_resource_by_tag(tag, amount)
+				for consumed_id in consumed.keys():
+					report.add_consumption(consumed_id, consumed[consumed_id])
 		
 		# Activate the building
 		if not instance.is_active():
@@ -452,23 +592,25 @@ func _process_building_consumption(city: City, instance: BuildingInstance, repor
 		report.add_building_waiting(instance.tile_coord, instance.building_id, missing)
 		
 		# Apply penalty if defined
-		var penalty = instance.get_penalty()
-		if not penalty.is_empty():
-			for resource_id in penalty.keys():
-				var penalty_amount = penalty[resource_id]
-				# Penalties remove from storage
-				city.consume_resource(resource_id, penalty_amount)
-				report.add_penalty(resource_id, penalty_amount)
+		var penalty_entries = Registry.buildings.get_penalty(instance.building_id)
+		if not penalty_entries.is_empty():
+			var penalty_dict := {}
+			for penalty_entry in penalty_entries:
+				var res_id = penalty_entry.get("resource", "")
+				var penalty_amount = penalty_entry.get("quantity", 0.0)
+				if res_id != "" and penalty_amount > 0:
+					city.consume_resource(res_id, penalty_amount)
+					report.add_penalty(res_id, penalty_amount)
+					penalty_dict[res_id] = penalty_amount
 			
-			report.add_building_penalized(instance.tile_coord, instance.building_id, penalty)
-			print("    Penalty applied: %s at %v" % [instance.building_id, instance.tile_coord])
+			if not penalty_dict.is_empty():
+				report.add_building_penalized(instance.tile_coord, instance.building_id, penalty_dict)
+				print("    Penalty applied: %s at %v" % [instance.building_id, instance.tile_coord])
 
 # === Phase 4: Construction ===
 
 func _phase_construction(city: City, report: TurnReport.CityTurnReport):
-	"""Process construction for buildings being built, limited by building capacity.
-	Only the first X constructions in the queue progress each turn,
-	where X = total building capacity from operational buildings."""
+	"""Process construction for buildings being built, limited by building capacity."""
 	var building_capacity = city.get_total_building_capacity()
 	var construction_coords = city.get_constructions_in_progress()
 	var constructions_processed: int = 0
@@ -478,16 +620,13 @@ func _phase_construction(city: City, report: TurnReport.CityTurnReport):
 	for coord in construction_coords:
 		var instance: BuildingInstance = city.building_instances[coord]
 		
-		# Check if we've hit the building capacity limit
 		if constructions_processed >= building_capacity:
-			# This construction is queued but cannot progress this turn
 			report.add_construction_queued(coord, instance.building_id, instance.turns_remaining)
 			print("    Construction queued (no capacity): %s at %v" % [instance.building_id, coord])
 			continue
 		
 		var cost = instance.cost_per_turn
 		
-		# If no per-turn cost, just advance construction
 		if cost.is_empty():
 			instance.set_constructing()
 			var completed = instance.advance_construction()
@@ -499,7 +638,6 @@ func _phase_construction(city: City, report: TurnReport.CityTurnReport):
 				report.add_construction_progressed(coord, instance.building_id, instance.turns_remaining)
 			continue
 		
-		# Check if city can afford this turn's cost
 		var can_afford = true
 		var missing: Dictionary = {}
 		
@@ -511,11 +649,9 @@ func _phase_construction(city: City, report: TurnReport.CityTurnReport):
 				missing[resource_id] = needed - available
 		
 		if can_afford:
-			# Consume resources
 			for resource_id in cost.keys():
 				city.consume_resource(resource_id, cost[resource_id])
 			
-			# Advance construction
 			instance.set_constructing()
 			var completed = instance.advance_construction()
 			constructions_processed += 1
@@ -525,7 +661,6 @@ func _phase_construction(city: City, report: TurnReport.CityTurnReport):
 			else:
 				report.add_construction_progressed(coord, instance.building_id, instance.turns_remaining)
 		else:
-			# Pause construction (still uses a capacity slot)
 			instance.set_construction_paused()
 			constructions_processed += 1
 			report.add_construction_paused(coord, instance.building_id, missing)
@@ -539,12 +674,10 @@ func _on_construction_completed(city: City, instance: BuildingInstance, report: 
 	report.add_construction_completed(coord, building_id)
 	print("    Construction completed: %s at %v" % [building_id, coord])
 	
-	# Apply on_construction_complete rewards
 	var rewards = Registry.buildings.get_on_construction_complete(building_id)
 	if rewards.is_empty():
 		return
 	
-	# Apply resource rewards - store in city
 	if rewards.has("resources"):
 		for resource_id in rewards.resources.keys():
 			var amount = rewards.resources[resource_id]
@@ -553,7 +686,6 @@ func _on_construction_completed(city: City, instance: BuildingInstance, report: 
 			if stored > 0:
 				print("      Reward: +%.1f %s" % [stored, resource_id])
 	
-	# Apply research rewards - add directly to tech tree
 	if rewards.has("research"):
 		for branch_id in rewards.research.keys():
 			var points = rewards.research[branch_id]
@@ -573,7 +705,6 @@ func _phase_upgrades(city: City, report: TurnReport.CityTurnReport):
 		
 		var cost = instance.upgrade_cost_per_turn
 		
-		# If no per-turn cost, just advance the upgrade
 		if cost.is_empty():
 			var completed = instance.advance_upgrade()
 			
@@ -583,7 +714,6 @@ func _phase_upgrades(city: City, report: TurnReport.CityTurnReport):
 				report.add_upgrade_progressed(coord, instance.building_id, instance.upgrading_to, instance.upgrade_turns_remaining)
 			continue
 		
-		# Check if city can afford this turn's cost
 		var can_afford = true
 		var missing: Dictionary = {}
 		
@@ -595,11 +725,9 @@ func _phase_upgrades(city: City, report: TurnReport.CityTurnReport):
 				missing[resource_id] = needed - available
 		
 		if can_afford:
-			# Consume resources
 			for resource_id in cost.keys():
 				city.consume_resource(resource_id, cost[resource_id])
 			
-			# Advance upgrade
 			var completed = instance.advance_upgrade()
 			
 			if completed:
@@ -607,7 +735,6 @@ func _phase_upgrades(city: City, report: TurnReport.CityTurnReport):
 			else:
 				report.add_upgrade_progressed(coord, instance.building_id, instance.upgrading_to, instance.upgrade_turns_remaining)
 		else:
-			# Can't afford - upgrade is paused this turn (but building still operates)
 			report.add_upgrade_paused(coord, instance.building_id, instance.upgrading_to, missing)
 			print("    Upgrade paused: %s at %v (missing resources)" % [instance.building_id, coord])
 
@@ -617,23 +744,22 @@ func _on_upgrade_completed(city: City, instance: BuildingInstance, report: TurnR
 	var old_building_id = instance.building_id
 	var new_building_id = instance.upgrading_to
 	
-	# Complete the upgrade (transforms the building)
 	instance.complete_upgrade()
 	
-	# Update tile reference
 	var tile = city.get_tile(coord)
 	if tile:
 		tile.building_id = new_building_id
 	
+	# Check if this upgrade triggers a settlement transition
+	_check_settlement_transition(city, old_building_id, new_building_id)
+	
 	report.add_upgrade_completed(coord, old_building_id, new_building_id)
 	print("    Upgrade completed: %s -> %s at %v" % [old_building_id, new_building_id, coord])
 	
-	# Apply on_construction_complete rewards for the new building
 	var rewards = Registry.buildings.get_on_construction_complete(new_building_id)
 	if rewards.is_empty():
 		return
 	
-	# Apply resource rewards
 	if rewards.has("resources"):
 		for resource_id in rewards.resources.keys():
 			var amount = rewards.resources[resource_id]
@@ -642,13 +768,34 @@ func _on_upgrade_completed(city: City, instance: BuildingInstance, report: TurnR
 			if stored > 0:
 				print("      Reward: +%.1f %s" % [stored, resource_id])
 	
-	# Apply research rewards
 	if rewards.has("research"):
 		for branch_id in rewards.research.keys():
 			var points = rewards.research[branch_id]
 			Registry.tech.add_research(branch_id, points)
 			report.add_completion_research_reward(branch_id, points)
 			print("      Research reward: +%.2f %s" % [points, branch_id])
+
+func _check_settlement_transition(city: City, old_building_id: String, new_building_id: String):
+	"""Check if a building upgrade triggers a settlement type transition."""
+	var transitions = Registry.settlements.get_transitions(city.settlement_type)
+	
+	for transition in transitions:
+		if transition.get("trigger", "") != "building_upgrade":
+			continue
+		if transition.get("trigger_building", "") != old_building_id:
+			continue
+		if transition.get("target_building", "") != new_building_id:
+			continue
+		
+		var target_type = transition.get("target", "")
+		if target_type == "":
+			continue
+		
+		# Check requirements
+		var check = city.can_transition_to(target_type)
+		if check.get("can", false):
+			city.transition_settlement(target_type)
+			print("    ★ Settlement transition: %s → %s" % [city.settlement_type, target_type])
 
 # === Phase 4c: Training ===
 
@@ -663,44 +810,36 @@ func _phase_training(city: City, report: TurnReport.CityTurnReport):
 		var unit_id = instance.training_unit_id
 		var turns_remaining = instance.training_turns_remaining
 		
-		# Process one turn of training
 		var completed_unit_type = instance.advance_training()
 		
 		if completed_unit_type != "":
-			# Training completed - spawn unit!
 			_on_training_completed(city, completed_unit_type, coord, report)
 		else:
-			# Still training
 			print("    Training %s at %v: %d turns remaining" % [unit_id, coord, turns_remaining - 1])
 
 func _on_training_completed(city: City, unit_type: String, building_coord: Vector2i, report: TurnReport.CityTurnReport):
 	"""Handle unit training completion - spawn the unit"""
 	print("    Training completed: %s at %v" % [Registry.units.get_unit_name(unit_type), building_coord])
 	
-	# Find spawn location (building tile first, then adjacent, then city center)
 	var spawn_coord = _find_unit_spawn_location(city, building_coord)
 	
-	if spawn_coord == Vector2i(-99999, -99999):  # Invalid coord sentinel
+	if spawn_coord == Vector2i(-99999, -99999):
 		print("      Warning: No valid spawn location found!")
 		return
 	
-	# Spawn the unit if we have a unit manager
 	if unit_manager:
 		var owner_id = city.owner.player_id if city.owner else "unknown"
 		var unit = unit_manager.spawn_unit(unit_type, owner_id, spawn_coord, city.city_id)
 		if unit:
 			print("      Spawned %s at %v" % [unit_type, spawn_coord])
-			# Add to report (we could add training-related tracking to TurnReport)
 	else:
 		print("      Warning: No unit manager - unit not spawned")
 
 func _find_unit_spawn_location(city: City, building_coord: Vector2i) -> Vector2i:
 	"""Find a valid tile to spawn a unit, preferring the building location"""
-	# First try the building's tile
 	if not unit_manager or not unit_manager.has_unit_at(building_coord):
 		return building_coord
 	
-	# Try adjacent tiles to the building
 	var directions = [
 		Vector2i(1, 0), Vector2i(1, -1), Vector2i(0, -1),
 		Vector2i(-1, 0), Vector2i(-1, 1), Vector2i(0, 1)
@@ -712,80 +851,48 @@ func _find_unit_spawn_location(city: City, building_coord: Vector2i) -> Vector2i
 			if not unit_manager.has_unit_at(coord):
 				return coord
 	
-	# Try city center
 	if not unit_manager.has_unit_at(city.city_center_coord):
 		return city.city_center_coord
 	
-	# Try any city tile
 	for coord in city.tiles.keys():
 		if not unit_manager.has_unit_at(coord):
 			return coord
 	
-	# No valid location found
 	return Vector2i(-99999, -99999)
 
 # === Phase 5: Population ===
 
 func _phase_population(city: City, report: TurnReport.CityTurnReport):
-	"""Update city population count based on population-flagged resources"""
-	var pop_change: float = 0.0
-	var pop_capacity: int = 0
+	"""Update population derived from population-tagged resources in storage pools."""
+	var pop_total = city.get_total_population()
+	var pop_capacity = city.get_population_capacity()
 	
-	# Calculate total population capacity from housing
-	for coord in city.building_instances.keys():
-		var instance: BuildingInstance = city.building_instances[coord]
-		if instance.is_operational():
-			pop_capacity += Registry.buildings.get_population_capacity(instance.building_id)
+	# Population change is already tracked through production/consumption/penalties
+	# The population is simply whatever is stored in population-tagged pools
+	# We just need to report on it
 	
-	# Sum production and penalties for population-flagged resources
-	for resource_id in Registry.resources.get_all_population_resources():
-		# Get net change from production and penalties
-		var produced = report.production_after_efficiency.get(resource_id, 0.0)
-		var penalty = report.penalties_applied.get(resource_id, 0.0)
+	# Calculate net change from production and penalties this turn
+	var pop_change := 0.0
+	var pop_resources = Registry.resources.get_resources_by_tag("population")
+	for res_id in pop_resources:
+		var produced = report.production_after_efficiency.get(res_id, 0.0)
+		var penalty = report.penalties_applied.get(res_id, 0.0)
 		pop_change += produced - penalty
 	
-	# Apply population change
-	var old_pop = city.total_population
-	city.total_population = clampi(city.total_population + int(pop_change), 0, pop_capacity)
-	city.population_capacity = pop_capacity
-	
-	report.population_change = city.total_population - old_pop
-	report.population_total = city.total_population
+	report.population_change = pop_change
+	report.population_total = pop_total
 	report.population_capacity = pop_capacity
 	
-	if report.population_change != 0:
-		print("  Population: %d → %d (capacity: %d)" % [old_pop, city.total_population, pop_capacity])
+	if pop_change != 0:
+		print("  Population: %d (change: %+.0f, capacity: %d)" % [pop_total, pop_change, pop_capacity])
 
-# === Phase 6: Research ===
-
-func _phase_research(city: City, report: TurnReport.CityTurnReport):
-	"""Collect research from ACTIVE buildings only"""
-	var efficiency = report.production_efficiency
-	
-	for coord in city.building_instances.keys():
-		var instance: BuildingInstance = city.building_instances[coord]
-		
-		# Only ACTIVE buildings generate research (not EXPECTING_RESOURCES)
-		if not instance.is_active():
-			continue
-		
-		var research = instance.get_research_output()
-		for branch_id in research.keys():
-			var raw_points = research[branch_id]
-			var adjusted_points = raw_points * efficiency
-			report.add_research(branch_id, adjusted_points)
-	
-	if not report.research_generated.is_empty():
-		print("  Research generated: %s" % str(report.research_generated))
-
-# === Phase 7: Decay ===
+# === Phase 6: Decay ===
 
 func _phase_decay(city: City, report: TurnReport.CityTurnReport):
 	"""Apply decay to resources in storage buildings, including adjacency-based decay bonuses"""
 	for coord in city.building_instances.keys():
 		var instance: BuildingInstance = city.building_instances[coord]
 		
-		# Calculate adjacency-based decay reduction from nearby active buildings
 		var adjacency_bonus = _calculate_adjacency_decay_bonus(city, coord, instance.building_id)
 		
 		var decayed = instance.apply_decay(adjacency_bonus)
@@ -796,8 +903,7 @@ func _phase_decay(city: City, report: TurnReport.CityTurnReport):
 		print("  Decay: %s" % str(report.decay_summary))
 
 func _calculate_adjacency_decay_bonus(city: City, coord: Vector2i, building_id: String) -> Dictionary:
-	"""Calculate decay reduction bonuses from nearby active buildings.
-	Returns resource_id -> float (negative values reduce decay multiplier)."""
+	"""Calculate decay reduction bonuses from nearby active buildings."""
 	var bonuses: Dictionary = {}
 	
 	var decay_bonus_rules = Registry.buildings.get_adjacency_decay_bonuses(building_id)
@@ -817,9 +923,7 @@ func _calculate_adjacency_decay_bonus(city: City, coord: Vector2i, building_id: 
 		if source_id == "" or decay_reduction.is_empty():
 			continue
 		
-		# Check tiles within radius for matching source buildings
 		var neighbors = world_query.get_tiles_in_range(coord, 1, radius)
-		var found_match = false
 		
 		for neighbor_coord in neighbors:
 			if not city.has_building(neighbor_coord):
@@ -839,7 +943,6 @@ func _calculate_adjacency_decay_bonus(city: City, coord: Vector2i, building_id: 
 				if requires_active and not neighbor_instance.is_active():
 					continue
 				
-				# Apply the decay reduction bonus (stacks per matching building)
 				for resource_id in decay_reduction.keys():
 					bonuses[resource_id] = bonuses.get(resource_id, 0.0) + decay_reduction[resource_id]
 	
@@ -848,40 +951,59 @@ func _calculate_adjacency_decay_bonus(city: City, coord: Vector2i, building_id: 
 # === Global Research Processing ===
 
 func _process_global_research(report: TurnReport):
-	"""Aggregate research from all cities and apply to tech tree"""
-	var total_research: Dictionary = {}
-	var total_generic: float = 0.0
+	"""Aggregate knowledge from all cities and apply to tech tree."""
+	var total_branch_research: Dictionary = {}  # branch_id -> points
+	var total_generic_by_resource: Dictionary = {}  # resource_id -> points
 	
-	# Sum branch-specific research from all cities
+	# Sum knowledge from all cities
 	for city_id in report.city_reports.keys():
 		var city_report = report.city_reports[city_id]
-		for branch_id in city_report.research_generated.keys():
-			var points = city_report.research_generated[branch_id]
-			total_research[branch_id] = total_research.get(branch_id, 0.0) + points
-		# Sum generic research from production
-		total_generic += city_report.generic_research_produced
+		
+		# Branch-specific knowledge
+		for res_id in city_report.knowledge_produced.keys():
+			var branches = city_report.knowledge_produced[res_id]
+			for branch_id in branches.keys():
+				total_branch_research[branch_id] = total_branch_research.get(branch_id, 0.0) + branches[branch_id]
+		
+		# Generic knowledge
+		for res_id in city_report.generic_knowledge_produced.keys():
+			total_generic_by_resource[res_id] = total_generic_by_resource.get(res_id, 0.0) + city_report.generic_knowledge_produced[res_id]
 	
-	# Redirect generic research to preferred branch (or random)
-	if total_generic > 0.0:
+	# Route generic knowledge to player's chosen branch
+	# For each knowledge resource, check accepted_by_branches
+	for res_id in total_generic_by_resource.keys():
+		var amount = total_generic_by_resource[res_id]
+		if amount <= 0.0:
+			continue
+		
 		var target_branch = Registry.tech.get_generic_research_target()
-		if target_branch != "":
-			total_research[target_branch] = total_research.get(target_branch, 0.0) + total_generic
-			print("  Generic research: %.2f -> %s" % [total_generic, target_branch])
-			# Record in each city report where their generic research went
-			for city_id in report.city_reports.keys():
-				var city_report = report.city_reports[city_id]
-				if city_report.generic_research_produced > 0.0:
-					city_report.generic_research_target = target_branch
-					city_report.add_research(target_branch, city_report.generic_research_produced)
-		else:
-			print("  Generic research: %.2f lost (no visible branches)" % total_generic)
+		if target_branch == "":
+			print("  Generic %s: %.2f lost (no visible branches)" % [res_id, amount])
+			continue
+		
+		# Validate that this knowledge resource is accepted by the target branch
+		var accepted = Registry.resources.get_accepted_branches(res_id)
+		if "all" not in accepted and target_branch not in accepted:
+			print("  Generic %s: %.2f lost (%s not accepted by branch %s)" % [res_id, amount, res_id, target_branch])
+			continue
+		
+		total_branch_research[target_branch] = total_branch_research.get(target_branch, 0.0) + amount
+		print("  Generic %s: %.2f -> %s" % [res_id, amount, target_branch])
+		
+		# Record in city reports for display
+		for city_id in report.city_reports.keys():
+			var city_report = report.city_reports[city_id]
+			var city_generic = city_report.generic_knowledge_produced.get(res_id, 0.0)
+			if city_generic > 0.0:
+				city_report.set_generic_knowledge_target(res_id, target_branch)
+				city_report.add_knowledge(res_id, target_branch, city_generic)
 	
 	# Apply to tech tree
-	for branch_id in total_research.keys():
-		var points = total_research[branch_id]
+	for branch_id in total_branch_research.keys():
+		var points = total_branch_research[branch_id]
 		Registry.tech.add_research(branch_id, points)
 	
-	# Check for newly unlocked milestones
+	# Check for milestone unlocks
 	Registry.tech.check_milestone_unlocks()
 
 # === City Abandonment ===
@@ -890,10 +1012,8 @@ func _handle_city_abandonment(city: City, report: TurnReport):
 	"""Handle a city being abandoned due to population reaching zero"""
 	print("\n!!! CITY ABANDONED: %s !!!" % city.city_name)
 	
-	# Use CityManager to handle the abandonment
 	var previous_owner = city_manager.abandon_city(city.city_id)
 	
-	# Add critical alert
 	report.add_critical_alert(
 		"city_abandoned",
 		city.city_id,
@@ -901,10 +1021,8 @@ func _handle_city_abandonment(city: City, report: TurnReport):
 		{"previous_owner": previous_owner.player_id if previous_owner else "none"}
 	)
 	
-	# Emit signals
 	emit_signal("city_abandoned", city, previous_owner)
 	
-	# Check if player was defeated
 	if previous_owner and previous_owner.get_city_count() == 0:
 		report.add_critical_alert(
 			"player_defeated",
@@ -919,14 +1037,19 @@ func _handle_city_abandonment(city: City, report: TurnReport):
 func _generate_city_alerts(city: City, city_report: TurnReport.CityTurnReport, report: TurnReport):
 	"""Generate critical alerts based on city report"""
 	
-	# Admin overload
-	if city_report.admin_ratio > 1.5:
-		report.add_critical_alert(
-			"admin_overload",
-			city.city_id,
-			"%s: Admin capacity severely overloaded (%.0f%% efficiency)" % [city.city_name, city_report.production_efficiency * 100],
-			{"ratio": city_report.admin_ratio}
-		)
+	# Cap overloads (generic for all cap resources)
+	for cap_id in city_report.cap_reports.keys():
+		var cap = city_report.cap_reports[cap_id]
+		var ratio = cap.get("ratio", 0.0)
+		if ratio > 1.5:
+			var cap_name = Registry.get_name_label("resource", cap_id)
+			var eff = cap.get("efficiency", 1.0)
+			report.add_critical_alert(
+				"cap_overload",
+				city.city_id,
+				"%s: %s severely overloaded (%.0f%% efficiency)" % [city.city_name, cap_name, eff * 100],
+				{"resource": cap_id, "ratio": ratio}
+			)
 	
 	# Buildings waiting for resources
 	if not city_report.buildings_waiting.is_empty():
@@ -948,7 +1071,7 @@ func _generate_city_alerts(city: City, city_report: TurnReport.CityTurnReport, r
 			{"constructions": city_report.constructions_paused}
 		)
 	
-	# Construction queued (no building capacity)
+	# Construction queued
 	if not city_report.constructions_queued.is_empty():
 		var count = city_report.constructions_queued.size()
 		report.add_critical_alert(

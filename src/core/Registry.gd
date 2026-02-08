@@ -13,6 +13,7 @@ var perks: PerkRegistry
 var localization: LocalizationRegistry
 var abilities: AbilityRegistry
 var tile_types: TileTypeRegistry
+var settlements: SettlementRegistry
 
 func _ready():
 	print("=== Initializing Game Registries ===")
@@ -28,6 +29,7 @@ func _ready():
 	perks = PerkRegistry.new()
 	abilities = AbilityRegistry.new()
 	tile_types = TileTypeRegistry.new()
+	settlements = SettlementRegistry.new()
 	
 	# Load all data
 	localization.load_data()
@@ -39,6 +41,7 @@ func _ready():
 	units.load_data()
 	perks.load_data()
 	tile_types.load_data()
+	settlements.load_data()
 	# AbilityRegistry loads in _init()
 	
 	print("=== Registry Initialization Complete ===")

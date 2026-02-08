@@ -640,8 +640,8 @@ func setup_test_city():
 	# Find a suitable location (on land)
 	var test_coord = Vector2i(-12, 15)
 	
-	# Found city with longhouse as city center
-	var city = city_manager.found_city("Test City", test_coord, current_player_id, "longhouse")
+	# Found city (encampment settlement type auto-places longhouse as city center)
+	var city = city_manager.found_city("Test City", test_coord, current_player_id)
 	
 	if city:
 		print("✓ Test city founded at ", test_coord)
@@ -650,7 +650,7 @@ func setup_test_city():
 			city.get_total_resource("wood"),
 			city.get_total_resource("stone")
 		])
-		print("  Population: %d" % city.total_population)
+		print("  Population: %d" % city.get_total_population())
 		
 		# Update the visual for the longhouse building
 		var center_tile = chunk_manager.get_tile_at_coord(test_coord)

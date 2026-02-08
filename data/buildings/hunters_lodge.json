@@ -7,10 +7,6 @@
 		"cost_per_turn": {},
 		"total_turns": 1
 	},
-	"admin_cost": {
-		"base": 1.0,
-		"distance_multiplier": 0.1
-	},
 	"requirements": {
 		"terrain_types": ["grassland", "plains", "meadow", "rolling_hills", "forest"],
 		"terrain_exclude": ["ocean", "mountain", "lake"],
@@ -31,60 +27,47 @@
 		"milestones_required": ["pack_animal_domestication"]
 	},
 	"production": {
-		"per_turn_produces": {
-			"food": 1.5,
-			"furs": 0.5
-		},
-		"per_turn_consumes": {
-			"population": 1
-		},
-		"branch_specific_research": {
-			"animal_husbandry": 0.1
-		}
+		"produces": [
+			{ "resource": "food", "quantity": 1.5 },
+			{ "resource": "furs", "quantity": 0.5 },
+			{ "resource": "research", "quantity": 0.1, "branch": "animal_husbandry" }
+		],
+		"consumes": [
+			{ "resource": "population", "quantity": 1 },
+			{ "resource": "admin_capacity", "quantity": 1.0, "distance_cost": { "multiplier": 0.1, "distance_to": "nearest_source" } }
+		]
 	},
-	"per_turn_penalty": {},
+	"per_turn_penalty": [],
 	"adjacency_bonuses": [
 		{
 			"source_type": "terrain",
 			"source_id": "forest",
 			"radius": 1,
-			"yields": {
-				"food": 1
-			}
+			"yields": { "food": 1 }
 		},
 		{
 			"source_type": "modifier",
 			"source_id": "wild_game",
 			"radius": 1,
-			"yields": {
-				"food": 1
-			}
+			"yields": { "food": 1 }
 		},
 		{
 			"source_type": "modifier",
 			"source_id": "game_trails",
 			"radius": 1,
-			"yields": {
-				"food": 0.5
-			}
+			"yields": { "food": 0.5 }
 		},
 		{
 			"source_type": "modifier",
 			"source_id": "wild_game",
 			"radius": 1,
-			"yields": {
-				"furs": 0.5
-			}
+			"yields": { "furs": 0.5 }
 		}
 	],
 	"provides": {
-		"population_storage": 0,
-		"resource_storage": {
-			"furs": 10
-		},
-		"admin_capacity": 0,
-		"caravan_capacity": 0,
-		"decay_reduction": {}
+		"storage": [
+			{ "capacity": 10, "accepted_resources": ["furs"] }
+		]
 	},
 	"disabled_admin_cost": 0.0,
 	"on_construction_complete": {

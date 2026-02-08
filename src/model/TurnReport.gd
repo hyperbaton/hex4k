@@ -118,15 +118,15 @@ class CityTurnReport extends RefCounted:
 	var city_id: String
 	var city_name: String
 	
-	# Admin capacity
-	var admin_capacity_used: float = 0.0
-	var admin_capacity_available: float = 0.0
-	var admin_ratio: float = 0.0
+	# Generic cap reports: { resource_id: { available, used, ratio, efficiency } }
+	var cap_reports: Dictionary = {}
+	
+	# Overall production efficiency (minimum across all cap penalties)
 	var production_efficiency: float = 1.0
 	
 	# Production summary
-	var production: Dictionary = {}  # resource_id -> amount produced
-	var production_after_efficiency: Dictionary = {}  # After admin malus
+	var production: Dictionary = {}  # resource_id -> amount produced (raw)
+	var production_after_efficiency: Dictionary = {}  # After cap penalties
 	var spillage: Dictionary = {}  # resource_id -> amount spilled
 	
 	# Consumption summary
@@ -157,10 +157,10 @@ class CityTurnReport extends RefCounted:
 	# Decay
 	var decay_summary: Dictionary = {}  # resource_id -> total decayed
 	
-	# Research
-	var research_generated: Dictionary = {}  # branch_id -> points
-	var generic_research_produced: float = 0.0  # Generic research from production
-	var generic_research_target: String = ""  # Branch it was directed to
+	# Knowledge (research) produced
+	var knowledge_produced: Dictionary = {}  # { resource_id: { branch_id: points, ... }, ... }
+	var generic_knowledge_produced: Dictionary = {}  # { resource_id: total_generic }
+	var generic_knowledge_targets: Dictionary = {}  # { resource_id: target_branch }
 	
 	# Population
 	var population_change: float = 0.0
@@ -173,6 +173,15 @@ class CityTurnReport extends RefCounted:
 	func _init(id: String, name: String):
 		city_id = id
 		city_name = name
+	
+	# Cap reporting
+	func set_cap_report(resource_id: String, available: float, used: float, ratio: float, efficiency: float):
+		cap_reports[resource_id] = {
+			"available": available,
+			"used": used,
+			"ratio": ratio,
+			"efficiency": efficiency
+		}
 	
 	func add_production(resource_id: String, amount: float, after_efficiency: float):
 		production[resource_id] = production.get(resource_id, 0.0) + amount
@@ -231,22 +240,93 @@ class CityTurnReport extends RefCounted:
 	func add_decay(resource_id: String, amount: float):
 		decay_summary[resource_id] = decay_summary.get(resource_id, 0.0) + amount
 	
+	func add_knowledge(knowledge_resource_id: String, branch_id: String, points: float):
+		"""Track knowledge produced for a specific branch."""
+		if not knowledge_produced.has(knowledge_resource_id):
+			knowledge_produced[knowledge_resource_id] = {}
+		knowledge_produced[knowledge_resource_id][branch_id] = knowledge_produced[knowledge_resource_id].get(branch_id, 0.0) + points
+	
+	func add_generic_knowledge(knowledge_resource_id: String, points: float):
+		"""Track generic (unrouted) knowledge produced."""
+		generic_knowledge_produced[knowledge_resource_id] = generic_knowledge_produced.get(knowledge_resource_id, 0.0) + points
+	
+	func set_generic_knowledge_target(knowledge_resource_id: String, target_branch: String):
+		"""Record where generic knowledge was routed."""
+		generic_knowledge_targets[knowledge_resource_id] = target_branch
+	
+	# === Backward Compatibility ===
+	# TODO: Remove in Phase 6 cleanup.
+	
+	var admin_capacity_used: float:
+		get:
+			var cap = cap_reports.get("admin_capacity", {})
+			return cap.get("used", 0.0)
+		set(value):
+			if not cap_reports.has("admin_capacity"):
+				cap_reports["admin_capacity"] = {}
+			cap_reports["admin_capacity"]["used"] = value
+	
+	var admin_capacity_available: float:
+		get:
+			var cap = cap_reports.get("admin_capacity", {})
+			return cap.get("available", 0.0)
+		set(value):
+			if not cap_reports.has("admin_capacity"):
+				cap_reports["admin_capacity"] = {}
+			cap_reports["admin_capacity"]["available"] = value
+	
+	var admin_ratio: float:
+		get:
+			var cap = cap_reports.get("admin_capacity", {})
+			return cap.get("ratio", 0.0)
+		set(value):
+			if not cap_reports.has("admin_capacity"):
+				cap_reports["admin_capacity"] = {}
+			cap_reports["admin_capacity"]["ratio"] = value
+	
+	var generic_research_produced: float:
+		get: return generic_knowledge_produced.get("research", 0.0)
+		set(value): generic_knowledge_produced["research"] = value
+	
+	var generic_research_target: String:
+		get: return generic_knowledge_targets.get("research", "")
+		set(value): generic_knowledge_targets["research"] = value
+	
+	var research_generated: Dictionary:
+		get:
+			# Flatten all knowledge into single dict for backward compat
+			var result := {}
+			for res_id in knowledge_produced.keys():
+				for branch_id in knowledge_produced[res_id].keys():
+					result[branch_id] = result.get(branch_id, 0.0) + knowledge_produced[res_id][branch_id]
+			return result
+		set(value): pass
+	
 	func add_research(branch_id: String, points: float):
-		research_generated[branch_id] = research_generated.get(branch_id, 0.0) + points
+		"""DEPRECATED: Use add_knowledge() with resource_id instead."""
+		add_knowledge("research", branch_id, points)
 	
 	func get_summary() -> String:
 		var lines: Array[String] = []
 		
-		# Admin efficiency
-		if admin_ratio > 1.0:
-			lines.append("  Admin Overload: %.0f%% efficiency" % (production_efficiency * 100))
+		# Cap efficiency
+		for cap_id in cap_reports.keys():
+			var cap = cap_reports[cap_id]
+			var ratio = cap.get("ratio", 0.0)
+			if ratio > 1.0:
+				var eff = cap.get("efficiency", 1.0)
+				var cap_name = Registry.get_name_label("resource", cap_id)
+				lines.append("  %s Overload: %.0f%% efficiency" % [cap_name, eff * 100])
 		
 		# Production
 		if not production_after_efficiency.is_empty():
 			var prod_parts: Array[String] = []
 			for res_id in production_after_efficiency.keys():
-				prod_parts.append("%s: +%.1f" % [res_id, production_after_efficiency[res_id]])
-			lines.append("  Produced: " + ", ".join(prod_parts))
+				# Skip knowledge resources in production display (shown separately)
+				if not Registry.resources.has_tag(res_id, "knowledge"):
+					prod_parts.append("%s: +%.1f" % [res_id, production_after_efficiency[res_id]])
+			if not prod_parts.is_empty():
+				lines.append("  Produced: " + ", ".join(prod_parts))
 		
 		# Consumption
 		if not consumption.is_empty():
@@ -312,16 +392,20 @@ class CityTurnReport extends RefCounted:
 		if not upgrades_paused.is_empty():
 			lines.append("  Upgrade paused: %d buildings" % upgrades_paused.size())
 		
-		# Research
-		if not research_generated.is_empty() or generic_research_produced > 0.0:
+		# Knowledge / Research
+		var all_research = research_generated
+		if not all_research.is_empty() or not generic_knowledge_produced.is_empty():
 			var research_parts: Array[String] = []
-			for branch_id in research_generated.keys():
-				research_parts.append("%s: +%.2f" % [branch_id, research_generated[branch_id]])
+			for branch_id in all_research.keys():
+				research_parts.append("%s: +%.2f" % [branch_id, all_research[branch_id]])
 			if not research_parts.is_empty():
 				lines.append("  Research: " + ", ".join(research_parts))
-			if generic_research_produced > 0.0 and generic_research_target != "":
-				var target_name = Registry.tech.get_branch_name(generic_research_target)
-				lines.append("  Generic research: +%.2f → %s" % [generic_research_produced, target_name])
+			for res_id in generic_knowledge_produced.keys():
+				var amount = generic_knowledge_produced[res_id]
+				var target = generic_knowledge_targets.get(res_id, "")
+				if amount > 0.0 and target != "":
+					var target_name = Registry.tech.get_branch_name(target)
+					lines.append("  Generic %s: +%.2f → %s" % [res_id, amount, target_name])
 		
 		# Population
 		if population_change != 0:

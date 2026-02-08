@@ -9,10 +9,6 @@
 		"cost_per_turn": {},
 		"total_turns": 3
 	},
-	"admin_cost": {
-		"base": 1.0,
-		"distance_multiplier": 0.05
-	},
 	"requirements": {
 		"terrain_types": ["grassland", "plains", "rolling_hills", "meadow"],
 		"terrain_exclude": ["ocean", "mountain", "lake", "marsh"],
@@ -32,21 +28,20 @@
 		"milestones_required": ["oral_tradition"]
 	},
 	"production": {
-		"per_turn_produces": {
-			"research": 3
-		},
-		"per_turn_consumes": {
-			"food": 1,
-			"wood": 0.5,
-			"clothing": 0.5,
-			"honey": 0.3
-		},
-		"branch_specific_research": {
-			"oral_tradition": 0.3,
-			"philosophy": 0.2
-		}
+		"produces": [
+			{ "resource": "research", "quantity": 3 },
+			{ "resource": "research", "quantity": 0.3, "branch": "oral_tradition" },
+			{ "resource": "research", "quantity": 0.2, "branch": "philosophy" }
+		],
+		"consumes": [
+			{ "resource": "food", "quantity": 1 },
+			{ "resource": "wood", "quantity": 0.5 },
+			{ "resource": "clothing", "quantity": 0.5 },
+			{ "resource": "honey", "quantity": 0.3 },
+			{ "resource": "admin_capacity", "quantity": 1.0, "distance_cost": { "multiplier": 0.05, "distance_to": "nearest_source" } }
+		]
 	},
-	"per_turn_penalty": {},
+	"per_turn_penalty": [],
 	"adjacency_bonuses": [
 		{
 			"source_type": "building",
@@ -59,14 +54,16 @@
 	],
 	"terrain_bonuses": {},
 	"provides": {
-		"population_storage": 2,
-		"resource_storage": {
-			"clothing": 10,
-			"honey": 10
-		},
-		"admin_capacity": 0,
-		"caravan_capacity": 0,
-		"decay_reduction": {}
+		"storage": [
+			{
+				"capacity": 2,
+				"accepted_tags": ["population"]
+			},
+			{
+				"capacity": 20,
+				"accepted_resources": ["clothing", "honey"]
+			}
+		]
 	},
 	"on_construction_complete": {
 		"research": {

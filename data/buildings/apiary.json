@@ -8,10 +8,6 @@
 		"cost_per_turn": {},
 		"total_turns": 2
 	},
-	"admin_cost": {
-		"base": 0.6,
-		"distance_multiplier": 0.08
-	},
 	"requirements": {
 		"terrain_types": ["meadow", "grassland", "plains", "forest"],
 		"terrain_exclude": ["ocean", "mountain", "lake", "marsh", "steppe", "savannah"],
@@ -31,18 +27,17 @@
 		"milestones_required": ["apiculture"]
 	},
 	"production": {
-		"per_turn_produces": {
-			"honey": 2
-		},
-		"per_turn_consumes": {
-			"population": 0.5
-		},
-		"branch_specific_research": {
-			"animal_husbandry": 0.1,
-			"agriculture": 0.05
-		}
+		"produces": [
+			{ "resource": "honey", "quantity": 2 },
+			{ "resource": "research", "quantity": 0.1, "branch": "animal_husbandry" },
+			{ "resource": "research", "quantity": 0.05, "branch": "agriculture" }
+		],
+		"consumes": [
+			{ "resource": "population", "quantity": 0.5 },
+			{ "resource": "admin_capacity", "quantity": 0.6, "distance_cost": { "multiplier": 0.08, "distance_to": "nearest_source" } }
+		]
 	},
-	"per_turn_penalty": {},
+	"per_turn_penalty": [],
 	"adjacency_bonuses": [
 		{
 			"source_type": "building",
@@ -67,13 +62,9 @@
 		}
 	},
 	"provides": {
-		"population_storage": 0,
-		"resource_storage": {
-			"honey": 20
-		},
-		"admin_capacity": 0,
-		"caravan_capacity": 0,
-		"decay_reduction": {}
+		"storage": [
+			{ "capacity": 20, "accepted_resources": ["honey"] }
+		]
 	},
 	"on_construction_complete": {
 		"resources": {

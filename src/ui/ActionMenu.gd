@@ -856,10 +856,13 @@ func _show_building_info(building_id: String):
 	var turns = Registry.buildings.get_construction_turns(building_id)
 	costs_text += "Build Time: %d turns" % turns
 	
-	# Admin cost
-	var admin_base = building.get("admin_cost", {}).get("base", 0.0)
-	if admin_base > 0:
-		costs_text += "\nAdmin Cost: %.1f" % admin_base
+	# Admin cost (parsed from consumes array)
+	var consumes_entries = Registry.buildings.get_consumes(building_id)
+	for entry in consumes_entries:
+		if entry.get("resource", "") == "admin_capacity":
+			var base = entry.get("quantity", 0.0)
+			costs_text += "\nAdmin Cost: %.1f" % base
+			break
 	
 	costs_label.text = costs_text
 	
@@ -867,18 +870,27 @@ func _show_building_info(building_id: String):
 	var production_label = vbox.get_node("ProductionLabel") as Label
 	var prod_text = ""
 	
-	var produces = Registry.buildings.get_production_per_turn(building_id)
-	if not produces.is_empty():
-		var prod_parts = []
-		for resource in produces:
-			prod_parts.append("+%s %s" % [str(produces[resource]), resource.capitalize()])
+	var produces_entries = Registry.buildings.get_produces(building_id)
+	var prod_parts = []
+	for entry in produces_entries:
+		var res_id = entry.get("resource", "")
+		var qty = entry.get("quantity", 0.0)
+		var label = res_id.capitalize()
+		if entry.has("branch"):
+			label += " (" + entry.branch + ")"
+		prod_parts.append("+%s %s" % [str(qty), label])
+	if not prod_parts.is_empty():
 		prod_text += "Produces: " + ", ".join(prod_parts) + "\n"
 	
-	var consumes = Registry.buildings.get_consumption_per_turn(building_id)
-	if not consumes.is_empty():
-		var cons_parts = []
-		for resource in consumes:
-			cons_parts.append("-%s %s" % [str(consumes[resource]), resource.capitalize()])
+	var cons_parts = []
+	for entry in consumes_entries:
+		var res_id = entry.get("resource", entry.get("tag", ""))
+		var qty = entry.get("quantity", 0.0)
+		var label = res_id.capitalize()
+		if entry.has("tag"):
+			label = "[" + entry.tag.capitalize() + "]"
+		cons_parts.append("-%s %s" % [str(qty), label])
+	if not cons_parts.is_empty():
 		prod_text += "Consumes: " + ", ".join(cons_parts)
 	
 	if prod_text == "":
@@ -895,21 +907,34 @@ func _show_building_info(building_id: String):
 	if max_per_city > 0:
 		special_parts.append("Max per city: %d" % max_per_city)
 	
-	# Admin capacity provided
-	var admin_cap = Registry.buildings.get_admin_capacity(building_id)
-	if admin_cap > 0:
-		special_parts.append("Provides Admin: +%.1f" % admin_cap)
+	# Admin capacity and population housing (from produces and storage pools)
+	for entry in produces_entries:
+		if entry.get("resource", "") == "admin_capacity":
+			special_parts.append("Provides Admin: +%.1f" % entry.get("quantity", 0.0))
 	
-	# Population capacity
-	var pop_cap = Registry.buildings.get_population_capacity(building_id)
-	if pop_cap > 0:
-		special_parts.append("Housing: +%d" % pop_cap)
+	# Housing (storage pools accepting population tag)
+	for pool in Registry.buildings.get_storage_pools(building_id):
+		var accepted_tags = pool.get("accepted_tags", [])
+		if "population" in accepted_tags:
+			special_parts.append("Housing: +%d" % int(pool.get("capacity", 0)))
 	
-	# Storage
-	var storage = Registry.buildings.get_storage_provided(building_id)
-	if not storage.is_empty():
-		for resource in storage:
-			special_parts.append("Storage %s: +%d" % [resource.capitalize(), storage[resource]])
+	# Storage pools
+	for pool in Registry.buildings.get_storage_pools(building_id):
+		var accepted_tags = pool.get("accepted_tags", [])
+		if "population" in accepted_tags:
+			continue  # Already shown as Housing above
+		var capacity = int(pool.get("capacity", 0))
+		var accepted = pool.get("accepted_resources", [])
+		if not accepted.is_empty():
+			var names = []
+			for res_id in accepted:
+				names.append(res_id.capitalize())
+			special_parts.append("Storage: +%d (%s)" % [capacity, ", ".join(names)])
+		elif not accepted_tags.is_empty():
+			var tag_names = []
+			for tag in accepted_tags:
+				tag_names.append(tag.capitalize())
+			special_parts.append("Storage: +%d [%s]" % [capacity, ", ".join(tag_names)])
 	
 	# Adjacency bonuses
 	var adj_bonuses = Registry.buildings.get_adjacency_bonuses(building_id)

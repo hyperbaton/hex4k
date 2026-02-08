@@ -1,8 +1,9 @@
 extends RefCounted
 class_name BuildingInstance
 
-# Represents an instance of a building placed in a city tile
-# Tracks status, stored resources, construction progress, and upgrades
+# Represents an instance of a building placed in a city tile.
+# Uses StoragePool model for resource storage.
+# Production/consumption use unified array format.
 
 enum Status {
 	ACTIVE,              # Operating normally, will produce
@@ -26,8 +27,8 @@ var upgrade_turns_remaining: int = 0
 var upgrade_total_turns: int = 0
 var upgrade_cost_per_turn: Dictionary = {}
 
-# Storage for storage buildings
-var stored_resources: Dictionary = {}  # resource_id -> float
+# Storage pools — replaces flat stored_resources dict
+var storage_pools: Array = []  # Array of StoragePool instances
 
 # Cache for building data
 var _building_data: Dictionary = {}
@@ -37,19 +38,99 @@ var training_unit_id: String = ""  # Currently training unit type
 var training_turns_remaining: int = 0
 var training_total_turns: int = 0
 
+# === StoragePool Inner Class ===
+
+class StoragePool:
+	var capacity: float = 0.0
+	var accepted_resources: Array = []  # Explicit resource IDs
+	var accepted_tags: Array = []       # Tag-based matching
+	var stored: Dictionary = {}         # resource_id -> float
+	var decay_reduction: Dictionary = {}  # resource_id -> float multiplier
+	
+	func _init(pool_def: Dictionary = {}):
+		capacity = pool_def.get("capacity", 0.0)
+		accepted_resources = pool_def.get("accepted_resources", [])
+		accepted_tags = pool_def.get("accepted_tags", [])
+		decay_reduction = pool_def.get("decay_reduction", {})
+	
+	func get_total_stored() -> float:
+		var total := 0.0
+		for amount in stored.values():
+			total += amount
+		return total
+	
+	func get_available_space() -> float:
+		return max(0.0, capacity - get_total_stored())
+	
+	func can_accept(resource_id: String) -> bool:
+		"""Check if this pool accepts a specific resource by ID or tag."""
+		if resource_id in accepted_resources:
+			return true
+		for tag in accepted_tags:
+			if Registry.resources.has_tag(resource_id, tag):
+				return true
+		return false
+	
+	func add(resource_id: String, amount: float) -> float:
+		"""Add resource to pool. Returns amount actually stored."""
+		if not can_accept(resource_id):
+			return 0.0
+		var space = get_available_space()
+		var to_store = min(amount, space)
+		if to_store > 0:
+			stored[resource_id] = stored.get(resource_id, 0.0) + to_store
+		return to_store
+	
+	func remove(resource_id: String, amount: float) -> float:
+		"""Remove resource from pool. Returns amount actually removed."""
+		var current = stored.get(resource_id, 0.0)
+		var to_remove = min(amount, current)
+		if to_remove > 0:
+			stored[resource_id] = current - to_remove
+			if stored[resource_id] <= 0.001:
+				stored.erase(resource_id)
+		return to_remove
+	
+	func get_stored_amount(resource_id: String) -> float:
+		return stored.get(resource_id, 0.0)
+	
+	func get_decay_reduction_for(resource_id: String) -> float:
+		"""Get decay reduction multiplier. 1.0 = no reduction applied to this pool."""
+		return decay_reduction.get(resource_id, 1.0)
+	
+	func to_dict() -> Dictionary:
+		return {
+			"capacity": capacity,
+			"accepted_resources": accepted_resources.duplicate(),
+			"accepted_tags": accepted_tags.duplicate(),
+			"stored": stored.duplicate(),
+			"decay_reduction": decay_reduction.duplicate()
+		}
+	
+	static func from_dict(data: Dictionary) -> StoragePool:
+		var pool = StoragePool.new()
+		pool.capacity = data.get("capacity", 0.0)
+		pool.accepted_resources = data.get("accepted_resources", [])
+		pool.accepted_tags = data.get("accepted_tags", [])
+		pool.stored = data.get("stored", {})
+		pool.decay_reduction = data.get("decay_reduction", {})
+		return pool
+
+# === Initialization ===
+
 func _init(id: String, coord: Vector2i):
 	building_id = id
 	tile_coord = coord
 	_building_data = Registry.buildings.get_building(id)
-	
-	# Initialize storage capacity if this building provides storage
-	_init_storage()
+	_init_storage_pools()
 
-func _init_storage():
-	"""Initialize storage slots based on building definition"""
-	var storage = Registry.buildings.get_storage_provided(building_id)
-	for resource_id in storage.keys():
-		stored_resources[resource_id] = 0.0
+func _init_storage_pools():
+	"""Initialize storage pools from building definition."""
+	storage_pools.clear()
+	var pool_defs = Registry.buildings.get_storage_pools(building_id)
+	for pool_def in pool_defs:
+		var pool = StoragePool.new(pool_def)
+		storage_pools.append(pool)
 
 # === Status Management ===
 
@@ -142,16 +223,10 @@ func is_upgrading() -> bool:
 
 func is_upgrade_paused() -> bool:
 	"""Check if upgrade is paused due to missing resources"""
-	# We track this implicitly - if upgrading but didn't progress last turn
 	return is_upgrading() and upgrade_cost_per_turn.size() > 0
 
 func can_start_upgrade() -> bool:
 	"""Check if this building can start an upgrade"""
-	# Cannot upgrade if:
-	# - Already upgrading
-	# - Under construction
-	# - Disabled
-	# - No upgrade target defined
 	if is_upgrading():
 		return false
 	if is_under_construction():
@@ -206,14 +281,16 @@ func get_upgrade_progress_percent() -> float:
 	return float(upgrade_total_turns - upgrade_turns_remaining) / float(upgrade_total_turns) * 100.0
 
 func complete_upgrade() -> String:
-	"""
-	Complete the upgrade - transforms this building into the target.
-	Returns the new building_id.
-	Note: Stored resources are preserved if the new building can store them.
-	"""
+	"""Complete the upgrade - transforms this building into the target.
+	Returns the new building_id. Stored resources are preserved where possible."""
 	var new_building_id = upgrading_to
 	var old_building_id = building_id
-	var preserved_resources = stored_resources.duplicate()
+	
+	# Collect all stored resources before changing pools
+	var preserved_resources := {}
+	for pool in storage_pools:
+		for res_id in pool.stored.keys():
+			preserved_resources[res_id] = preserved_resources.get(res_id, 0.0) + pool.stored[res_id]
 	
 	# Update to new building
 	building_id = new_building_id
@@ -225,18 +302,16 @@ func complete_upgrade() -> String:
 	upgrade_total_turns = 0
 	upgrade_cost_per_turn.clear()
 	
-	# Re-initialize storage for new building
-	stored_resources.clear()
-	_init_storage()
+	# Re-initialize storage pools for new building
+	_init_storage_pools()
 	
 	# Transfer resources that the new building can store
-	for resource_id in preserved_resources.keys():
-		var amount = preserved_resources[resource_id]
-		if amount > 0 and can_store(resource_id):
-			var capacity = get_storage_capacity(resource_id)
-			stored_resources[resource_id] = min(amount, capacity)
-			if amount > capacity:
-				print("  Upgrade spillage: %.1f %s (exceeded new capacity)" % [amount - capacity, resource_id])
+	for res_id in preserved_resources.keys():
+		var amount = preserved_resources[res_id]
+		if amount > 0:
+			var stored = add_resource(res_id, amount)
+			if stored < amount:
+				print("  Upgrade spillage: %.1f %s (exceeded new capacity)" % [amount - stored, res_id])
 	
 	print("BuildingInstance: Completed upgrade from %s to %s at %v" % [
 		old_building_id, new_building_id, tile_coord
@@ -244,81 +319,132 @@ func complete_upgrade() -> String:
 	
 	return new_building_id
 
-# === Resource Storage ===
-
-func get_storage_capacity(resource_id: String) -> float:
-	"""Get the storage capacity for a specific resource"""
-	var storage = Registry.buildings.get_storage_provided(building_id)
-	return storage.get(resource_id, 0.0)
-
-func get_stored_amount(resource_id: String) -> float:
-	"""Get the amount of a resource stored"""
-	return stored_resources.get(resource_id, 0.0)
-
-func get_available_space(resource_id: String) -> float:
-	"""Get the available space for a resource"""
-	var capacity = get_storage_capacity(resource_id)
-	var stored = get_stored_amount(resource_id)
-	return max(0.0, capacity - stored)
+# === Resource Storage (Pool Model) ===
 
 func can_store(resource_id: String) -> bool:
-	"""Check if this building can store a specific resource"""
-	return get_storage_capacity(resource_id) > 0
+	"""Check if any pool in this building can accept a specific resource."""
+	for pool in storage_pools:
+		if pool.can_accept(resource_id):
+			return true
+	return false
+
+func get_storage_capacity(resource_id: String) -> float:
+	"""Get total storage capacity for a resource across all accepting pools."""
+	var total := 0.0
+	for pool in storage_pools:
+		if pool.can_accept(resource_id):
+			total += pool.capacity
+	return total
+
+func get_stored_amount(resource_id: String) -> float:
+	"""Get total stored amount of a resource across all pools."""
+	var total := 0.0
+	for pool in storage_pools:
+		total += pool.get_stored_amount(resource_id)
+	return total
+
+func get_available_space(resource_id: String) -> float:
+	"""Get available space for a resource across all accepting pools."""
+	var total := 0.0
+	for pool in storage_pools:
+		if pool.can_accept(resource_id):
+			total += pool.get_available_space()
+	return total
 
 func add_resource(resource_id: String, amount: float) -> float:
-	"""
-	Add resources to storage. Returns the amount actually stored.
-	Excess is not stored (caller should handle spillage).
-	"""
-	if not can_store(resource_id):
-		return 0.0
+	"""Add resources to storage pools. Returns the amount actually stored.
+	Fills pools in order; excess is not stored (caller handles spillage)."""
+	var remaining = amount
+	var total_stored := 0.0
 	
-	var available_space = get_available_space(resource_id)
-	var to_store = min(amount, available_space)
+	for pool in storage_pools:
+		if remaining <= 0:
+			break
+		var stored = pool.add(resource_id, remaining)
+		total_stored += stored
+		remaining -= stored
 	
-	stored_resources[resource_id] = get_stored_amount(resource_id) + to_store
-	return to_store
+	return total_stored
 
 func remove_resource(resource_id: String, amount: float) -> float:
-	"""
-	Remove resources from storage. Returns the amount actually removed.
-	"""
-	var stored = get_stored_amount(resource_id)
-	var to_remove = min(amount, stored)
+	"""Remove resources from storage pools. Returns amount actually removed.
+	Scans all pools for this resource."""
+	var remaining = amount
+	var total_removed := 0.0
 	
-	stored_resources[resource_id] = stored - to_remove
-	return to_remove
+	for pool in storage_pools:
+		if remaining <= 0:
+			break
+		var removed = pool.remove(resource_id, remaining)
+		total_removed += removed
+		remaining -= removed
+	
+	return total_removed
 
 func get_all_stored_resources() -> Dictionary:
-	"""Get a copy of all stored resources"""
-	return stored_resources.duplicate()
+	"""Get a combined view of all stored resources across all pools."""
+	var result := {}
+	for pool in storage_pools:
+		for res_id in pool.stored.keys():
+			result[res_id] = result.get(res_id, 0.0) + pool.stored[res_id]
+	return result
+
+func get_resources_by_tag(tag: String) -> Dictionary:
+	"""Get all stored resources that have a specific tag. Returns {resource_id: amount}."""
+	var result := {}
+	var all_stored = get_all_stored_resources()
+	for res_id in all_stored.keys():
+		if Registry.resources.has_tag(res_id, tag):
+			result[res_id] = all_stored[res_id]
+	return result
+
+func remove_resource_by_tag(tag: String, amount: float) -> Dictionary:
+	"""Remove resources by tag, consuming from the most abundant first.
+	Returns {resource_id: amount_removed} for each resource consumed."""
+	var tagged = get_resources_by_tag(tag)
+	if tagged.is_empty():
+		return {}
+	
+	# Sort by abundance (most first), alphabetical tiebreaker
+	var sorted_ids := tagged.keys()
+	sorted_ids.sort_custom(func(a, b):
+		if tagged[a] != tagged[b]:
+			return tagged[a] > tagged[b]
+		return a < b
+	)
+	
+	var result := {}
+	var remaining = amount
+	
+	for res_id in sorted_ids:
+		if remaining <= 0:
+			break
+		var removed = remove_resource(res_id, remaining)
+		if removed > 0:
+			result[res_id] = removed
+			remaining -= removed
+	
+	return result
 
 # === Production & Consumption ===
 
-func get_production() -> Dictionary:
-	"""Get what this building produces per turn"""
-	return Registry.buildings.get_production_per_turn(building_id)
+func get_production() -> Array:
+	"""Get what this building produces per turn (array format)."""
+	return Registry.buildings.get_produces(building_id)
 
-func get_consumption() -> Dictionary:
-	"""Get what this building consumes per turn"""
-	return Registry.buildings.get_consumption_per_turn(building_id)
+func get_consumption() -> Array:
+	"""Get what this building consumes per turn (array format)."""
+	return Registry.buildings.get_consumes(building_id)
 
-func get_penalty() -> Dictionary:
-	"""Get the penalty applied when consumption is not met"""
-	if _building_data.has("per_turn_penalty"):
-		return _building_data.per_turn_penalty
-	return {}
+func get_penalty() -> Array:
+	"""Get the penalty applied when consumption is not met (array format)."""
+	return Registry.buildings.get_penalty(building_id)
 
-func get_research_output() -> Dictionary:
-	"""Get the research output for tech branches"""
-	return Registry.buildings.get_branch_specific_research(building_id)
-
-# === Admin Cost ===
+# === Admin Cost (backward compat) ===
 
 func get_admin_cost(distance_from_center: int) -> float:
-	"""Get the admin cost for this building based on distance"""
+	"""DEPRECATED: Admin cost is now a consumption entry. This wraps for backward compat."""
 	if is_disabled():
-		# Disabled buildings may have reduced admin cost
 		return get_disabled_admin_cost()
 	return Registry.buildings.get_admin_cost(building_id, distance_from_center)
 
@@ -328,35 +454,48 @@ func get_disabled_admin_cost() -> float:
 		return _building_data.disabled_admin_cost
 	return 0.0
 
+# === Research Output (backward compat) ===
+
+func get_research_output() -> Dictionary:
+	"""DEPRECATED: Research is now in produces array. This wraps for backward compat."""
+	return Registry.buildings.get_branch_specific_research(building_id)
+
 # === Decay ===
 
 func get_decay_reduction(resource_id: String) -> float:
-	"""Get the decay reduction multiplier for a resource (1.0 = no reduction)"""
-	var decay_reduction = Registry.buildings.get_storage_decay_reduction(building_id)
-	return decay_reduction.get(resource_id, 1.0)
+	"""Get the best decay reduction multiplier for a resource across all pools that store it."""
+	var best_reduction := 1.0
+	for pool in storage_pools:
+		if pool.get_stored_amount(resource_id) > 0:
+			var reduction = pool.get_decay_reduction_for(resource_id)
+			best_reduction = min(best_reduction, reduction)
+	return best_reduction
 
 func apply_decay(adjacency_decay_bonus: Dictionary = {}) -> Dictionary:
-	"""Apply decay to stored resources. Returns dictionary of decayed amounts.
-	adjacency_decay_bonus: resource_id -> float modifier from nearby buildings (negative = less decay)"""
+	"""Apply decay to stored resources across all pools. Returns dictionary of decayed amounts.
+	adjacency_decay_bonus: resource_id -> float modifier from nearby buildings."""
 	var decayed: Dictionary = {}
 	
-	for resource_id in stored_resources.keys():
-		var base_decay_rate = Registry.resources.get_decay_rate(resource_id)
-		if base_decay_rate <= 0:
-			continue
-		
-		var decay_modifier = get_decay_reduction(resource_id)
-		# Apply adjacency bonuses (can reduce further, clamp to minimum 0.05)
-		decay_modifier += adjacency_decay_bonus.get(resource_id, 0.0)
-		decay_modifier = max(0.05, decay_modifier)
-		var actual_decay_rate = base_decay_rate * decay_modifier
-		
-		var stored = stored_resources[resource_id]
-		var decay_amount = stored * actual_decay_rate
-		
-		if decay_amount > 0:
-			stored_resources[resource_id] = max(0.0, stored - decay_amount)
-			decayed[resource_id] = decay_amount
+	for pool in storage_pools:
+		for resource_id in pool.stored.keys():
+			var base_decay_rate = Registry.resources.get_decay_rate(resource_id)
+			if base_decay_rate <= 0:
+				continue
+			
+			var decay_modifier = pool.get_decay_reduction_for(resource_id)
+			# Apply adjacency bonuses (can reduce further, clamp to minimum 0.05)
+			decay_modifier += adjacency_decay_bonus.get(resource_id, 0.0)
+			decay_modifier = max(0.05, decay_modifier)
+			var actual_decay_rate = base_decay_rate * decay_modifier
+			
+			var stored = pool.stored[resource_id]
+			var decay_amount = stored * actual_decay_rate
+			
+			if decay_amount > 0:
+				pool.stored[resource_id] = max(0.0, stored - decay_amount)
+				decayed[resource_id] = decayed.get(resource_id, 0.0) + decay_amount
+				if pool.stored[resource_id] <= 0.001:
+					pool.stored.erase(resource_id)
 	
 	return decayed
 
@@ -366,7 +505,6 @@ func can_train_units() -> bool:
 	"""Check if this building can train any units"""
 	if not is_operational():
 		return false
-	# Check if any unit lists this building in trained_at
 	for unit_id in Registry.units.get_all_unit_ids():
 		var trained_at = Registry.units.get_trained_at(unit_id)
 		if building_id in trained_at:
@@ -413,7 +551,6 @@ func advance_training() -> String:
 	training_turns_remaining -= 1
 	
 	if training_turns_remaining <= 0:
-		# Training complete!
 		var completed_unit = training_unit_id
 		training_unit_id = ""
 		training_turns_remaining = 0
@@ -432,13 +569,17 @@ func get_training_progress_percent() -> float:
 
 func to_dict() -> Dictionary:
 	"""Serialize to dictionary for saving"""
+	var pools_data := []
+	for pool in storage_pools:
+		pools_data.append(pool.to_dict())
+	
 	return {
 		"building_id": building_id,
 		"tile_coord": [tile_coord.x, tile_coord.y],
 		"status": status,
 		"turns_remaining": turns_remaining,
 		"cost_per_turn": cost_per_turn,
-		"stored_resources": stored_resources,
+		"storage_pools": pools_data,
 		"training_unit_id": training_unit_id,
 		"training_turns_remaining": training_turns_remaining,
 		"training_total_turns": training_total_turns,
@@ -455,7 +596,6 @@ static func from_dict(data: Dictionary) -> BuildingInstance:
 	instance.status = data.status
 	instance.turns_remaining = data.get("turns_remaining", 0)
 	instance.cost_per_turn = data.get("cost_per_turn", {})
-	instance.stored_resources = data.get("stored_resources", {})
 	instance.training_unit_id = data.get("training_unit_id", "")
 	instance.training_turns_remaining = data.get("training_turns_remaining", 0)
 	instance.training_total_turns = data.get("training_total_turns", 0)
@@ -463,4 +603,18 @@ static func from_dict(data: Dictionary) -> BuildingInstance:
 	instance.upgrade_turns_remaining = data.get("upgrade_turns_remaining", 0)
 	instance.upgrade_total_turns = data.get("upgrade_total_turns", 0)
 	instance.upgrade_cost_per_turn = data.get("upgrade_cost_per_turn", {})
+	
+	# Load storage pool contents
+	if data.has("storage_pools"):
+		# New format: restore pool stored data
+		var saved_pools = data.storage_pools
+		for i in range(min(saved_pools.size(), instance.storage_pools.size())):
+			instance.storage_pools[i].stored = saved_pools[i].get("stored", {})
+	elif data.has("stored_resources"):
+		# Legacy format: migrate flat stored_resources into pools
+		var old_stored = data.stored_resources
+		for res_id in old_stored.keys():
+			if old_stored[res_id] > 0:
+				instance.add_resource(res_id, old_stored[res_id])
+	
 	return instance

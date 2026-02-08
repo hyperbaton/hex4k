@@ -1,18 +1,5 @@
 {
-	"type": "storable",
-	"category": "population",
-	"flags": {
-		"population": true,
-		"decaying": false,
-		"tradeable": false
-	},
-	"storage": {
-		"max_stack": 0,
-		"decay": {
-			"enabled": false,
-			"base_rate_per_turn": 0.0
-		}
-	},
+	"tags": ["storable", "population"],
 	"visual": {
 		"icon": "res://assets/icons/population.svg",
 		"color": "#FFD700"
