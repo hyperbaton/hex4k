@@ -368,9 +368,12 @@ func _compute_branch_layout(branch_id: String):
 		var parent_milestone = starts_from.get("milestone", "")
 		var parent_y = branch_y_positions.get(parent_branch, 0.0)
 		
-		# Get the X position of the parent milestone
+		# Get the X position of the parent milestone (including parent's own offset)
+		var parent_start_x = 0.0
+		if branch_layouts.has(parent_branch):
+			parent_start_x = branch_layouts[parent_branch].start_x
 		var milestone_level = Registry.tech.get_milestone_level(parent_milestone)
-		fork_from_x = milestone_level * LEVEL_SCALE
+		fork_from_x = parent_start_x + milestone_level * LEVEL_SCALE
 		fork_from_y = parent_y
 		start_x = fork_from_x  # Child branch starts at same X as parent milestone
 	
@@ -385,7 +388,7 @@ func _compute_branch_layout(branch_id: String):
 		
 		milestones_data.append({
 			"id": milestone_id,
-			"x": level * LEVEL_SCALE,
+			"x": start_x + level * LEVEL_SCALE,
 			"visible": is_visible,
 			"unlocked": is_unlocked
 		})
@@ -395,7 +398,7 @@ func _compute_branch_layout(branch_id: String):
 	
 	# Get current progress
 	var progress = Registry.tech.get_branch_progress(branch_id)
-	var progress_x = progress * LEVEL_SCALE
+	var progress_x = start_x + progress * LEVEL_SCALE
 	
 	# Compute end X: max of furthest VISIBLE milestone and current progress, plus padding
 	var furthest_x = start_x  # Baseline
