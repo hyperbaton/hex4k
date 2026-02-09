@@ -1,0 +1,11 @@
+{
+	"tags": ["storable", "decaying", "tradeable"],
+	"decay": {
+		"rate_per_turn": 0.02
+	},
+	"visual": {
+		"icon": "res://assets/icons/grain.svg",
+		"color": "#D4A843"
+	},
+	"milestones_required": ["canal_irrigation"]
+}

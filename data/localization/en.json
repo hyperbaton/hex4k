@@ -121,6 +121,22 @@
 		"research": {
 			"name": "Research",
 			"description": "Advances your knowledge and unlocks new technologies."
+		},
+		"grain": {
+			"name": "Grain",
+			"description": "Harvested cereal crops used for food and brewing. Stores well in dry conditions."
+		},
+		"grapes": {
+			"name": "Grapes",
+			"description": "Ripe fruit from cultivated vines, prized for winemaking. Must be processed quickly before spoiling."
+		},
+		"beer": {
+			"name": "Beer",
+			"description": "Fermented grain beverage that keeps indefinitely. A valuable luxury and trade good."
+		},
+		"wine": {
+			"name": "Wine",
+			"description": "Fermented grape drink that improves with age. A prestigious luxury sought by elites and traders alike."
 		}
 	},
 	"modifier": {
@@ -290,6 +306,10 @@
 			"name": "Tanner",
 			"description": "A workshop where animal hides are scraped, soaked, and worked into supple leather clothing. Benefits from proximity to hunting lodges."
 		},
+		"furwrights_hollow": {
+			"name": "Furwright's Hollow",
+			"description": "A place where animal hides are scraped and stitched into simple clothing."
+		},
 		"apiary": {
 			"name": "Apiary",
 			"description": "A collection of woven skep hives where bees are kept for honey production. Thrives near flowering crops and meadows."
@@ -305,6 +325,22 @@
 		"smoke_house": {
 			"name": "Smoke House",
 			"description": "A low timber structure where meat and fish are cured over smoldering wood. Nearby granaries benefit from reduced food spoilage."
+		},
+		"grain_field": {
+			"name": "Grain Field",
+			"description": "Irrigated fields of emmer and barley fed by canal water. Produces grain for food and brewing."
+		},
+		"brewery": {
+			"name": "Brewery",
+			"description": "A fermentation workshop where grain is soaked, sprouted, and brewed into beer. Benefits from nearby grain fields."
+		},
+		"vineyard": {
+			"name": "Vineyard",
+			"description": "Terraced rows of cultivated grapevines trained on wooden trellises. Thrives on hillsides with good drainage."
+		},
+		"winery": {
+			"name": "Winery",
+			"description": "A stone-walled workshop where grapes are trodden and the juice fermented in clay amphorae. Benefits from nearby vineyards."
 		},
 		"city_center": {
 			"name": "City Center",

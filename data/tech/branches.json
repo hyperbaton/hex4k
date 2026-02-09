@@ -65,10 +65,13 @@
 		"color": "#B8860B",
 		"icon": "res://assets/icons/branches/governance.svg",
 		"starts_from": {
-			"branch": "mysticism",
-			"milestone": "burial_rites"
+			"branch": "philosophy",
+			"milestone": "oral_tradition"
 		},
-		"visibility": { "always_visible": false }
+		"visibility": { 
+			"always_visible": false,
+			"show_when": [{ "branch": "philosophy", "level": 0.1 }]
+		}
 	},
 	"transportation": {
 		"name": "Transportation",
@@ -84,10 +87,13 @@
 		"name": "Communication",
 		"color": "#4169E1",
 		"icon": "res://assets/icons/branches/communication.svg",
-		"starts_from": null,
+		"starts_from": {
+			"branch": "agriculture",
+			"milestone": "canal_irrigation"
+		},
 		"visibility": { 
 			"always_visible": false,
-			"show_when": [{ "branch": "gathering_and_crafting", "level": 15.0 }]
+			"show_when": [{ "branch": "agriculture", "level": 20.0 }]
 		}
 	},
 	"public_administration": {
@@ -96,18 +102,24 @@
 		"icon": "res://assets/icons/branches/public_administration.svg",
 		"starts_from": {
 			"branch": "governance",
-			"milestone": "tribal_councils"
+			"milestone": "administrative_systems"
 		},
-		"visibility": { "always_visible": false }
+		"visibility": { 
+			"always_visible": false,
+			"show_when": [{ "branch": "governance", "level": 2.0 }]
+		}
 	},
 	"commerce": {
 		"name": "Commerce",
 		"color": "#DAA520",
 		"icon": "res://assets/icons/branches/commerce.svg",
-		"starts_from": null,
+		"starts_from": {
+			"branch": "transport",
+			"milestone": "paved_roads"
+		},
 		"visibility": { 
 			"always_visible": false,
-			"show_when": [{ "branch": "gathering_and_crafting", "level": 10.0 }]
+			"show_when": [{ "branch": "transport", "level": 1.0 }]
 		}
 	},
 	"natural_sciences": {
@@ -144,20 +156,26 @@
 		"name": "Medicine",
 		"color": "#DC143C",
 		"icon": "res://assets/icons/branches/medicine.svg",
-		"starts_from": null,
+		"starts_from": {
+			"branch": "gathering_and_crafting",
+			"milestone": "preservation_methods"
+		},
 		"visibility": { 
 			"always_visible": false,
-			"show_when": [{ "branch": "gathering_and_crafting", "level": 5.0 }]
+			"show_when": [{ "branch": "gathering_and_crafting", "level": 15.0 }]
 		}
 	},
 	"warfare": {
 		"name": "Warfare",
 		"color": "#8B0000",
 		"icon": "res://assets/icons/branches/warfare.svg",
-		"starts_from": null,
+		"starts_from": {
+			"branch": "animal_husbandry",
+			"milestone": "riding"
+		},
 		"visibility": { 
 			"always_visible": false,
-			"show_when": [{ "branch": "gathering_and_crafting", "level": 15.0 }]
+			"show_when": [{ "branch": "animal_husbandry", "level": 15.0 }]
 		}
 	},
 	"diplomacy": {
@@ -168,6 +186,9 @@
 			"branch": "governance",
 			"milestone": "tribal_councils"
 		},
-		"visibility": { "always_visible": false }
+		"visibility": { 
+			"always_visible": false,
+			"show_when": [{ "branch": "governance", "level": 1.0 }]
+		}
 	}
 }

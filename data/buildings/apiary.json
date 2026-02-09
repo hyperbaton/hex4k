@@ -34,6 +34,7 @@
 		],
 		"consumes": [
 			{ "resource": "population", "quantity": 0.5 },
+			{ "resource": "pottry", "quantity": 0.2 },
 			{ "resource": "admin_capacity", "quantity": 0.6, "distance_cost": { "multiplier": 0.08, "distance_to": "nearest_source" } }
 		]
 	},

@@ -2,15 +2,16 @@
 	"category": "production",
 	"construction": {
 		"initial_cost": {
-			"wood": 10,
-			"tools": 2
+			"wood": 18,
+			"stone": 6,
+			"pottery": 4
 		},
 		"cost_per_turn": {},
-		"total_turns": 2
+		"total_turns": 3
 	},
 	"requirements": {
-		"terrain_types": ["rolling_hills", "sharp_hills", "steppe", "savannah", "meadow"],
-		"terrain_exclude": ["ocean", "mountain", "lake", "forest"],
+		"terrain_types": ["grassland", "plains", "rolling_hills", "meadow"],
+		"terrain_exclude": ["ocean", "mountain", "lake", "marsh"],
 		"required_modifiers": [],
 		"required_adjacent": {
 			"building_ids": [],
@@ -24,53 +25,50 @@
 			"min_distance": 0
 		},
 		"requires_city_center_connection": true,
-		"milestones_required": ["livestock_domestication"]
+		"milestones_required": ["fermentation"]
 	},
 	"production": {
 		"produces": [
-			{ "resource": "food", "quantity": 4 },
-			{ "resource": "research", "quantity": 0.15, "branch": "animal_husbandry" }
+			{ "resource": "beer", "quantity": 2 },
+			{ "resource": "research", "quantity": 0.15, "branch": "gathering_and_crafting" }
 		],
 		"consumes": [
 			{ "resource": "population", "quantity": 1 },
+			{ "resource": "grain", "quantity": 3 },
+			{ "resource": "wood", "quantity": 0.5 },
 			{ "resource": "admin_capacity", "quantity": 1.0, "distance_cost": { "multiplier": 0.1, "distance_to": "nearest_source" } }
 		]
 	},
 	"per_turn_penalty": [],
 	"adjacency_bonuses": [
 		{
-			"source_type": "terrain",
-			"source_id": "river",
-			"radius": 1,
-			"yields": { "food": 0.5 }
-		},
-		{
-			"source_type": "terrain",
-			"source_id": "lake",
-			"radius": 1,
-			"yields": { "food": 0.5 }
+			"source_type": "building",
+			"source_id": "grain_field",
+			"radius": 2,
+			"yields": { "beer": 0.5 }
 		}
 	],
-	"terrain_bonuses": {
-		"steppe": { "food": 1 },
-		"savannah": { "food": 1 }
-	},
 	"provides": {
-		"storage": []
+		"storage": [
+			{ "capacity": 30, "accepted_resources": ["grain", "beer"] }
+		]
 	},
 	"on_construction_complete": {
+		"resources": {
+			"beer": 2
+		},
 		"research": {
-			"animal_husbandry": 1.0
+			"gathering_and_crafting": 2.0
 		}
 	},
 	"disabled_admin_cost": 0.0,
-	"upgrades_to": "pasture",
+	"upgrades_to": null,
 	"max_per_city": 0,
 	"can_units_stand": false,
 	"has_orientation": false,
 	"is_city_center": false,
 	"visual": {
-		"sprite": "res://assets/buildings/herding_grounds.svg",
-		"color": "#DEB887"
+		"sprite": "res://assets/buildings/brewery.svg",
+		"color": "#C68E3C"
 	}
 }

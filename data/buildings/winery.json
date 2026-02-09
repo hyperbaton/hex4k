@@ -2,15 +2,16 @@
 	"category": "production",
 	"construction": {
 		"initial_cost": {
-			"wood": 12,
-			"tools": 2
+			"wood": 20,
+			"stone": 8,
+			"pottery": 6
 		},
 		"cost_per_turn": {},
-		"total_turns": 2
+		"total_turns": 4
 	},
 	"requirements": {
-		"terrain_types": ["grassland", "plains", "forest", "rolling_hills"],
-		"terrain_exclude": ["ocean", "mountain", "lake"],
+		"terrain_types": ["grassland", "plains", "rolling_hills", "meadow"],
+		"terrain_exclude": ["ocean", "mountain", "lake", "marsh"],
 		"required_modifiers": [],
 		"required_adjacent": {
 			"building_ids": [],
@@ -24,39 +25,40 @@
 			"min_distance": 0
 		},
 		"requires_city_center_connection": true,
-		"milestones_required": ["cordage_and_weaving"]
+		"milestones_required": ["fermentation"]
 	},
 	"production": {
 		"produces": [
-			{ "resource": "clothing", "quantity": 1.5 },
-			{ "resource": "research", "quantity": 0.1, "branch": "gathering_and_crafting" }
+			{ "resource": "wine", "quantity": 2 },
+			{ "resource": "research", "quantity": 0.15, "branch": "gathering_and_crafting" }
 		],
 		"consumes": [
 			{ "resource": "population", "quantity": 1 },
-			{ "resource": "furs", "quantity": 1.5 },
-			{ "resource": "admin_capacity", "quantity": 0.8, "distance_cost": { "multiplier": 0.1, "distance_to": "nearest_source" } }
+			{ "resource": "grapes", "quantity": 3 },
+			{ "resource": "wood", "quantity": 0.5 },
+			{ "resource": "admin_capacity", "quantity": 1.0, "distance_cost": { "multiplier": 0.1, "distance_to": "nearest_source" } }
 		]
 	},
 	"per_turn_penalty": [],
 	"adjacency_bonuses": [
 		{
 			"source_type": "building",
-			"source_id": "hunters_lodge",
+			"source_id": "vineyard",
 			"radius": 2,
-			"yields": { "clothing": 0.25 }
+			"yields": { "wine": 0.5 }
 		}
 	],
 	"provides": {
 		"storage": [
-			{ "capacity": 30, "accepted_resources": ["furs", "clothing"] }
+			{ "capacity": 30, "accepted_resources": ["grapes", "wine"] }
 		]
 	},
 	"on_construction_complete": {
 		"resources": {
-			"clothing": 2
+			"wine": 2
 		},
 		"research": {
-			"gathering_and_crafting": 1.0
+			"gathering_and_crafting": 2.0
 		}
 	},
 	"disabled_admin_cost": 0.0,
@@ -66,7 +68,7 @@
 	"has_orientation": false,
 	"is_city_center": false,
 	"visual": {
-		"sprite": "res://assets/buildings/tanner.svg",
-		"color": "#8B6914"
+		"sprite": "res://assets/buildings/winery.svg",
+		"color": "#722F37"
 	}
 }

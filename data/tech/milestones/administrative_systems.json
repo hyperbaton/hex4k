@@ -1,0 +1,19 @@
+{
+	"name": "Administrative Systems",
+	"description": "Organized management of community affairs",
+	"branch": "governance",
+	"requirements": [
+		{
+			"branch": "governance",
+			"level": 5.0
+		},
+		{
+			"branch": "communication",
+			"level": 0.5
+		}
+	],
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "governance", "level": 2.0 }] },
+	"visual": {
+		"icon": "res://assets/icons/milestones/administrative_systems.png"
+	}
+}

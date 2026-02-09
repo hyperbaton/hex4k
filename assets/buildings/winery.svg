@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Winery - stone building with pressing area and amphorae -->
+  <defs>
+    <linearGradient id="wineryWall" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#9A9080"/>
+      <stop offset="100%" style="stop-color:#7A7060"/>
+    </linearGradient>
+    <linearGradient id="wineLiquid" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B2252;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#722F37"/>
+    </linearGradient>
+    <linearGradient id="amphora" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C4956A"/>
+      <stop offset="100%" style="stop-color:#A07040"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Shadow -->
+  <ellipse cx="32" cy="58" rx="24" ry="5" fill="rgba(0,0,0,0.2)"/>
+
+  <!-- Ground -->
+  <ellipse cx="32" cy="54" rx="26" ry="6" fill="#6A5A3A" stroke="#5A4A2A" stroke-width="0.5"/>
+
+  <!-- Stone structure walls -->
+  <rect x="10" y="24" width="44" height="30" rx="1" fill="url(#wineryWall)" stroke="#5A5040" stroke-width="1"/>
+  <!-- Stone block texture -->
+  <line x1="10" y1="32" x2="54" y2="32" stroke="#6A6050" stroke-width="0.5" opacity="0.5"/>
+  <line x1="10" y1="40" x2="54" y2="40" stroke="#6A6050" stroke-width="0.5" opacity="0.5"/>
+  <line x1="10" y1="48" x2="54" y2="48" stroke="#6A6050" stroke-width="0.5" opacity="0.5"/>
+  <line x1="22" y1="24" x2="22" y2="32" stroke="#6A6050" stroke-width="0.5" opacity="0.4"/>
+  <line x1="42" y1="24" x2="42" y2="32" stroke="#6A6050" stroke-width="0.5" opacity="0.4"/>
+  <line x1="32" y1="32" x2="32" y2="40" stroke="#6A6050" stroke-width="0.5" opacity="0.4"/>
+  <line x1="18" y1="40" x2="18" y2="48" stroke="#6A6050" stroke-width="0.5" opacity="0.4"/>
+  <line x1="46" y1="40" x2="46" y2="48" stroke="#6A6050" stroke-width="0.5" opacity="0.4"/>
+
+  <!-- Roof -->
+  <path d="M6,24 L32,8 L58,24 Z" fill="#8B7355" stroke="#6B5230" stroke-width="1"/>
+  <line x1="32" y1="8" x2="32" y2="24" stroke="#6B5230" stroke-width="0.5"/>
+
+  <!-- Open workspace interior -->
+  <rect x="14" y="30" width="36" height="24" fill="#3D2B1F"/>
+
+  <!-- Treading basin (stone press basin) -->
+  <rect x="18" y="34" width="16" height="10" rx="1" fill="#706858" stroke="#5A5040" stroke-width="0.8"/>
+  <rect x="19" y="35" width="14" height="8" rx="1" fill="url(#wineLiquid)"/>
+  <!-- Grape mash in basin -->
+  <circle cx="23" cy="38" r="1" fill="#9B3060" opacity="0.5"/>
+  <circle cx="26" cy="36.5" r="0.8" fill="#8B2050" opacity="0.4"/>
+  <circle cx="29" cy="39" r="0.9" fill="#9B3060" opacity="0.5"/>
+
+  <!-- Spout draining into vessel -->
+  <line x1="26" y1="44" x2="26" y2="48" stroke="#722F37" stroke-width="1.5"/>
+  <path d="M23,48 Q23,52 25,54 L27,54 Q29,52 29,48 Z" fill="url(#amphora)" stroke="#6B4226" stroke-width="0.5"/>
+
+  <!-- Amphorae storage (right side) -->
+  <g transform="translate(38,36)">
+    <path d="M0,18 Q-1,8 2,2 Q4,0 6,2 Q9,8 8,18 Z" fill="url(#amphora)" stroke="#6B4226" stroke-width="0.8"/>
+    <ellipse cx="4" cy="2" rx="3" ry="1.2" fill="#C4956A" stroke="#6B4226" stroke-width="0.5"/>
+    <!-- Wine inside -->
+    <ellipse cx="4" cy="3" rx="2" ry="0.8" fill="url(#wineLiquid)"/>
+    <!-- Handles -->
+    <path d="M1,4 Q-1,6 0,8" stroke="#A07040" stroke-width="1" fill="none"/>
+    <path d="M7,4 Q9,6 8,8" stroke="#A07040" stroke-width="1" fill="none"/>
+  </g>
+
+  <!-- Second amphora -->
+  <g transform="translate(46,38)">
+    <path d="M0,16 Q-1,6 2,2 Q3.5,0 5,2 Q8,6 7,16 Z" fill="url(#amphora)" stroke="#6B4226" stroke-width="0.7"/>
+    <ellipse cx="3.5" cy="2" rx="2.5" ry="1" fill="#C4956A" stroke="#6B4226" stroke-width="0.5"/>
+    <ellipse cx="3.5" cy="3" rx="1.5" ry="0.7" fill="url(#wineLiquid)"/>
+  </g>
+
+  <!-- Grape basket outside -->
+  <g transform="translate(2,44)">
+    <path d="M0,10 L2,0 L10,0 L12,10 Z" fill="#C4A67A" stroke="#8B7355" stroke-width="0.5"/>
+    <line x1="2" y1="3" x2="10" y2="3" stroke="#A08050" stroke-width="0.5"/>
+    <line x1="1" y1="6" x2="11" y2="6" stroke="#A08050" stroke-width="0.5"/>
+    <!-- Grapes in basket -->
+    <circle cx="4" cy="1" r="1.2" fill="#6B3FA0"/>
+    <circle cx="6.5" cy="0.5" r="1.2" fill="#7B4FB0"/>
+    <circle cx="8.5" cy="1" r="1.2" fill="#6B3FA0"/>
+    <circle cx="5.5" cy="2" r="1" fill="#7B4FB0"/>
+  </g>
+</svg>

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Furwright's Hollow - a sunken workspace for scraping and stitching hides -->
+  <defs>
+    <linearGradient id="earthGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#7A6040"/>
+      <stop offset="100%" style="stop-color:#5A4030"/>
+    </linearGradient>
+    <linearGradient id="hideGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C4A87A"/>
+      <stop offset="100%" style="stop-color:#8B6F4E"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Shadow -->
+  <ellipse cx="32" cy="58" rx="24" ry="5" fill="rgba(0,0,0,0.2)"/>
+
+  <!-- Dug-out hollow in the ground -->
+  <ellipse cx="32" cy="48" rx="26" ry="10" fill="#4A3520" stroke="#3A2510" stroke-width="1"/>
+  <ellipse cx="32" cy="46" rx="24" ry="8" fill="url(#earthGrad)"/>
+
+  <!-- Hide stretching frame - two A-frame posts -->
+  <line x1="14" y1="50" x2="18" y2="16" stroke="#6B5230" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="22" y1="50" x2="18" y2="16" stroke="#6B5230" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="42" y1="50" x2="46" y2="16" stroke="#6B5230" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="50" y1="50" x2="46" y2="16" stroke="#6B5230" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Crossbar -->
+  <line x1="18" y1="16" x2="46" y2="16" stroke="#6B5230" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Stretched hide on frame -->
+  <path d="M20,18 Q24,14 32,14 Q40,14 44,18 L46,34 Q40,38 32,38 Q24,38 18,34 Z" fill="url(#hideGrad)" stroke="#705838" stroke-width="0.8"/>
+  <!-- Hide grain texture -->
+  <line x1="26" y1="18" x2="24" y2="34" stroke="#9C8060" stroke-width="0.4" opacity="0.5"/>
+  <line x1="32" y1="16" x2="32" y2="36" stroke="#9C8060" stroke-width="0.4" opacity="0.5"/>
+  <line x1="38" y1="18" x2="40" y2="34" stroke="#9C8060" stroke-width="0.4" opacity="0.5"/>
+
+  <!-- Lacing holding hide to frame -->
+  <circle cx="21" cy="19" r="0.8" fill="#705838"/>
+  <circle cx="26" cy="16" r="0.8" fill="#705838"/>
+  <circle cx="38" cy="16" r="0.8" fill="#705838"/>
+  <circle cx="43" cy="19" r="0.8" fill="#705838"/>
+  <circle cx="19" cy="30" r="0.8" fill="#705838"/>
+  <circle cx="45" cy="30" r="0.8" fill="#705838"/>
+
+  <!-- Scraping tool leaning on frame -->
+  <line x1="50" y1="22" x2="54" y2="48" stroke="#5A4A3A" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M49,20 L51,20 L52,24 L48,24 Z" fill="#8B8B8B" stroke="#606060" stroke-width="0.5"/>
+
+  <!-- Finished fur pieces in hollow -->
+  <ellipse cx="28" cy="48" rx="5" ry="2.5" fill="#A08060" stroke="#806040" stroke-width="0.5"/>
+  <ellipse cx="38" cy="49" rx="4" ry="2" fill="#B09070" stroke="#906050" stroke-width="0.5"/>
+
+  <!-- Bone needle and sinew thread -->
+  <line x1="8" y1="42" x2="12" y2="46" stroke="#D0C8B0" stroke-width="1" stroke-linecap="round"/>
+  <path d="M8,42 Q6,40 8,38" stroke="#B0A080" stroke-width="0.5" fill="none"/>
+</svg>

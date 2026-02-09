@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Grapes icon - cluster of grapes with vine leaf -->
+  <defs>
+    <radialGradient id="grapeGrad" cx="35%" cy="35%">
+      <stop offset="0%" style="stop-color:#9B5FC0"/>
+      <stop offset="100%" style="stop-color:#5A2D82"/>
+    </radialGradient>
+    <radialGradient id="grapeShine" cx="30%" cy="30%">
+      <stop offset="0%" style="stop-color:#B87FD0;stop-opacity:0.6"/>
+      <stop offset="100%" style="stop-color:#5A2D82;stop-opacity:0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Vine stem -->
+  <path d="M32,4 Q28,8 30,14" stroke="#5A7A2A" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M30,14 Q32,18 32,22" stroke="#5A7A2A" stroke-width="1.5" fill="none"/>
+
+  <!-- Vine leaf -->
+  <path d="M32,6 Q42,2 46,8 Q48,14 42,16 Q38,14 36,10 Q34,8 32,6 Z" fill="#4A8A3A" stroke="#3A6A2A" stroke-width="0.8"/>
+  <line x1="36" y1="8" x2="42" y2="12" stroke="#3A6A2A" stroke-width="0.5"/>
+  <line x1="38" y1="6" x2="44" y2="10" stroke="#3A6A2A" stroke-width="0.5"/>
+
+  <!-- Tendril -->
+  <path d="M28,8 Q22,4 20,8 Q18,12 22,12" stroke="#5A7A2A" stroke-width="0.8" fill="none"/>
+
+  <!-- Grape cluster - pyramid arrangement -->
+  <!-- Row 1 (top) -->
+  <circle cx="32" cy="24" r="4" fill="url(#grapeGrad)"/>
+  <circle cx="32" cy="24" r="4" fill="url(#grapeShine)"/>
+
+  <!-- Row 2 -->
+  <circle cx="26" cy="30" r="4" fill="url(#grapeGrad)"/>
+  <circle cx="26" cy="30" r="4" fill="url(#grapeShine)"/>
+  <circle cx="38" cy="30" r="4" fill="url(#grapeGrad)"/>
+  <circle cx="38" cy="30" r="4" fill="url(#grapeShine)"/>
+
+  <!-- Row 3 -->
+  <circle cx="20" cy="36" r="4" fill="url(#grapeGrad)"/>
+  <circle cx="20" cy="36" r="4" fill="url(#grapeShine)"/>
+  <circle cx="32" cy="36" r="4" fill="url(#grapeGrad)"/>
+  <circle cx="32" cy="36" r="4" fill="url(#grapeShine)"/>
+  <circle cx="44" cy="36" r="4" fill="url(#grapeGrad)"/>
+  <circle cx="44" cy="36" r="4" fill="url(#grapeShine)"/>
+
+  <!-- Row 4 -->
+  <circle cx="26" cy="42" r="4" fill="url(#grapeGrad)"/>
+  <circle cx="26" cy="42" r="4" fill="url(#grapeShine)"/>
+  <circle cx="38" cy="42" r="4" fill="url(#grapeGrad)"/>
+  <circle cx="38" cy="42" r="4" fill="url(#grapeShine)"/>
+
+  <!-- Row 5 (bottom) -->
+  <circle cx="20" cy="48" r="4" fill="url(#grapeGrad)"/>
+  <circle cx="20" cy="48" r="4" fill="url(#grapeShine)"/>
+  <circle cx="32" cy="48" r="4" fill="url(#grapeGrad)"/>
+  <circle cx="32" cy="48" r="4" fill="url(#grapeShine)"/>
+  <circle cx="44" cy="48" r="4" fill="url(#grapeGrad)"/>
+  <circle cx="44" cy="48" r="4" fill="url(#grapeShine)"/>
+
+  <!-- Row 6 (tip) -->
+  <circle cx="26" cy="54" r="3.5" fill="url(#grapeGrad)"/>
+  <circle cx="26" cy="54" r="3.5" fill="url(#grapeShine)"/>
+  <circle cx="38" cy="54" r="3.5" fill="url(#grapeGrad)"/>
+  <circle cx="38" cy="54" r="3.5" fill="url(#grapeShine)"/>
+
+  <!-- Bottom tip -->
+  <circle cx="32" cy="59" r="3" fill="url(#grapeGrad)"/>
+  <circle cx="32" cy="59" r="3" fill="url(#grapeShine)"/>
+</svg>

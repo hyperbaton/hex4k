@@ -1,0 +1,8 @@
+{
+	"tags": ["storable", "tradeable", "luxury"],
+	"visual": {
+		"icon": "res://assets/icons/beer.svg",
+		"color": "#C68E3C"
+	},
+	"milestones_required": ["fermentation"]
+}

@@ -1,0 +1,16 @@
+{
+	"name": "Tribal Councils",
+	"description": "Collective decision-making among community elders",
+	"flavor_text": "Wisdom emerges from many voices.",
+	"branch": "governance",
+	"requirements": [
+		{
+			"branch": "governance",
+			"level": 1.0
+		}
+	],
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "philosophy", "level": 2.0 }] },
+	"visual": {
+		"icon": "res://assets/icons/milestones/tribal_councils.png"
+	}
+}

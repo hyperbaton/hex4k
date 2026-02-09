@@ -2,15 +2,16 @@
 	"category": "production",
 	"construction": {
 		"initial_cost": {
-			"wood": 10,
-			"tools": 2
+			"wood": 15,
+			"tools": 6,
+			"stone": 4
 		},
 		"cost_per_turn": {},
-		"total_turns": 2
+		"total_turns": 3
 	},
 	"requirements": {
-		"terrain_types": ["rolling_hills", "sharp_hills", "steppe", "savannah", "meadow"],
-		"terrain_exclude": ["ocean", "mountain", "lake", "forest"],
+		"terrain_types": ["plains", "meadow", "floodplains", "grassland"],
+		"terrain_exclude": ["ocean", "mountain", "lake", "forest", "marsh"],
 		"required_modifiers": [],
 		"required_adjacent": {
 			"building_ids": [],
@@ -24,15 +25,16 @@
 			"min_distance": 0
 		},
 		"requires_city_center_connection": true,
-		"milestones_required": ["livestock_domestication"]
+		"milestones_required": ["canal_irrigation"]
 	},
 	"production": {
 		"produces": [
-			{ "resource": "food", "quantity": 4 },
-			{ "resource": "research", "quantity": 0.15, "branch": "animal_husbandry" }
+			{ "resource": "grain", "quantity": 6 },
+			{ "resource": "research", "quantity": 0.2, "branch": "agriculture" }
 		],
 		"consumes": [
 			{ "resource": "population", "quantity": 1 },
+			{ "resource": "tools", "quantity": 0.5 },
 			{ "resource": "admin_capacity", "quantity": 1.0, "distance_cost": { "multiplier": 0.1, "distance_to": "nearest_source" } }
 		]
 	},
@@ -42,35 +44,36 @@
 			"source_type": "terrain",
 			"source_id": "river",
 			"radius": 1,
-			"yields": { "food": 0.5 }
+			"yields": { "grain": 1.5 }
 		},
 		{
 			"source_type": "terrain",
 			"source_id": "lake",
 			"radius": 1,
-			"yields": { "food": 0.5 }
+			"yields": { "grain": 1.0 }
 		}
 	],
 	"terrain_bonuses": {
-		"steppe": { "food": 1 },
-		"savannah": { "food": 1 }
+		"floodplains": {
+			"grain": 2
+		}
 	},
 	"provides": {
 		"storage": []
 	},
 	"on_construction_complete": {
 		"research": {
-			"animal_husbandry": 1.0
+			"agriculture": 3.0
 		}
 	},
 	"disabled_admin_cost": 0.0,
-	"upgrades_to": "pasture",
+	"upgrades_to": null,
 	"max_per_city": 0,
 	"can_units_stand": false,
 	"has_orientation": false,
 	"is_city_center": false,
 	"visual": {
-		"sprite": "res://assets/buildings/herding_grounds.svg",
-		"color": "#DEB887"
+		"sprite": "res://assets/buildings/grain_field.svg",
+		"color": "#D4A843"
 	}
 }

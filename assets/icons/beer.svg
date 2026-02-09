@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Beer icon - clay drinking vessel with foamy beer -->
+  <defs>
+    <linearGradient id="beerVessel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C4956A"/>
+      <stop offset="100%" style="stop-color:#8B6914"/>
+    </linearGradient>
+    <linearGradient id="beerLiquid" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8B830"/>
+      <stop offset="50%" style="stop-color:#C68E3C"/>
+      <stop offset="100%" style="stop-color:#A06A1C"/>
+    </linearGradient>
+    <linearGradient id="beerFoam" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#F5DEB3"/>
+      <stop offset="100%" style="stop-color:#FFFEF0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Vessel body - wide clay cup -->
+  <path d="M14,22 L10,56 Q10,60 16,60 L48,60 Q54,60 54,56 L50,22 Z" fill="url(#beerVessel)" stroke="#6B4226" stroke-width="1.5"/>
+
+  <!-- Vessel rim -->
+  <ellipse cx="32" cy="22" rx="18" ry="5" fill="#C4956A" stroke="#6B4226" stroke-width="1"/>
+
+  <!-- Beer liquid inside -->
+  <ellipse cx="32" cy="22" rx="15" ry="4" fill="url(#beerLiquid)"/>
+
+  <!-- Foam layer -->
+  <ellipse cx="32" cy="20" rx="15" ry="4" fill="url(#beerFoam)"/>
+  <!-- Foam bubbles -->
+  <circle cx="24" cy="19" r="2" fill="#FFFEF0" opacity="0.8"/>
+  <circle cx="30" cy="18" r="2.5" fill="#FFFEF0" opacity="0.7"/>
+  <circle cx="37" cy="19" r="2" fill="#FFFEF0" opacity="0.8"/>
+  <circle cx="42" cy="20" r="1.5" fill="#FFFEF0" opacity="0.6"/>
+  <circle cx="20" cy="20" r="1.5" fill="#FFFEF0" opacity="0.6"/>
+  <circle cx="34" cy="17" r="1.5" fill="#FFFEF0" opacity="0.5"/>
+  <circle cx="27" cy="17.5" r="1.2" fill="#FFFEF0" opacity="0.5"/>
+
+  <!-- Vessel texture - horizontal bands -->
+  <line x1="12" y1="32" x2="52" y2="32" stroke="#A07040" stroke-width="0.8" opacity="0.5"/>
+  <line x1="11" y1="42" x2="53" y2="42" stroke="#A07040" stroke-width="0.8" opacity="0.5"/>
+  <line x1="10" y1="52" x2="54" y2="52" stroke="#A07040" stroke-width="0.8" opacity="0.5"/>
+
+  <!-- Decorative pattern on vessel -->
+  <path d="M18,36 L22,34 L26,36 L30,34 L34,36 L38,34 L42,36 L46,34" stroke="#8B6914" stroke-width="1" fill="none" opacity="0.6"/>
+
+  <!-- Small grain decoration on side -->
+  <ellipse cx="24" cy="46" rx="1.5" ry="3" fill="#DAA520" opacity="0.4" transform="rotate(-10,24,46)"/>
+  <ellipse cx="40" cy="46" rx="1.5" ry="3" fill="#DAA520" opacity="0.4" transform="rotate(10,40,46)"/>
+
+  <!-- Foam overflow drip -->
+  <path d="M44,22 Q46,26 44,30" stroke="#F5DEB3" stroke-width="2" fill="none" opacity="0.6" stroke-linecap="round"/>
+  <circle cx="44" cy="31" r="1.5" fill="#F5DEB3" opacity="0.5"/>
+</svg>

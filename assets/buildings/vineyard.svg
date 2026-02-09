@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Vineyard - terraced rows of grapevines on trellises -->
+  <defs>
+    <linearGradient id="vyardSoil" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#6A5040"/>
+      <stop offset="100%" style="stop-color:#4A3020"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Terraced ground rows -->
+  <rect x="2" y="22" width="60" height="12" rx="1" fill="url(#vyardSoil)" stroke="#3A2010" stroke-width="0.5"/>
+  <rect x="2" y="38" width="60" height="12" rx="1" fill="url(#vyardSoil)" stroke="#3A2010" stroke-width="0.5"/>
+  <rect x="2" y="54" width="60" height="8" rx="1" fill="url(#vyardSoil)" stroke="#3A2010" stroke-width="0.5"/>
+
+  <!-- Terrace stone walls -->
+  <rect x="2" y="34" width="60" height="4" fill="#9A9080" stroke="#706858" stroke-width="0.5" rx="1"/>
+  <rect x="2" y="50" width="60" height="4" fill="#9A9080" stroke="#706858" stroke-width="0.5" rx="1"/>
+
+  <!-- Row 1 trellis posts and wires -->
+  <line x1="10" y1="32" x2="10" y2="10" stroke="#6B5230" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="32" x2="32" y2="10" stroke="#6B5230" stroke-width="2" stroke-linecap="round"/>
+  <line x1="54" y1="32" x2="54" y2="10" stroke="#6B5230" stroke-width="2" stroke-linecap="round"/>
+  <line x1="10" y1="14" x2="54" y2="14" stroke="#8B7355" stroke-width="0.8"/>
+  <line x1="10" y1="22" x2="54" y2="22" stroke="#8B7355" stroke-width="0.8"/>
+
+  <!-- Row 1 vine foliage -->
+  <path d="M8,12 Q14,8 20,12 Q26,8 32,12 Q38,8 44,12 Q50,8 56,12" stroke="#3A7A2A" stroke-width="1" fill="none"/>
+  <ellipse cx="14" cy="12" rx="5" ry="4" fill="#4A8A3A" opacity="0.8"/>
+  <ellipse cx="26" cy="11" rx="6" ry="4" fill="#3A7A2A" opacity="0.8"/>
+  <ellipse cx="38" cy="12" rx="5" ry="4" fill="#4A8A3A" opacity="0.8"/>
+  <ellipse cx="50" cy="11" rx="5" ry="4" fill="#3A7A2A" opacity="0.8"/>
+
+  <!-- Row 1 grape clusters -->
+  <g fill="#6B3FA0" stroke="#4A2080" stroke-width="0.3">
+    <circle cx="16" cy="17" r="1.5"/><circle cx="18" cy="18.5" r="1.5"/><circle cx="14" cy="18.5" r="1.5"/><circle cx="16" cy="20" r="1.5"/>
+    <circle cx="28" cy="16" r="1.5"/><circle cx="30" cy="17.5" r="1.5"/><circle cx="26" cy="17.5" r="1.5"/><circle cx="28" cy="19" r="1.5"/>
+    <circle cx="42" cy="17" r="1.5"/><circle cx="44" cy="18.5" r="1.5"/><circle cx="40" cy="18.5" r="1.5"/><circle cx="42" cy="20" r="1.5"/>
+    <circle cx="52" cy="16" r="1.5"/><circle cx="54" cy="17.5" r="1.5"/><circle cx="50" cy="17.5" r="1.5"/>
+  </g>
+
+  <!-- Row 2 trellis posts -->
+  <line x1="10" y1="48" x2="10" y2="30" stroke="#6B5230" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="32" y1="48" x2="32" y2="30" stroke="#6B5230" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="54" y1="48" x2="54" y2="30" stroke="#6B5230" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="10" y1="34" x2="54" y2="34" stroke="#8B7355" stroke-width="0.6"/>
+  <line x1="10" y1="40" x2="54" y2="40" stroke="#8B7355" stroke-width="0.6"/>
+
+  <!-- Row 2 vine foliage (smaller, further away feel) -->
+  <ellipse cx="16" cy="34" rx="5" ry="3" fill="#4A8A3A" opacity="0.7"/>
+  <ellipse cx="30" cy="33" rx="5" ry="3" fill="#3A7A2A" opacity="0.7"/>
+  <ellipse cx="44" cy="34" rx="5" ry="3" fill="#4A8A3A" opacity="0.7"/>
+
+  <!-- Row 2 grape clusters -->
+  <g fill="#7B4FB0" stroke="#5A3090" stroke-width="0.3">
+    <circle cx="16" cy="38" r="1.2"/><circle cx="18" cy="39" r="1.2"/><circle cx="14" cy="39" r="1.2"/>
+    <circle cx="30" cy="37" r="1.2"/><circle cx="32" cy="38" r="1.2"/><circle cx="28" cy="38" r="1.2"/>
+    <circle cx="44" cy="38" r="1.2"/><circle cx="46" cy="39" r="1.2"/><circle cx="42" cy="39" r="1.2"/>
+  </g>
+
+  <!-- Vine tendrils -->
+  <path d="M20,14 Q22,10 24,14" stroke="#2A6A1A" stroke-width="0.5" fill="none"/>
+  <path d="M44,14 Q46,10 48,14" stroke="#2A6A1A" stroke-width="0.5" fill="none"/>
+</svg>

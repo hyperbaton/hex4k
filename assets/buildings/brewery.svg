@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Brewery - ancient fermentation workshop with large clay vessels -->
+  <defs>
+    <linearGradient id="brewWall" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#8B7355"/>
+      <stop offset="100%" style="stop-color:#6B5230"/>
+    </linearGradient>
+    <linearGradient id="brewVessel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C4956A"/>
+      <stop offset="100%" style="stop-color:#8B6914"/>
+    </linearGradient>
+    <linearGradient id="brewLiquid" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8B830;stop-opacity:0.8"/>
+      <stop offset="100%" style="stop-color:#C68E3C"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Shadow -->
+  <ellipse cx="32" cy="58" rx="24" ry="5" fill="rgba(0,0,0,0.2)"/>
+
+  <!-- Ground -->
+  <ellipse cx="32" cy="54" rx="26" ry="6" fill="#6A5A3A" stroke="#5A4A2A" stroke-width="0.5"/>
+
+  <!-- Structure walls -->
+  <rect x="10" y="26" width="44" height="28" rx="2" fill="url(#brewWall)" stroke="#4A3520" stroke-width="1"/>
+
+  <!-- Thatched roof -->
+  <path d="M6,26 L32,10 L58,26 Z" fill="#C4A67A" stroke="#8B7355" stroke-width="1"/>
+  <line x1="20" y1="24" x2="26" y2="16" stroke="#A0845C" stroke-width="0.5" opacity="0.5"/>
+  <line x1="32" y1="22" x2="32" y2="12" stroke="#A0845C" stroke-width="0.5" opacity="0.5"/>
+  <line x1="44" y1="24" x2="38" y2="16" stroke="#A0845C" stroke-width="0.5" opacity="0.5"/>
+
+  <!-- Open front -->
+  <rect x="14" y="32" width="36" height="22" fill="#3D2B1F"/>
+
+  <!-- Large fermentation vessel (center) -->
+  <path d="M26,36 Q24,40 24,46 Q24,52 28,54 L36,54 Q40,52 40,46 Q40,40 38,36 Z" fill="url(#brewVessel)" stroke="#6B4226" stroke-width="1"/>
+  <ellipse cx="32" cy="36" rx="6" ry="2" fill="#C4956A" stroke="#6B4226" stroke-width="0.5"/>
+  <!-- Beer inside -->
+  <ellipse cx="32" cy="37" rx="5" ry="1.5" fill="url(#brewLiquid)"/>
+  <!-- Foam bubbles -->
+  <circle cx="30" cy="36" r="1" fill="#F5DEB3" opacity="0.7"/>
+  <circle cx="33" cy="35.5" r="0.8" fill="#F5DEB3" opacity="0.6"/>
+  <circle cx="35" cy="36.2" r="0.9" fill="#F5DEB3" opacity="0.5"/>
+
+  <!-- Steam/fermentation wisps -->
+  <path d="M30,34 Q28,30 30,26" stroke="#D0C8B0" stroke-width="0.8" fill="none" opacity="0.3"/>
+  <path d="M34,34 Q36,29 34,25" stroke="#D0C8B0" stroke-width="0.8" fill="none" opacity="0.25"/>
+
+  <!-- Smaller vessel left -->
+  <path d="M16,42 Q15,44 15,48 Q15,52 17,54 L21,54 Q23,52 23,48 Q23,44 22,42 Z" fill="url(#brewVessel)" stroke="#6B4226" stroke-width="0.8"/>
+  <ellipse cx="19" cy="42" rx="3" ry="1.2" fill="#C4956A" stroke="#6B4226" stroke-width="0.5"/>
+
+  <!-- Smaller vessel right -->
+  <path d="M42,42 Q41,44 41,48 Q41,52 43,54 L47,54 Q49,52 49,48 Q49,44 48,42 Z" fill="url(#brewVessel)" stroke="#6B4226" stroke-width="0.8"/>
+  <ellipse cx="45" cy="42" rx="3" ry="1.2" fill="#C4956A" stroke="#6B4226" stroke-width="0.5"/>
+
+  <!-- Grain sack outside -->
+  <g transform="translate(52,42)">
+    <path d="M0,12 Q0,0 5,0 Q10,0 10,12 Z" fill="#C4A67A" stroke="#8B7355" stroke-width="0.5"/>
+    <ellipse cx="5" cy="2" rx="4" ry="2" fill="#DAA520" opacity="0.5"/>
+    <line x1="3" y1="0" x2="7" y2="0" stroke="#8B7355" stroke-width="1"/>
+  </g>
+
+  <!-- Stirring paddle leaning -->
+  <line x1="8" y1="18" x2="12" y2="52" stroke="#6B5230" stroke-width="2" stroke-linecap="round"/>
+  <rect x="6" y="14" width="4" height="6" rx="1" fill="#8B7355" stroke="#6B5230" stroke-width="0.5"/>
+</svg>

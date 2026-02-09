@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Wine icon - amphora with dark wine -->
+  <defs>
+    <linearGradient id="wineAmphora" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C4956A"/>
+      <stop offset="100%" style="stop-color:#A07040"/>
+    </linearGradient>
+    <linearGradient id="wineFill" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B2252;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#5A1030"/>
+    </linearGradient>
+    <radialGradient id="wineSheen" cx="30%" cy="30%">
+      <stop offset="0%" style="stop-color:#D4A67A;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#A07040;stop-opacity:0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Amphora body -->
+  <path d="M22,18 Q16,24 14,36 Q12,48 18,56 Q22,60 32,60 Q42,60 46,56 Q52,48 50,36 Q48,24 42,18 Z" fill="url(#wineAmphora)" stroke="#6B4226" stroke-width="1.5"/>
+
+  <!-- Sheen highlight -->
+  <path d="M22,18 Q16,24 14,36 Q12,48 18,56 Q22,60 32,60 Q42,60 46,56 Q52,48 50,36 Q48,24 42,18 Z" fill="url(#wineSheen)"/>
+
+  <!-- Neck -->
+  <rect x="26" y="8" width="12" height="12" rx="2" fill="url(#wineAmphora)" stroke="#6B4226" stroke-width="1"/>
+
+  <!-- Rim -->
+  <ellipse cx="32" cy="8" rx="8" ry="3" fill="#C4956A" stroke="#6B4226" stroke-width="1"/>
+
+  <!-- Wine inside (visible at neck) -->
+  <ellipse cx="32" cy="10" rx="5" ry="2" fill="url(#wineFill)"/>
+
+  <!-- Handles -->
+  <path d="M24,14 Q16,14 16,22 Q16,28 22,28" stroke="#A07040" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M40,14 Q48,14 48,22 Q48,28 42,28" stroke="#A07040" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+  <!-- Handle shadows -->
+  <path d="M24,14 Q16,14 16,22 Q16,28 22,28" stroke="#6B4226" stroke-width="1" fill="none" opacity="0.3"/>
+  <path d="M40,14 Q48,14 48,22 Q48,28 42,28" stroke="#6B4226" stroke-width="1" fill="none" opacity="0.3"/>
+
+  <!-- Decorative band -->
+  <path d="M18,38 Q25,36 32,38 Q39,36 46,38" stroke="#8B6914" stroke-width="1.5" fill="none" opacity="0.5"/>
+  <path d="M16,44 Q24,42 32,44 Q40,42 48,44" stroke="#8B6914" stroke-width="1.5" fill="none" opacity="0.5"/>
+
+  <!-- Wine drip on side -->
+  <path d="M40,18 Q42,22 40,28" stroke="#722F37" stroke-width="2" fill="none" opacity="0.5" stroke-linecap="round"/>
+  <circle cx="40" cy="29" r="1.5" fill="#722F37" opacity="0.4"/>
+
+  <!-- Base -->
+  <ellipse cx="32" cy="60" rx="8" ry="2" fill="#A07040" stroke="#6B4226" stroke-width="0.5"/>
+</svg>

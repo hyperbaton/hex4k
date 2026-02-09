@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Grain icon - sheaf of wheat -->
+  <defs>
+    <linearGradient id="grainHead" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#BDB76B"/>
+      <stop offset="100%" style="stop-color:#DAA520"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Stalks -->
+  <line x1="24" y1="58" x2="28" y2="18" stroke="#8B9A4B" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="58" x2="32" y2="14" stroke="#8B9A4B" stroke-width="2" stroke-linecap="round"/>
+  <line x1="40" y1="58" x2="36" y2="18" stroke="#8B9A4B" stroke-width="2" stroke-linecap="round"/>
+  <line x1="20" y1="56" x2="26" y2="24" stroke="#7A8A3B" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="44" y1="56" x2="38" y2="24" stroke="#7A8A3B" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Binding -->
+  <ellipse cx="32" cy="46" rx="12" ry="3" fill="none" stroke="#8B6914" stroke-width="2"/>
+
+  <!-- Grain heads - left -->
+  <path d="M24,18 Q26,8 26,4" stroke="#DAA520" stroke-width="1.5" fill="none"/>
+  <ellipse cx="26" cy="6" rx="2.5" ry="5" fill="url(#grainHead)" stroke="#B8960B" stroke-width="0.5" transform="rotate(-8,26,6)"/>
+  <line x1="24" y1="12" x2="20" y2="8" stroke="#BDB76B" stroke-width="0.8"/>
+  <line x1="25" y1="14" x2="21" y2="10" stroke="#BDB76B" stroke-width="0.8"/>
+
+  <!-- Grain heads - center -->
+  <path d="M32,14 Q32,6 32,2" stroke="#DAA520" stroke-width="1.5" fill="none"/>
+  <ellipse cx="32" cy="4" rx="2.5" ry="5" fill="url(#grainHead)" stroke="#B8960B" stroke-width="0.5"/>
+  <line x1="30" y1="10" x2="26" y2="6" stroke="#BDB76B" stroke-width="0.8"/>
+  <line x1="34" y1="10" x2="38" y2="6" stroke="#BDB76B" stroke-width="0.8"/>
+
+  <!-- Grain heads - right -->
+  <path d="M40,18 Q38,8 38,4" stroke="#DAA520" stroke-width="1.5" fill="none"/>
+  <ellipse cx="38" cy="6" rx="2.5" ry="5" fill="url(#grainHead)" stroke="#B8960B" stroke-width="0.5" transform="rotate(8,38,6)"/>
+  <line x1="40" y1="12" x2="44" y2="8" stroke="#BDB76B" stroke-width="0.8"/>
+  <line x1="39" y1="14" x2="43" y2="10" stroke="#BDB76B" stroke-width="0.8"/>
+
+  <!-- Outer grain heads -->
+  <ellipse cx="22" cy="14" rx="2" ry="4" fill="url(#grainHead)" stroke="#B8960B" stroke-width="0.5" transform="rotate(-15,22,14)"/>
+  <ellipse cx="42" cy="14" rx="2" ry="4" fill="url(#grainHead)" stroke="#B8960B" stroke-width="0.5" transform="rotate(15,42,14)"/>
+
+  <!-- Scattered grain kernels at base -->
+  <ellipse cx="26" cy="56" rx="1" ry="0.6" fill="#DAA520" transform="rotate(20,26,56)"/>
+  <ellipse cx="36" cy="57" rx="1" ry="0.6" fill="#D4A843" transform="rotate(-10,36,57)"/>
+  <ellipse cx="30" cy="58" rx="1" ry="0.6" fill="#DAA520" transform="rotate(35,30,58)"/>
+</svg>
