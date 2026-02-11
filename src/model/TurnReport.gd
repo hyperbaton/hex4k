@@ -8,6 +8,7 @@ var city_reports: Dictionary = {}  # city_id -> CityTurnReport
 var global_events: Array[Dictionary] = []
 var critical_alerts: Array[Dictionary] = []
 var milestones_unlocked: Array[String] = []
+var perks_unlocked: Array[String] = []
 
 func add_city_report(city_id: String, report: CityTurnReport):
 	city_reports[city_id] = report
@@ -33,6 +34,11 @@ func add_milestone_unlocked(milestone_id: String):
 	milestones_unlocked.append(milestone_id)
 	add_global_event("milestone_unlocked", {"milestone_id": milestone_id})
 	add_critical_alert("milestone", "", "Milestone Unlocked: " + Registry.tech.get_milestone_name(milestone_id), {"milestone_id": milestone_id})
+
+func add_perk_unlocked(perk_id: String):
+	perks_unlocked.append(perk_id)
+	add_global_event("perk_unlocked", {"perk_id": perk_id})
+	add_critical_alert("perk", "", "Perk Unlocked: " + Registry.perks.get_perk_name(perk_id), {"perk_id": perk_id})
 
 func has_critical_alerts() -> bool:
 	return not critical_alerts.is_empty()
@@ -71,16 +77,23 @@ func get_summary() -> String:
 			var unlocks = _get_milestone_unlocks(milestone_id)
 			if not unlocks.is_empty():
 				lines.append("  Unlocks: %s" % ", ".join(unlocks))
-	
+
+	# Show perks after milestones
+	if not perks_unlocked.is_empty():
+		lines.append("")
+		for perk_id in perks_unlocked:
+			var perk_name = Registry.perks.get_perk_name(perk_id)
+			lines.append("\u2605 Perk Unlocked: %s" % perk_name)
+
 	for city_id in city_reports.keys():
 		var report = city_reports[city_id]
 		lines.append("\n[%s]" % city_id)
 		lines.append(report.get_summary())
 	
-	# Show non-milestone critical alerts
+	# Show non-milestone/perk critical alerts
 	var other_alerts: Array[Dictionary] = []
 	for alert in critical_alerts:
-		if alert.type != "milestone":
+		if alert.type != "milestone" and alert.type != "perk":
 			other_alerts.append(alert)
 	
 	if not other_alerts.is_empty():

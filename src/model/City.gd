@@ -222,7 +222,12 @@ func can_place_building(coord: Vector2i, building_id: String) -> Dictionary:
 	var required_milestones = Registry.buildings.get_required_milestones(building_id)
 	if not Registry.has_all_milestones(required_milestones):
 		return {can_place = false, reason = "Missing technology"}
-	
+
+	# Check perk-locked buildings (only available through perk unlocks)
+	if Registry.perks.is_perk_locked_building(building_id):
+		if not owner or building_id not in Registry.perks.get_unlocked_unique_buildings(owner):
+			return {can_place = false, reason = "Requires a civilization perk"}
+
 	# Check cap resources (generic: check all cap resources this building consumes)
 	var consumes = Registry.buildings.get_consumes(building_id)
 	var tile = get_tile(coord)
@@ -783,10 +788,13 @@ func recalculate_city_stats():
 					var dist_cost = entry.get("distance_cost", {})
 					if not dist_cost.is_empty():
 						var multiplier = dist_cost.get("multiplier", 0.0)
+						# Apply perk admin distance modifier
+						var perk_dist_mod = Registry.perks.get_admin_distance_modifier(owner) if owner else 0.0
+						var effective_multiplier = max(0.0, multiplier + perk_dist_mod)
 						var tile: CityTile = tiles.get(coord)
 						var distance = tile.distance_from_center if tile else 0
 						# TODO: Support "nearest_source" distance_to mode
-						used += base_qty + (pow(distance, 2) * multiplier)
+						used += base_qty + (pow(distance, 2) * effective_multiplier)
 					else:
 						used += base_qty
 		

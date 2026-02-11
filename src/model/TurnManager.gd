@@ -83,7 +83,10 @@ func process_turn() -> TurnReport:
 		if milestone_id not in milestones_before:
 			report.add_milestone_unlocked(milestone_id)
 			print("  ★ Milestone unlocked: %s" % Registry.tech.get_milestone_name(milestone_id))
-	
+
+	# Detect perk unlocks for all players
+	_check_perk_unlocks(report)
+
 	last_report = report
 	emit_signal("turn_completed", report)
 	
@@ -244,8 +247,11 @@ func _calculate_building_cap_consumption(instance: BuildingInstance, cap_resourc
 				var tile: CityTile = city.tiles.get(coord)
 				distance = tile.distance_from_center if tile else 0
 			
-			total += base_qty + (pow(distance, 2) * multiplier)
-	
+			# Apply perk admin distance modifier
+			var perk_dist_mod = Registry.perks.get_admin_distance_modifier(city.owner) if city.owner else 0.0
+			var effective_multiplier = max(0.0, multiplier + perk_dist_mod)
+			total += base_qty + (pow(distance, 2) * effective_multiplier)
+
 	return total
 
 func _find_nearest_producer_distance(city: City, from_coord: Vector2i, resource_id: String) -> int:
@@ -304,20 +310,23 @@ func _phase_production(city: City, report: TurnReport.CityTurnReport):
 		
 		# Calculate production bonuses for this building
 		var bonuses = _calculate_production_bonuses(city, coord, instance.building_id)
-		
+
+		# Perk production multiplier for this building type
+		var perk_mult = Registry.perks.get_production_multiplier(city.owner, instance.building_id)
+
 		for entry in produces:
 			var res_id = entry.get("resource", "")
 			if res_id == "":
 				continue
-			
+
 			# Skip cap resources (already handled in Phase 1)
 			if Registry.resources.has_tag(res_id, "cap"):
 				continue
-			
+
 			var base_amount = entry.get("quantity", 0.0)
 			var bonus_amount = bonuses.get(res_id, 0.0)
 			var raw_amount = base_amount + bonus_amount
-			var adjusted_amount = raw_amount * efficiency
+			var adjusted_amount = raw_amount * efficiency * perk_mult
 			
 			# Knowledge resources (flow + knowledge tag) — route to tech tree
 			if Registry.resources.has_tag(res_id, "knowledge"):
@@ -352,6 +361,22 @@ func _phase_production(city: City, report: TurnReport.CityTurnReport):
 				report.add_spillage(res_id, spilled)
 				print("    Spillage: %.1f %s (storage full)" % [spilled, res_id])
 	
+	# Apply global yield bonuses from perks (once per city)
+	var global_bonuses = Registry.perks.get_global_yield_bonuses(city.owner)
+	for res_id in global_bonuses.keys():
+		var bonus = global_bonuses[res_id]
+		if bonus == 0.0:
+			continue
+		if Registry.resources.has_tag(res_id, "cap") or Registry.resources.has_tag(res_id, "flow"):
+			continue
+		var stored = city.store_resource(res_id, bonus)
+		var spilled = bonus - stored
+		report.add_production(res_id, bonus, bonus)
+		if spilled > 0:
+			report.add_spillage(res_id, spilled)
+		if bonus > 0:
+			print("    Perk global bonus: +%.1f %s" % [bonus, res_id])
+
 	print("  Production complete (efficiency: %.0f%%)" % (efficiency * 100))
 
 func _calculate_production_bonuses(city: City, coord: Vector2i, building_id: String) -> Dictionary:
@@ -398,7 +423,13 @@ func _calculate_production_bonuses(city: City, coord: Vector2i, building_id: Str
 			for resource_id in yields.keys():
 				var bonus_per_source = yields[resource_id]
 				bonuses[resource_id] = bonuses.get(resource_id, 0.0) + (bonus_per_source * matching_count)
-	
+
+	# 4. Per-terrain perk yield bonuses
+	if city.owner:
+		var perk_terrain_bonuses = Registry.perks.get_terrain_yield_bonuses(city.owner, terrain_data.terrain_id)
+		for resource_id in perk_terrain_bonuses.keys():
+			bonuses[resource_id] = bonuses.get(resource_id, 0.0) + perk_terrain_bonuses[resource_id]
+
 	return bonuses
 
 func _count_adjacent_sources(coord: Vector2i, source_type: String, source_id: String, radius: int, city: City) -> int:
@@ -625,22 +656,28 @@ func _phase_construction(city: City, report: TurnReport.CityTurnReport):
 			print("    Construction queued (no capacity): %s at %v" % [instance.building_id, coord])
 			continue
 		
-		var cost = instance.cost_per_turn
-		
-		if cost.is_empty():
+		var base_cost = instance.cost_per_turn
+
+		if base_cost.is_empty():
 			instance.set_constructing()
 			var completed = instance.advance_construction()
 			constructions_processed += 1
-			
+
 			if completed:
 				_on_construction_completed(city, instance, report)
 			else:
 				report.add_construction_progressed(coord, instance.building_id, instance.turns_remaining)
 			continue
-		
+
+		# Apply perk construction cost multiplier
+		var perk_cost_mult = Registry.perks.get_construction_cost_multiplier(city.owner, instance.building_id)
+		var cost := {}
+		for resource_id in base_cost.keys():
+			cost[resource_id] = ceili(base_cost[resource_id] * perk_cost_mult)
+
 		var can_afford = true
 		var missing: Dictionary = {}
-		
+
 		for resource_id in cost.keys():
 			var needed = cost[resource_id]
 			var available = city.get_total_resource(resource_id)
@@ -1116,3 +1153,32 @@ func get_current_turn() -> int:
 
 func get_last_report() -> TurnReport:
 	return last_report
+
+# === Perk Unlock Detection ===
+
+func _check_perk_unlocks(report: TurnReport):
+	"""Check all players for newly unlockable perks."""
+	for player in city_manager.get_all_players():
+		var game_state = Registry.perks.build_game_state_for_player(
+			player, city_manager, unit_manager, world_query, current_turn, last_report
+		)
+
+		for perk_id in Registry.perks.get_all_perk_ids():
+			# Skip already-owned perks
+			if player.has_perk(perk_id):
+				continue
+
+			if Registry.perks.check_unlock_conditions(perk_id, game_state):
+				player.add_perk(perk_id)
+				report.add_perk_unlocked(perk_id)
+				print("  ★ Perk unlocked: %s (player: %s)" % [
+					Registry.perks.get_perk_name(perk_id), player.player_name
+				])
+
+				# Apply one-time effects
+				var perk = Registry.perks.get_perk(perk_id)
+				var effects = perk.get("effects", {})
+				var unlock_branch = effects.get("unlocks_tech_branch", null)
+				if unlock_branch and unlock_branch is String and unlock_branch != "":
+					# Tech branch unlocking via perks (reserved for future use)
+					print("    Perk requests tech branch unlock: %s" % unlock_branch)

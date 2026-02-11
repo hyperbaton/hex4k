@@ -1,0 +1,33 @@
+{
+	"category": "economic",
+
+	"unlock_conditions": [
+		{ "type": "milestone_unlocked", "milestone": "post_and_lintel" },
+		{ "type": "building_count", "building": "stone_quarry", "min": 2 },
+		{ "type": "tiles_by_terrain", "terrain": "sharp_hills", "min": 3 }
+	],
+
+	"effects": {
+		"building_modifiers": {
+			"stone_quarry": {
+				"production_multiplier": 1.25,
+				"construction_cost_multiplier": 1.0
+			}
+		},
+		"unit_modifiers": {},
+		"yield_bonuses": {
+			"global": { "stone": 1 },
+			"per_terrain_type": {}
+		},
+		"admin_distance_multiplier_modifier": -0.05,
+		"unlocks_tech_branch": null,
+		"unlocks_unique_buildings": []
+	},
+
+	"visual": {
+		"icon": "res://assets/icons/perk_stoneworkers.png",
+		"aesthetic_tag": "stoneworkers"
+	},
+
+	"exclusive_with": []
+}

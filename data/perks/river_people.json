@@ -1,0 +1,39 @@
+{
+	"category": "economic",
+
+	"unlock_conditions": [
+		{ "type": "milestone_unlocked", "milestone": "seed_selection" },
+		{ "type": "building_count", "building": "cultivated_plot", "min": 3 },
+		{ "type": "tiles_by_terrain", "terrain": "floodplains", "min": 4 }
+	],
+
+	"effects": {
+		"building_modifiers": {
+			"cultivated_plot": {
+				"production_multiplier": 1.2,
+				"construction_cost_multiplier": 1.0
+			},
+			"crop_field": {
+				"production_multiplier": 1.15,
+				"construction_cost_multiplier": 1.0
+			}
+		},
+		"unit_modifiers": {},
+		"yield_bonuses": {
+			"global": {},
+			"per_terrain_type": {
+				"floodplains": { "food": 2 }
+			}
+		},
+		"admin_distance_multiplier_modifier": 0.0,
+		"unlocks_tech_branch": null,
+		"unlocks_unique_buildings": []
+	},
+
+	"visual": {
+		"icon": "res://assets/icons/perk_river.png",
+		"aesthetic_tag": "river"
+	},
+
+	"exclusive_with": []
+}

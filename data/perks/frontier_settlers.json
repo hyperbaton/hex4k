@@ -1,0 +1,37 @@
+{
+	"category": "economic",
+
+	"unlock_conditions": [
+		{ "type": "milestone_unlocked", "milestone": "natural_shelter" },
+		{ "type": "building_count", "building": "hut", "min": 4 },
+		{ "type": "city_count", "min": 2 }
+	],
+
+	"effects": {
+		"building_modifiers": {
+			"hut": {
+				"production_multiplier": 1.0,
+				"construction_cost_multiplier": 0.7
+			},
+			"pit_house": {
+				"production_multiplier": 1.0,
+				"construction_cost_multiplier": 0.85
+			}
+		},
+		"unit_modifiers": {},
+		"yield_bonuses": {
+			"global": {},
+			"per_terrain_type": {}
+		},
+		"admin_distance_multiplier_modifier": -0.1,
+		"unlocks_tech_branch": null,
+		"unlocks_unique_buildings": []
+	},
+
+	"visual": {
+		"icon": "res://assets/icons/perk_frontier.png",
+		"aesthetic_tag": "frontier"
+	},
+
+	"exclusive_with": []
+}

@@ -553,6 +553,34 @@
 		"agricultural_society": {
 			"name": "Agricultural Society",
 			"description": "Your civilization has mastered the art of farming, becoming experts in food production."
+		},
+		"pastoral_heritage": {
+			"name": "Pastoral Heritage",
+			"description": "A deep tradition of herding and livestock management, yielding greater returns from grazing lands."
+		},
+		"stoneworkers_tradition": {
+			"name": "Stoneworkers' Tradition",
+			"description": "Generations of stone masonry expertise, improving quarrying efficiency and reducing administrative burden."
+		},
+		"river_people": {
+			"name": "River People",
+			"description": "A culture shaped by fertile riverbanks, skilled at cultivating floodplain crops."
+		},
+		"lore_keepers": {
+			"name": "Lore Keepers",
+			"description": "A society that values oral tradition and knowledge sharing, accelerating the pace of discovery."
+		},
+		"woodland_stewards": {
+			"name": "Woodland Stewards",
+			"description": "Experienced foresters who harvest timber sustainably, maximizing output from wooded lands."
+		},
+		"clay_artisans": {
+			"name": "Clay Artisans",
+			"description": "Master potters and brickmakers whose expertise reduces waste and increases clay product output."
+		},
+		"frontier_settlers": {
+			"name": "Frontier Settlers",
+			"description": "A restless people accustomed to founding new settlements, building shelters quickly and governing far-flung territories."
 		}
 	}
 }

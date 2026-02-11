@@ -2,21 +2,21 @@
 	"category": "economic",
 
 	"unlock_conditions": [
-		{ "type": "milestone_unlocked", "milestone": "seed_selection" },
-		{ "type": "building_count", "building": "crop_field", "min": 5 },
-		{ "type": "turn", "min": 10, "max": 100 }
+		{ "type": "milestone_unlocked", "milestone": "hafted_axes" },
+		{ "type": "building_count", "building": "woodcutter", "min": 3 },
+		{ "type": "tiles_by_terrain", "terrain": "forest", "min": 5 }
 	],
 
 	"effects": {
 		"building_modifiers": {
-			"crop_field": {
+			"woodcutter": {
 				"production_multiplier": 1.25,
-				"construction_cost_multiplier": 0.8
+				"construction_cost_multiplier": 1.0
 			}
 		},
 		"unit_modifiers": {},
 		"yield_bonuses": {
-			"global": { "food": 2 },
+			"global": { "wood": 1 },
 			"per_terrain_type": {}
 		},
 		"admin_distance_multiplier_modifier": 0.0,
@@ -25,8 +25,8 @@
 	},
 
 	"visual": {
-		"icon": "res://assets/icons/perk_agricultural.png",
-		"aesthetic_tag": "agricultural"
+		"icon": "res://assets/icons/perk_woodland.png",
+		"aesthetic_tag": "woodland"
 	},
 
 	"exclusive_with": []

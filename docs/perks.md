@@ -1,6 +1,6 @@
 # Perks
 
-Perks are civilization-wide bonuses that unlock when specific conditions are met. They provide lasting modifiers to buildings, units, yields, and more. Each perk is defined in its own JSON file under `data/perks/`.
+Perks are civilization-wide bonuses that auto-unlock when specific conditions are met at the end of each turn. They provide lasting modifiers to buildings, units, yields, and more. Each perk is defined in its own JSON file under `data/perks/`.
 
 ## File Location
 
@@ -14,24 +14,15 @@ data/perks/<perk_id>.json
 {
   "category": "economic",
 
-  "unlock_conditions": {
-    "milestones_before": {
-      "agriculture_2": true
-    },
-    "milestones_not_researched": {},
-    "cities_with_buildings": {
-      "farm": 5
-    },
-    "tiles_owned_by_terrain": {},
-    "turn_range": {
-      "min": 10,
-      "max": 100
-    }
-  },
+  "unlock_conditions": [
+    { "type": "milestone_unlocked", "milestone": "seed_selection" },
+    { "type": "building_count", "building": "crop_field", "min": 5 },
+    { "type": "turn", "min": 10, "max": 100 }
+  ],
 
   "effects": {
     "building_modifiers": {
-      "farm": {
+      "crop_field": {
         "production_multiplier": 1.25,
         "construction_cost_multiplier": 0.8
       }
@@ -66,24 +57,41 @@ data/perks/<perk_id>.json
 | `"military"` | Combat and unit bonuses |
 | `"scientific"` | Research-focused bonuses |
 
-### `unlock_conditions` (Object, required)
+### `unlock_conditions` (Array, required)
 
-All conditions must be met simultaneously for the perk to unlock.
+Array of condition objects. All conditions must be met simultaneously (AND logic). Each condition has a `type` and type-specific parameters. All numeric conditions support optional `min` and `max` bounds.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `milestones_before` | Object | Milestones that must already be unlocked. Keys are milestone IDs, values are `true` |
-| `milestones_not_researched` | Object | Milestones that must NOT be unlocked |
-| `cities_with_buildings` | Object | Requires cities containing these buildings. Keys are building IDs, values are minimum count |
-| `tiles_owned_by_terrain` | Object | Requires ownership of tiles with specific terrains. Keys are terrain IDs, values are minimum count |
-| `turn_range` | Object | Turn window during which the perk can unlock |
+#### Condition Types
 
-**`turn_range`:**
+| Type | Parameters | Description |
+|------|-----------|-------------|
+| `turn` | `min`, `max` | Current turn number |
+| `milestone_unlocked` | `milestone` | Specific milestone must be unlocked |
+| `milestone_locked` | `milestone` | Specific milestone must NOT be unlocked |
+| `building_count` | `building`, `min`, `max` | Total buildings of this type across all player cities |
+| `tiles_by_terrain` | `terrain`, `min`, `max` | Owned tiles with this terrain type |
+| `tiles_by_modifier` | `modifier`, `min`, `max` | Owned tiles with this modifier |
+| `unit_count` | `unit`, `min`, `max` | Units of this type owned by player |
+| `resource_production` | `resource`, `min`, `max` | Net production per turn (from last turn report) |
+| `resource_stored` | `resource`, `min`, `max` | Total stored across all cities |
+| `city_population` | `min`, `max` | Any single city has population in range |
+| `total_population` | `min`, `max` | Sum of all city populations |
+| `city_count` | `min`, `max` | Number of non-abandoned cities |
+| `total_tiles` | `min`, `max` | Total tiles owned across all cities |
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `min` | int | Earliest turn the perk can unlock |
-| `max` | int | Latest turn; perk cannot unlock after this |
+All `min`/`max` are optional. Omit to skip that bound.
+
+#### Example Conditions
+
+```json
+"unlock_conditions": [
+  { "type": "turn", "min": 15, "max": 150 },
+  { "type": "milestone_unlocked", "milestone": "livestock_domestication" },
+  { "type": "building_count", "building": "herding_grounds", "min": 3 },
+  { "type": "tiles_by_terrain", "terrain": "steppe", "min": 4 },
+  { "type": "city_count", "min": 2 }
+]
+```
 
 ### `effects` (Object, required)
 
@@ -91,7 +99,7 @@ What the perk provides once unlocked.
 
 #### `building_modifiers` (Object)
 
-Per-building modifications. Keys are building IDs:
+Per-building modifications. Keys are building IDs. Multiple perks stack multiplicatively.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -106,15 +114,15 @@ Per-unit modifications (same structure as building modifiers).
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `global` | Object | Resource bonuses applied globally. Keys are resource IDs |
-| `per_terrain_type` | Object | Bonuses per terrain. Keys are terrain IDs, values are resource objects |
+| `global` | Object | Resource bonuses applied once per city per turn. Keys are resource IDs |
+| `per_terrain_type` | Object | Bonuses per terrain type on each building tile. Keys are terrain IDs, values are resource objects |
 
 #### Other Effects
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `admin_distance_multiplier_modifier` | float | Modifies the admin distance cost multiplier |
-| `unlocks_tech_branch` | string/null | Unlocks a tech branch ID |
+| `admin_distance_multiplier_modifier` | float | Added to the admin distance cost multiplier (negative = cheaper) |
+| `unlocks_tech_branch` | string/null | Unlocks a tech branch ID (reserved for future use) |
 | `unlocks_unique_buildings` | Array | Building IDs made available only through this perk |
 
 ### `visual` (Object, optional)
@@ -132,21 +140,19 @@ List of perk IDs that cannot be active at the same time as this perk. If one is 
 
 ### Agricultural Society
 
-Boosts farm production and reduces farm construction cost:
+Boosts crop field production and reduces construction cost:
 
 ```json
 {
   "category": "economic",
-  "unlock_conditions": {
-    "milestones_before": { "agriculture_2": true },
-    "milestones_not_researched": {},
-    "cities_with_buildings": { "farm": 5 },
-    "tiles_owned_by_terrain": {},
-    "turn_range": { "min": 10, "max": 100 }
-  },
+  "unlock_conditions": [
+    { "type": "milestone_unlocked", "milestone": "seed_selection" },
+    { "type": "building_count", "building": "crop_field", "min": 5 },
+    { "type": "turn", "min": 10, "max": 100 }
+  ],
   "effects": {
     "building_modifiers": {
-      "farm": {
+      "crop_field": {
         "production_multiplier": 1.25,
         "construction_cost_multiplier": 0.8
       }
@@ -167,3 +173,19 @@ Boosts farm production and reduces farm construction cost:
   "exclusive_with": []
 }
 ```
+
+## How Perks Work
+
+1. **Detection**: At the end of each turn, after milestone detection, the system checks all unowned perks for every player
+2. **Game State Snapshot**: A comprehensive game state is built including building counts, terrain tiles, unit counts, resource production/storage, population, etc.
+3. **Condition Checking**: Each condition in the `unlock_conditions` array is checked against the snapshot — all must pass
+4. **Auto-Unlock**: When all conditions pass and the perk isn't blocked by `exclusive_with`, it's automatically added to the player
+5. **Effect Application**: Effects are applied continuously during turn processing (production multipliers, yield bonuses, cost reductions)
+6. **UI**: Players can view all perks via the Perks button in the world view — unlocked perks are highlighted, locked perks show their requirements
+
+## Notes
+
+- Perks are permanent once unlocked — they cannot be lost
+- Production multipliers from multiple perks stack multiplicatively
+- Global yield bonuses and admin distance modifiers stack additively
+- Buildings listed in `unlocks_unique_buildings` cannot be built without the perk

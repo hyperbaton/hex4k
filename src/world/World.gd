@@ -20,6 +20,8 @@ var cargo_dialog: CargoDialog
 var end_turn_button: Button
 var turn_label: Label
 var turn_report_panel: PanelContainer
+var perks_panel: PerksPanel
+var perks_button: Button
 
 var current_player_id := "player1"
 
@@ -63,12 +65,17 @@ func _ready():
 	# Create cargo dialog (modal, centered)
 	_create_cargo_dialog()
 	
+	# Create perks panel and button
+	_create_perks_ui()
+
 	# Connect signals
 	chunk_manager.tile_selected.connect(_on_tile_selected)
 	city_overlay.closed.connect(_on_city_overlay_closed)
 	tile_highlighter.tile_clicked.connect(_on_highlighted_tile_clicked)
 	tech_tree_button.pressed.connect(_on_tech_tree_button_pressed)
 	tech_tree_screen.closed.connect(_on_tech_tree_closed)
+	perks_button.pressed.connect(_on_perks_button_pressed)
+	perks_panel.closed.connect(_on_perks_panel_closed)
 	
 	# Start or load world
 	match GameState.mode:
@@ -271,6 +278,11 @@ func _on_end_turn_pressed():
 	end_turn_button.disabled = false
 	end_turn_button.text = "End Turn"
 	
+	# Show toast notifications for perk unlocks
+	for perk_id in report.perks_unlocked:
+		var perk_name = Registry.perks.get_perk_name(perk_id)
+		ToastNotification.show_success("Perk Unlocked: %s" % perk_name, 5.0)
+
 	# Show report if there are critical alerts
 	if report.has_critical_alerts():
 		_show_turn_report(report)
@@ -326,8 +338,8 @@ func _on_report_close_pressed():
 	turn_report_panel.visible = false
 
 func _on_tile_selected(tile: HexTile):
-	# Don't handle tile selection if city overlay or tech tree is open
-	if city_overlay.is_open or tech_tree_screen.is_open:
+	# Don't handle tile selection if city overlay, tech tree, or perks panel is open
+	if city_overlay.is_open or tech_tree_screen.is_open or perks_panel.is_open:
 		return
 	
 	# Don't handle if turn report is showing
@@ -596,6 +608,35 @@ func _on_tech_tree_button_pressed():
 		tech_tree_screen.show_screen()
 
 func _on_tech_tree_closed():
+	pass  # Could re-enable other UI if needed
+
+func _create_perks_ui():
+	"""Create the Perks button and PerksPanel."""
+	# Perks panel (CanvasLayer, created in code)
+	perks_panel = PerksPanel.new()
+	perks_panel.name = "PerksPanel"
+	add_child(perks_panel)
+
+	# Perks button (positioned next to the tech tree button)
+	var ui_root = $UI/Root
+	perks_button = Button.new()
+	perks_button.name = "PerksButton"
+	perks_button.text = "Perks"
+	perks_button.custom_minimum_size = Vector2(80, 36)
+	# Position below tech tree button (top-left area)
+	perks_button.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	perks_button.offset_left = 10
+	perks_button.offset_top = 50
+	perks_button.offset_right = 90
+	perks_button.offset_bottom = 86
+	ui_root.add_child(perks_button)
+
+func _on_perks_button_pressed():
+	if not perks_panel.is_open:
+		var player = city_manager.get_player(current_player_id)
+		perks_panel.show_panel(player)
+
+func _on_perks_panel_closed():
 	pass  # Could re-enable other UI if needed
 
 func _process(_delta):

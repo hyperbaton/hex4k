@@ -1,0 +1,40 @@
+{
+	"category": "economic",
+
+	"unlock_conditions": [
+		{ "type": "milestone_unlocked", "milestone": "pottery_kiln" },
+		{ "type": "building_count", "building": "pottery_kiln", "min": 2 }
+	],
+
+	"effects": {
+		"building_modifiers": {
+			"pottery_kiln": {
+				"production_multiplier": 1.25,
+				"construction_cost_multiplier": 0.85
+			},
+			"brick_kiln": {
+				"production_multiplier": 1.2,
+				"construction_cost_multiplier": 0.9
+			},
+			"clay_pit": {
+				"production_multiplier": 1.15,
+				"construction_cost_multiplier": 1.0
+			}
+		},
+		"unit_modifiers": {},
+		"yield_bonuses": {
+			"global": {},
+			"per_terrain_type": {}
+		},
+		"admin_distance_multiplier_modifier": 0.0,
+		"unlocks_tech_branch": null,
+		"unlocks_unique_buildings": []
+	},
+
+	"visual": {
+		"icon": "res://assets/icons/perk_clay.png",
+		"aesthetic_tag": "clay"
+	},
+
+	"exclusive_with": []
+}

@@ -1,0 +1,36 @@
+{
+	"category": "cultural",
+
+	"unlock_conditions": [
+		{ "type": "milestone_unlocked", "milestone": "oral_tradition" },
+		{ "type": "building_count", "building": "storytellers_fire", "min": 2 }
+	],
+
+	"effects": {
+		"building_modifiers": {
+			"storytellers_fire": {
+				"production_multiplier": 1.3,
+				"construction_cost_multiplier": 1.0
+			},
+			"elders_dwelling": {
+				"production_multiplier": 1.2,
+				"construction_cost_multiplier": 1.0
+			}
+		},
+		"unit_modifiers": {},
+		"yield_bonuses": {
+			"global": { "research": 1 },
+			"per_terrain_type": {}
+		},
+		"admin_distance_multiplier_modifier": 0.0,
+		"unlocks_tech_branch": null,
+		"unlocks_unique_buildings": []
+	},
+
+	"visual": {
+		"icon": "res://assets/icons/perk_lore.png",
+		"aesthetic_tag": "lore"
+	},
+
+	"exclusive_with": []
+}
