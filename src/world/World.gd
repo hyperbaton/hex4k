@@ -765,6 +765,9 @@ func setup_player_start():
 	if explorer:
 		print("✓ Explorer spawned at ", adjacent_coord)
 
+	# Center camera on starting position
+	camera.focus_on_coord(start_coord)
+
 # === Test Setup (temporary) ===
 
 func setup_test_city():
