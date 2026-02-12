@@ -57,6 +57,38 @@ func get_perk_name(perk_id: String) -> String:
 	"""Get localized name for a perk."""
 	return Registry.get_name_label("perk", perk_id)
 
+# === Visibility Checking ===
+
+func is_perk_visible(perk_id: String, game_state: Dictionary, player_perks: Array = []) -> bool:
+	"""Check if a perk should be shown in the UI.
+	Unlocked perks are always visible. For locked perks, checks the visibility
+	field which uses the same condition types as unlock_conditions."""
+	# Unlocked perks are always visible
+	if perk_id in player_perks:
+		return true
+
+	var perk = get_perk(perk_id)
+	if perk.is_empty():
+		return false
+
+	# Check visibility settings
+	if perk.has("visibility"):
+		var visibility = perk.visibility
+
+		# Always visible perks
+		if visibility.get("always_visible", false):
+			return true
+
+		# Check show_when conditions — any one passing is enough (OR logic)
+		if visibility.has("show_when"):
+			for condition in visibility.show_when:
+				if _check_condition(condition, game_state):
+					return true
+			return false
+
+	# Default: visible (no visibility field = always visible, backward compatible)
+	return true
+
 # === Condition Checking ===
 
 func check_unlock_conditions(perk_id: String, game_state: Dictionary) -> bool:

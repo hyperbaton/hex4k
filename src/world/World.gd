@@ -634,7 +634,11 @@ func _create_perks_ui():
 func _on_perks_button_pressed():
 	if not perks_panel.is_open:
 		var player = city_manager.get_player(current_player_id)
-		perks_panel.show_panel(player)
+		var perk_game_state = Registry.perks.build_game_state_for_player(
+			player, city_manager, unit_manager, world_query,
+			turn_manager.get_current_turn(), turn_manager.get_last_report()
+		)
+		perks_panel.show_panel(player, perk_game_state)
 
 func _on_perks_panel_closed():
 	pass  # Could re-enable other UI if needed

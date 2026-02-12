@@ -42,7 +42,14 @@ data/perks/<perk_id>.json
     "aesthetic_tag": "agricultural"
   },
 
-  "exclusive_with": []
+  "exclusive_with": [],
+
+  "visibility": {
+    "always_visible": false,
+    "show_when": [
+      { "type": "milestone_unlocked", "milestone": "seed_selection" }
+    ]
+  }
 }
 ```
 
@@ -136,6 +143,40 @@ Per-unit modifications (same structure as building modifiers).
 
 List of perk IDs that cannot be active at the same time as this perk. If one is already active, the other cannot be unlocked.
 
+### `visibility` (Object, optional)
+
+Controls when the perk is shown in the Perks UI. Unlocked perks are always shown regardless of visibility settings. If omitted, the perk is always visible (backward compatible).
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `always_visible` | bool | If `true`, perk is always shown even when locked. Default: `false` |
+| `show_when` | Array | Array of conditions (same types as `unlock_conditions`). If **any** condition passes (OR logic), the perk is shown. If all fail, the perk is hidden |
+
+The `show_when` conditions use the same condition types as `unlock_conditions` (see Condition Types table above). This allows flexible visibility rules like showing a perk when its prerequisite milestone is unlocked, or when the player has built enough of a certain building.
+
+#### Example Visibility Configurations
+
+```json
+// Show when prerequisite milestone is unlocked (most common)
+"visibility": {
+  "always_visible": false,
+  "show_when": [
+    { "type": "milestone_unlocked", "milestone": "seed_selection" }
+  ]
+}
+
+// Hidden perk — only shown once unlocked
+"visibility": {
+  "always_visible": false,
+  "show_when": []
+}
+
+// Always visible (same as omitting visibility entirely)
+"visibility": {
+  "always_visible": true
+}
+```
+
 ## Example
 
 ### Agricultural Society
@@ -170,7 +211,13 @@ Boosts crop field production and reduces construction cost:
     "icon": "res://assets/icons/perk_agricultural.png",
     "aesthetic_tag": "agricultural"
   },
-  "exclusive_with": []
+  "exclusive_with": [],
+  "visibility": {
+    "always_visible": false,
+    "show_when": [
+      { "type": "milestone_unlocked", "milestone": "seed_selection" }
+    ]
+  }
 }
 ```
 
@@ -181,7 +228,7 @@ Boosts crop field production and reduces construction cost:
 3. **Condition Checking**: Each condition in the `unlock_conditions` array is checked against the snapshot — all must pass
 4. **Auto-Unlock**: When all conditions pass and the perk isn't blocked by `exclusive_with`, it's automatically added to the player
 5. **Effect Application**: Effects are applied continuously during turn processing (production multipliers, yield bonuses, cost reductions)
-6. **UI**: Players can view all perks via the Perks button in the world view — unlocked perks are highlighted, locked perks show their requirements
+6. **UI**: Players can view perks via the Perks button in the world view — unlocked perks are always shown, locked perks are only shown if their `visibility` conditions are met
 
 ## Notes
 

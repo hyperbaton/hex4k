@@ -33,5 +33,12 @@
 		"aesthetic_tag": "frontier"
 	},
 
-	"exclusive_with": []
+	"exclusive_with": [],
+
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{ "type": "milestone_unlocked", "milestone": "natural_shelter" }
+		]
+	}
 }

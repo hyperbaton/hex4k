@@ -20,6 +20,7 @@ const CATEGORY_COLORS = {
 
 var is_open := false
 var player: Player = null
+var game_state: Dictionary = {}
 
 # UI elements
 var background: ColorRect
@@ -103,9 +104,10 @@ func _create_ui():
 	grid_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll_container.add_child(grid_container)
 
-func show_panel(p_player: Player = null):
+func show_panel(p_player: Player = null, p_game_state: Dictionary = {}):
 	"""Show the perks panel for the given player."""
 	player = p_player
+	game_state = p_game_state
 	is_open = true
 	visible = true
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -134,15 +136,16 @@ func _refresh_cards():
 	for child in grid_container.get_children():
 		child.queue_free()
 
-	# Get all perks and sort: unlocked first, then alphabetical
+	# Get all perks and sort: unlocked first, then visible locked, then alphabetical
 	var all_ids = Registry.perks.get_all_perk_ids()
 	var unlocked_ids: Array[String] = []
 	var locked_ids: Array[String] = []
+	var player_perks: Array = player.civilization_perks if player else []
 
 	for perk_id in all_ids:
 		if player and player.has_perk(perk_id):
 			unlocked_ids.append(perk_id)
-		else:
+		elif Registry.perks.is_perk_visible(perk_id, game_state, player_perks):
 			locked_ids.append(perk_id)
 
 	unlocked_ids.sort()

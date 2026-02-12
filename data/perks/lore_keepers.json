@@ -32,5 +32,12 @@
 		"aesthetic_tag": "lore"
 	},
 
-	"exclusive_with": []
+	"exclusive_with": [],
+
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{ "type": "milestone_unlocked", "milestone": "oral_tradition" }
+		]
+	}
 }

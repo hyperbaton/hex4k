@@ -36,5 +36,12 @@
 		"aesthetic_tag": "pastoral"
 	},
 
-	"exclusive_with": []
+	"exclusive_with": [],
+
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{ "type": "milestone_unlocked", "milestone": "livestock_domestication" }
+		]
+	}
 }
