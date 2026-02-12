@@ -157,3 +157,8 @@ func are_modifiers_compatible(modifier_a: String, modifier_b: String) -> bool:
 	var conflicts_b = get_conflicts(modifier_b)
 	
 	return not (modifier_b in conflicts_a or modifier_a in conflicts_b)
+
+func blocks_vision(modifier_id: String) -> bool:
+	"""Check if a modifier blocks line-of-sight"""
+	var modifier = get_modifier(modifier_id)
+	return modifier.get("blocks_vision", false)

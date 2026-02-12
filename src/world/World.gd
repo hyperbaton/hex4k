@@ -14,6 +14,8 @@ var city_tile_dimmer: CityTileDimmer
 var turn_manager: TurnManager
 var unit_manager: UnitManager
 var unit_layer: UnitLayer
+var fog_manager: FogOfWarManager
+var fog_overlay: FogOfWarOverlay
 var unit_ability_bar: UnitAbilityBar
 var unit_info_panel: UnitInfoPanel
 var cargo_dialog: CargoDialog
@@ -52,7 +54,16 @@ func _ready():
 	
 	# Move unit layer above dimmer
 	move_child(unit_layer, city_tile_dimmer.get_index() + 1)
-	
+
+	# Create fog of war manager (logic)
+	fog_manager = FogOfWarManager.new()
+
+	# Create fog of war overlay (visuals, above unit layer)
+	fog_overlay = FogOfWarOverlay.new()
+	fog_overlay.name = "FogOfWarOverlay"
+	add_child(fog_overlay)
+	move_child(fog_overlay, unit_layer.get_index() + 1)
+
 	# Create turn UI
 	_create_turn_ui()
 	
@@ -76,6 +87,12 @@ func _ready():
 	tech_tree_screen.closed.connect(_on_tech_tree_closed)
 	perks_button.pressed.connect(_on_perks_button_pressed)
 	perks_panel.closed.connect(_on_perks_panel_closed)
+
+	# Connect fog of war recalculation triggers
+	unit_manager.unit_moved.connect(_on_fog_trigger_unit_moved)
+	unit_manager.unit_spawned.connect(_on_fog_trigger_unit_changed)
+	unit_manager.unit_destroyed.connect(_on_fog_trigger_unit_changed)
+	city_manager.city_founded.connect(_on_fog_trigger_city_changed)
 	
 	# Start or load world
 	match GameState.mode:
@@ -88,6 +105,15 @@ func _ready():
 	# Create test setup for development
 	setup_test_city()
 	setup_test_tech_progress()
+
+	# Initialize fog of war after city/unit setup
+	fog_manager.initialize(current_player_id, city_manager, unit_manager, world_query)
+	fog_overlay.setup(fog_manager)
+	chunk_manager.fog_manager = fog_manager
+	unit_layer.fog_manager = fog_manager
+	city_manager.fog_manager = fog_manager
+	fog_manager.visibility_changed.connect(unit_layer.update_fog_visibility)
+	fog_manager.recalculate_visibility()
 
 func _create_turn_ui():
 	"""Create the End Turn button and turn counter"""
@@ -302,6 +328,10 @@ func _on_end_turn_pressed():
 	if unit_layer:
 		unit_layer.refresh_all()
 
+	# Recalculate fog of war (city expansions, buildings completed)
+	if fog_manager:
+		fog_manager.recalculate_visibility()
+
 func _update_building_visuals(report: TurnReport):
 	"""Update visual state of buildings after turn processing"""
 	for city_id in report.city_reports.keys():
@@ -353,11 +383,34 @@ func _on_tile_selected(tile: HexTile):
 	# Get tile coordinate
 	var coord = Vector2i(tile.data.q, tile.data.r)
 	print("World._on_tile_selected: coord=", coord)
-	
+
+	# Fog of war checks
+	if fog_manager:
+		var visibility = fog_manager.get_tile_visibility(coord)
+		if visibility == FogOfWarManager.TileVisibility.UNDISCOVERED:
+			return  # Cannot interact with undiscovered tiles
+		if visibility == FogOfWarManager.TileVisibility.EXPLORED:
+			# Show limited info for explored tiles
+			tile_info_panel.show_explored_tile(tile)
+			# Deselect any selected unit
+			if unit_layer.selected_unit:
+				unit_layer.deselect_unit()
+				tile_highlighter.clear_all()
+				if unit_ability_bar:
+					unit_ability_bar.hide_bar()
+				if unit_info_panel:
+					unit_info_panel.hide_panel()
+			return
+
 	# Check for unit at this tile first
 	var unit_at_tile = unit_manager.get_unit_at(coord) if unit_manager else null
 	print("  unit_at_tile: ", unit_at_tile, " (unit_manager exists: ", unit_manager != null, ")")
 	
+	# Hide enemy units in non-visible tiles
+	if unit_at_tile and unit_at_tile.owner_id != current_player_id:
+		if fog_manager and not fog_manager.is_tile_visible(coord):
+			unit_at_tile = null
+
 	if unit_at_tile:
 		print("  Unit found: ", unit_at_tile.unit_id, " owner: ", unit_at_tile.owner_id)
 		# There's a unit here - check if it belongs to the current player
@@ -602,6 +655,20 @@ func _on_ability_requested(ability_id: String, params: Dictionary):
 			unit_info_panel.refresh()
 	else:
 		print("✗ Ability failed: ", result.message)
+
+# === Fog of War Signal Handlers ===
+
+func _on_fog_trigger_unit_moved(_unit: Unit, _from_coord: Vector2i, _to_coord: Vector2i):
+	if fog_manager:
+		fog_manager.recalculate_visibility()
+
+func _on_fog_trigger_unit_changed(_unit: Unit):
+	if fog_manager:
+		fog_manager.recalculate_visibility()
+
+func _on_fog_trigger_city_changed(_city: City):
+	if fog_manager:
+		fog_manager.recalculate_visibility()
 
 func _on_tech_tree_button_pressed():
 	if not tech_tree_screen.is_open:

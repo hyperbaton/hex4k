@@ -2,6 +2,7 @@
 	"type": "terrain_feature",
 	"duration": -1,
 	"stackable": false,
+	"blocks_vision": true,
 	"conflicts_with": ["dense_forest", "sparse_forest", "sparse_jungle"],
 	"conditions": {
 		"terrain_types": ["grassland", "plains", "rolling_hills", "marsh"],

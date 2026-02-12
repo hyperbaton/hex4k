@@ -52,3 +52,13 @@ func has_terrain(id: String) -> bool:
 
 func get_all_terrain_ids() -> Array:
 	return terrains.keys()
+
+func blocks_vision(terrain_id: String) -> bool:
+	"""Check if a terrain type blocks line-of-sight"""
+	var terrain = get_terrain(terrain_id)
+	return terrain.get("blocks_vision", false)
+
+func get_vision_bonus(terrain_id: String) -> int:
+	"""Get the vision bonus granted to units/buildings on this terrain"""
+	var terrain = get_terrain(terrain_id)
+	return terrain.get("vision_bonus", 0)

@@ -7,6 +7,7 @@ class_name CityManager
 var cities: Dictionary = {}  # city_id -> City
 var tile_ownership: Dictionary = {}  # Vector2i -> city_id
 var players: Dictionary = {}  # player_id -> Player
+var fog_manager: FogOfWarManager  # Set by World.gd for expansion checks
 
 signal city_founded(city: City)
 signal city_destroyed(city: City)
@@ -229,6 +230,10 @@ func can_city_expand_to_tile(city_id: String, coord: Vector2i) -> Dictionary:
 			return {can_expand = false, reason = "Tile limit reached (%d/%d)" % [city.get_tile_count(), max_tiles]}
 		return {can_expand = false, reason = "Expansion not allowed for this settlement type"}
 	
+	# Check if tile has been explored (fog of war)
+	if fog_manager and not fog_manager.is_tile_explored(coord):
+		return {can_expand = false, reason = "Unexplored territory"}
+
 	# Check if tile is already owned
 	if is_tile_owned(coord):
 		return {can_expand = false, reason = "Tile already owned"}

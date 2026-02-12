@@ -52,7 +52,8 @@
 			}
 		],
 		"building_capacity": 1,
-		"caravan_capacity": 0
+		"caravan_capacity": 0,
+		"vision": 2
 	},
 	"disabled_admin_cost": 0.0,
 	"disabled_consumption": {},

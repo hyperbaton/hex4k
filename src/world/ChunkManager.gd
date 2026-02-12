@@ -11,6 +11,7 @@ var generator: TileGenerator
 var current_save: String
 
 var selected_tile: HexTile = null
+var fog_manager: FogOfWarManager  # Set by World.gd
 signal tile_selected(tile: HexTile)
 
 func _ready():
@@ -48,6 +49,12 @@ func handle_click(_screen_pos: Vector2):
 	print("Mouse:", world_pos, "→ Hex:", coords)
 
 func select_tile(q: int, r: int):
+	# Block selection of undiscovered tiles
+	if fog_manager:
+		var coord = Vector2i(q, r)
+		if fog_manager.get_tile_visibility(coord) == FogOfWarManager.TileVisibility.UNDISCOVERED:
+			return
+
 	for chunk in get_children():
 		for tile in chunk.get_children():
 			if tile.data.q == q and tile.data.r == r:

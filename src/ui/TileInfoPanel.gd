@@ -70,5 +70,19 @@ func show_tile_view(view: TileView):
 		else:
 			modifiers_label.visible = false
 
+func show_explored_tile(tile: HexTile):
+	"""Show limited info for explored but not currently visible tiles"""
+	visible = true
+	title_label.text = "Explored Tile"
+	coords_label.text = "Coordinates: (%d, %d)" % [tile.data.q, tile.data.r]
+
+	var terrain_name = Registry.localization.get_name("terrain", tile.data.terrain_id)
+	if terrain_name == "":
+		terrain_name = tile.data.terrain_id
+	terrain_label.text = "Terrain: %s\n(Last seen)" % terrain_name
+
+	if modifiers_label:
+		modifiers_label.visible = false
+
 func hide_panel():
 	visible = false

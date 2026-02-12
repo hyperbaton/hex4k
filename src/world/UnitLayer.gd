@@ -6,6 +6,7 @@ class_name UnitLayer
 signal unit_clicked(unit: Unit)
 
 var unit_manager: UnitManager
+var fog_manager: FogOfWarManager  # Set by World.gd
 var unit_sprites: Dictionary = {}  # unit_id -> UnitSprite
 var selected_unit: Unit = null
 
@@ -23,6 +24,7 @@ func setup(p_unit_manager: UnitManager):
 
 func _on_unit_spawned(unit: Unit):
 	_create_unit_sprite(unit)
+	_update_sprite_fog_visibility(unit)
 
 func _on_unit_destroyed(unit: Unit):
 	if unit_sprites.has(unit.unit_id):
@@ -93,3 +95,24 @@ func refresh_all():
 		var sprite = unit_sprites[unit_id]
 		sprite._update_health_bar()
 		sprite._update_movement_indicator()
+	update_fog_visibility()
+
+func update_fog_visibility():
+	"""Show/hide unit sprites based on fog of war state"""
+	if not fog_manager:
+		return
+	for unit_id in unit_sprites.keys():
+		var unit = unit_manager.get_unit(unit_id)
+		if not unit:
+			continue
+		_update_sprite_fog_visibility(unit)
+
+func _update_sprite_fog_visibility(unit: Unit):
+	"""Update a single unit sprite's visibility based on fog"""
+	if not fog_manager or not unit_sprites.has(unit.unit_id):
+		return
+	var sprite = unit_sprites[unit.unit_id]
+	if unit.owner_id == fog_manager.player_id:
+		sprite.visible = true  # Own units always visible
+	else:
+		sprite.visible = fog_manager.is_tile_visible(unit.coord)

@@ -1,6 +1,8 @@
 {
 	"movement_cost": 999.0,
 	"passable": false,
+	"blocks_vision": true,
+	"vision_bonus": 2,
 	"category": "land",
 	"generation": {
 		"altitude_min": 0.95,

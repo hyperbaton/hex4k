@@ -754,7 +754,7 @@ func get_expandable_tile_coords() -> Array[Vector2i]:
 	"""Get all tiles that are adjacent to the city but not part of it"""
 	var expandable: Array[Vector2i] = []
 	var seen := {}
-	
+
 	# For each city tile, check its neighbors
 	for city_coord in current_city.tiles.keys():
 		var neighbors = get_hex_neighbors(city_coord)
@@ -768,10 +768,13 @@ func get_expandable_tile_coords() -> Array[Vector2i]:
 			# Skip if owned by another city
 			if city_manager.is_tile_owned(neighbor):
 				continue
-			
+			# Skip unexplored tiles (fog of war)
+			if city_manager.fog_manager and not city_manager.fog_manager.is_tile_explored(neighbor):
+				continue
+
 			seen[neighbor] = true
 			expandable.append(neighbor)
-	
+
 	return expandable
 
 func get_hex_neighbors(coord: Vector2i) -> Array[Vector2i]:

@@ -54,7 +54,8 @@
 			}
 		],
 		"building_capacity": 1,
-		"caravan_capacity": 0
+		"caravan_capacity": 0,
+		"vision": 2
 	},
 	"on_construction_complete": {
 		"research": {
