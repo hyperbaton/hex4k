@@ -266,6 +266,10 @@
 			"name": "Tribal Camp",
 			"description": "An organized settlement with multiple structures around a central gathering area. Provides greater administrative capacity for expanding communities."
 		},
+		"waycamp_lodge": {
+			"name": "Waycamp Lodge",
+			"description": "A sturdy temporary lodge serving as the center of a seasonal camp. Lighter than a longhouse but sufficient for a forward outpost."
+		},
 		"pit_house": {
 			"name": "Pit House",
 			"description": "A semi-subterranean dwelling with an earth-covered roof. Maintains stable temperatures and accommodates more residents, but requires clothing for comfort."
@@ -532,9 +536,13 @@
 		}
 	},
 	"unit": {
-		"settler": {
-			"name": "Settler",
-			"description": "A group of pioneers ready to establish a new settlement. Can found cities on suitable terrain."
+		"nomadic_band": {
+			"name": "Nomadic Band",
+			"description": "A wandering group of people seeking a place to call home. Can found an encampment on suitable terrain."
+		},
+		"nomadic_expedition": {
+			"name": "Nomadic Expedition",
+			"description": "An organized party of skilled builders sent to establish a seasonal camp in distant lands."
 		},
 		"caravan": {
 			"name": "Caravan",
@@ -581,6 +589,16 @@
 		"frontier_settlers": {
 			"name": "Frontier Settlers",
 			"description": "A restless people accustomed to founding new settlements, building shelters quickly and governing far-flung territories."
+		}
+	},
+	"settlement": {
+		"encampment": {
+			"name": "Encampment",
+			"description": "A permanent settlement built around a longhouse. The foundation of your civilization."
+		},
+		"seasonal_camp": {
+			"name": "Seasonal Camp",
+			"description": "A lighter forward outpost centered on a waycamp lodge. Cheaper to maintain but with fewer resources."
 		}
 	}
 }

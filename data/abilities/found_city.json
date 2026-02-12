@@ -6,44 +6,44 @@
   "category": "civil",
   
   "conditions": [
-    {
-      "type": "not_on_city",
-      "message": "Cannot found a city on existing city territory"
-    },
-    {
-      "type": "terrain_allows_city",
-      "message": "Cannot found a city on this terrain"
-    },
-    {
-      "type": "min_distance_from_city",
-      "distance": 3,
-      "message": "Too close to another city"
-    }
+	{
+	  "type": "not_on_city",
+	  "message": "Cannot found a city on existing city territory"
+	},
+	{
+	  "type": "terrain_allows_city",
+	  "message": "Cannot found a city on this terrain"
+	},
+	{
+	  "type": "min_distance_from_city",
+	  "distance": 3,
+	  "message": "Too close to another city"
+	}
   ],
   
   "costs": {
-    "movement": "all",
-    "consumes_unit": true
+	"movement": "all",
+	"consumes_unit": true
   },
   
   "effects": [
-    {
-      "type": "found_city",
-      "settlement_type": "${settlement_type}",
-      "city_name_prefix": "${city_name_prefix}"
-    }
+	{
+	  "type": "found_city",
+	  "settlement_type": "${settlement_type}",
+	  "city_name_prefix": "${city_name_prefix}"
+	}
   ],
   
   "params": {
-    "settlement_type": {
-      "type": "string",
-      "default": "encampment",
-      "description": "Settlement type to found (determines initial buildings and resources)"
-    },
-    "city_name_prefix": {
-      "type": "string", 
-      "default": "New ",
-      "description": "Prefix for auto-generated city name"
-    }
+	"settlement_type": {
+	  "type": "string",
+	  "default": "encampment",
+	  "description": "Settlement type to found (determines initial buildings and resources)"
+	},
+	"city_name_prefix": {
+	  "type": "string", 
+	  "default": "New ",
+	  "description": "Prefix for auto-generated city name"
+	}
   }
 }

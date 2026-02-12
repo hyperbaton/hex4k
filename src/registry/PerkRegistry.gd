@@ -240,7 +240,7 @@ func build_game_state_for_player(player: Player, city_manager, unit_manager, wor
 				if terrain_data:
 					var tid = terrain_data.terrain_id
 					terrain_counts[tid] = terrain_counts.get(tid, 0) + 1
-					for mod_id in terrain_data.get("modifiers", []):
+					for mod_id in terrain_data.modifiers:
 						modifier_counts[mod_id] = modifier_counts.get(mod_id, 0) + 1
 
 	state["building_counts"] = building_counts
@@ -256,9 +256,9 @@ func build_game_state_for_player(player: Player, city_manager, unit_manager, wor
 	var unit_counts := {}
 	if unit_manager:
 		for unit in unit_manager.get_all_units():
-			if unit.owner == player:
-				var uid = unit.unit_id
-				unit_counts[uid] = unit_counts.get(uid, 0) + 1
+			if unit.owner_id == player.player_id:
+				var utype = unit.unit_type
+				unit_counts[utype] = unit_counts.get(utype, 0) + 1
 	state["unit_counts"] = unit_counts
 
 	# Resource production from last turn report

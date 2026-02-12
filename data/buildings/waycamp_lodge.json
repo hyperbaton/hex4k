@@ -1,0 +1,72 @@
+{
+	"category": "city_center",
+	"construction": {
+		"initial_cost": {},
+		"cost_per_turn": {},
+		"total_turns": 0
+	},
+	"requirements": {
+		"terrain_types": ["grassland", "plains", "forest"],
+		"terrain_exclude": ["ocean", "mountain", "lake"],
+		"required_modifiers": [],
+		"required_adjacent": {
+			"building_ids": [],
+			"building_categories": [],
+			"min_count": 0,
+			"max_distance": 1
+		},
+		"prohibited_adjacent": {
+			"building_ids": [],
+			"building_categories": [],
+			"min_distance": 0
+		},
+		"requires_city_center_connection": false,
+		"milestones_required": []
+	},
+	"production": {
+		"produces": [
+			{ "resource": "population", "quantity": 1 },
+			{ "resource": "admin_capacity", "quantity": 20.0 }
+		],
+		"consumes": [
+			{ "resource": "food", "quantity": 1 }
+		]
+	},
+	"per_turn_penalty": [
+		{ "resource": "population", "quantity": 1 }
+	],
+	"adjacency_bonuses": [],
+	"provides": {
+		"storage": [
+			{
+				"capacity": 8,
+				"accepted_tags": ["population"]
+			},
+			{
+				"capacity": 8,
+				"accepted_resources": ["food"]
+			},
+			{
+				"capacity": 15,
+				"accepted_resources": ["wood", "stone", "tools", "fiber", "clothing", "clay", "pottery", "honey"]
+			}
+		],
+		"building_capacity": 1,
+		"caravan_capacity": 0,
+		"vision": 2
+	},
+	"disabled_admin_cost": 0.0,
+	"disabled_consumption": {},
+	"demolition_cost": {},
+	"on_construction_complete": {},
+	"upgrades_to": null,
+	"max_per_city": 1,
+	"can_units_stand": true,
+	"has_orientation": false,
+	"settlement_types": ["seasonal_camp"],
+	"is_city_center": true,
+	"visual": {
+		"sprite": "res://assets/buildings/longhouse.svg",
+		"color": "#6B8E23"
+	}
+}

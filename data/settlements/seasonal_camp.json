@@ -1,10 +1,10 @@
 {
-	"tags": ["rural"],
+	"tags": ["rural", "seasonal"],
 
 	"tile_costs": [
 		{
 			"resource": "admin_capacity",
-			"base_cost": 0.5,
+			"base_cost": 0.3,
 			"distance_multiplier": 0.1,
 			"distance_exponent": 1,
 			"distance_to": "city_center",
@@ -18,30 +18,23 @@
 	},
 
 	"founding": {
-		"founded_by": "nomadic_band",
-		"initial_buildings": ["longhouse"],
+		"founded_by": "nomadic_expedition",
+		"initial_buildings": ["waycamp_lodge"],
 		"initial_tiles": 1,
 		"initial_resources": {
-			"food": 15,
-			"wood": 10,
-			"stone": 5
+			"food": 10,
+			"wood": 5,
+			"stone": 3
 		}
 	},
 
-	"transitions": [
-		{
-			"target": "village",
-			"trigger": "building_upgrade",
-			"trigger_building": "longhouse",
-			"target_building": "tribal_camp"
-		}
-	],
+	"transitions": [],
 
 	"bonuses": {},
 
 	"visual": {
 		"map_icon": "",
-		"color": "#A0522D",
+		"color": "#6B8E23",
 		"label_prefix": ""
 	},
 

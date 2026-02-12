@@ -1,0 +1,41 @@
+{
+	"category": "civil",
+	"trained_at": [],
+	"milestones_required": [],
+	"training": {
+		"cost": {
+			"food": 50,
+			"wood": 20,
+			"tools": 5
+		},
+		"turns": 5
+	},
+	"stats": {
+		"health": 100,
+		"movement": 2,
+		"vision": 2
+	},
+	"combat": {
+		"attack": 0,
+		"defense": 5,
+		"can_attack": false,
+		"can_capture": false
+	},
+	"movement_type": "foot",
+	"maintenance": {
+		"food": 2
+	},
+	"abilities": [
+		{
+			"ability_id": "found_city",
+			"params": {
+				"settlement_type": "encampment",
+				"city_name_prefix": "New "
+			}
+		}
+	],
+	"visual": {
+		"sprite": "res://assets/units/settler.svg",
+		"color": "#2E8B57"
+	}
+}

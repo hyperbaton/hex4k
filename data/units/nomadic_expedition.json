@@ -1,23 +1,23 @@
 {
 	"category": "civil",
-	"trained_at": ["city_center", "longhouse", "tribal_camp"],
-	"milestones_required": [],
+	"trained_at": ["longhouse", "tribal_camp"],
+	"milestones_required": ["timber_framing"],
 	"training": {
 		"cost": {
-			"food": 50,
-			"wood": 20,
+			"food": 40,
+			"wood": 15,
 			"tools": 5
 		},
-		"turns": 5
+		"turns": 4
 	},
 	"stats": {
-		"health": 100,
-		"movement": 2,
+		"health": 80,
+		"movement": 3,
 		"vision": 2
 	},
 	"combat": {
 		"attack": 0,
-		"defense": 5,
+		"defense": 3,
 		"can_attack": false,
 		"can_capture": false
 	},
@@ -29,13 +29,13 @@
 		{
 			"ability_id": "found_city",
 			"params": {
-				"settlement_type": "encampment",
-				"city_name_prefix": "New "
+				"settlement_type": "seasonal_camp",
+				"city_name_prefix": "Camp "
 			}
 		}
 	],
 	"visual": {
 		"sprite": "res://assets/units/settler.svg",
-		"color": "#2E8B57"
+		"color": "#4682B4"
 	}
 }

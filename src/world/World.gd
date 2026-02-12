@@ -102,8 +102,8 @@ func _ready():
 		GameState.Mode.LOAD_GAME:
 			load_existing_world()
 	
-	# Create test setup for development
-	setup_test_city()
+	# Initialize player and starting units
+	setup_player_start()
 	setup_test_tech_progress()
 
 	# Initialize fog of war after city/unit setup
@@ -742,21 +742,45 @@ func found_city_at_coords(city_name: String, coord: Vector2i, player_id: String)
 	"""Found a city at hex coordinates"""
 	return city_manager.found_city(city_name, coord, player_id)
 
+# === Player Start ===
+
+func setup_player_start():
+	"""Initialize the player with starting units (nomadic band + explorer)"""
+	await get_tree().create_timer(0.5).timeout  # Wait for chunks to load
+
+	# Create player
+	city_manager.create_player(current_player_id, "Test Player")
+
+	# Starting position (will be randomized later)
+	var start_coord = Vector2i(-12, 15)
+	var adjacent_coord = Vector2i(start_coord.x + 1, start_coord.y)
+
+	# Spawn nomadic band (can found first encampment)
+	var band = unit_manager.spawn_unit("nomadic_band", current_player_id, start_coord)
+	if band:
+		print("✓ Nomadic band spawned at ", start_coord)
+
+	# Spawn explorer next to the nomadic band
+	var explorer = unit_manager.spawn_unit("explorer", current_player_id, adjacent_coord)
+	if explorer:
+		print("✓ Explorer spawned at ", adjacent_coord)
+
 # === Test Setup (temporary) ===
 
 func setup_test_city():
-	"""Create a test city for development"""
+	"""Create a test city for development (not called by default)"""
 	await get_tree().create_timer(0.5).timeout  # Wait for chunks to load
-	
-	# Create player
-	city_manager.create_player(current_player_id, "Test Player")
-	
+
+	# Create player if not already created
+	if not city_manager.get_player(current_player_id):
+		city_manager.create_player(current_player_id, "Test Player")
+
 	# Find a suitable location (on land)
 	var test_coord = Vector2i(-12, 15)
-	
+
 	# Found city (encampment settlement type auto-places longhouse as city center)
 	var city = city_manager.found_city("Test City", test_coord, current_player_id)
-	
+
 	if city:
 		print("✓ Test city founded at ", test_coord)
 		print("  Starting resources: food=%d, wood=%d, stone=%d" % [
@@ -765,13 +789,13 @@ func setup_test_city():
 			city.get_total_resource("stone")
 		])
 		print("  Population: %d" % city.get_total_population())
-		
+
 		# Update the visual for the longhouse building
 		var center_tile = chunk_manager.get_tile_at_coord(test_coord)
 		if center_tile:
 			center_tile.set_building("longhouse")
 			print("  Set longhouse building visual on tile")
-		
+
 		print("  Click the city center to open the city overlay!")
 	else:
 		push_warning("Failed to found test city")

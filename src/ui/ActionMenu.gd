@@ -629,13 +629,17 @@ func get_building_categories() -> Array[String]:
 		if not Registry.has_all_milestones(milestones):
 			continue
 		
+		# Check settlement type restriction
+		if current_city and not Registry.settlements.can_build_in(building_id, current_city.settlement_type):
+			continue
+
 		# Check max per city limit
 		var max_per_city = Registry.buildings.get_max_per_city(building_id)
 		if max_per_city > 0 and current_city:
 			var current_count = current_city.count_buildings(building_id)
 			if current_count >= max_per_city:
 				continue  # This building has reached its limit
-		
+
 		# This category has at least one available building
 		categories.append(category)
 		seen[category] = true
@@ -656,13 +660,17 @@ func get_available_buildings_in_category(category: String) -> Array[String]:
 		if not Registry.has_all_milestones(milestones):
 			continue
 		
+		# Check settlement type restriction
+		if current_city and not Registry.settlements.can_build_in(building_id, current_city.settlement_type):
+			continue
+
 		# Check max per city limit
 		var max_per_city = Registry.buildings.get_max_per_city(building_id)
 		if max_per_city > 0 and current_city:
 			var current_count = current_city.count_buildings(building_id)
 			if current_count >= max_per_city:
 				continue  # This building has reached its limit
-		
+
 		buildings.append(building_id)
 	
 	return buildings
