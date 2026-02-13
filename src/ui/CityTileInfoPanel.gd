@@ -817,14 +817,16 @@ func _update_actions_section(city: City):
 	var can_upgrade = city.can_upgrade_building(current_coord)
 	var has_upgrade_path = Registry.buildings.can_upgrade(instance.building_id)
 	
-	# Check if milestones for target building are unlocked
+	# Check if milestones for target building are unlocked and not obsolete
 	var milestones_met = true
+	var target_obsolete = false
 	if has_upgrade_path:
 		var target_id = Registry.buildings.get_upgrade_target(instance.building_id)
 		var required_milestones = Registry.buildings.get_required_milestones(target_id)
 		milestones_met = Registry.has_all_milestones(required_milestones)
-	
-	if has_upgrade_path and not instance.is_upgrading() and milestones_met:
+		target_obsolete = Registry.buildings.is_obsolete(target_id)
+
+	if has_upgrade_path and not instance.is_upgrading() and milestones_met and not target_obsolete:
 		upgrade_button.visible = true
 		upgrade_button.disabled = not can_upgrade.can_upgrade
 		

@@ -126,6 +126,21 @@ func get_milestones_required(id: String) -> Array:
 	var unit = get_unit(id)
 	return unit.get("milestones_required", [])
 
+func get_obsoleted_by(id: String) -> Array:
+	"""Get the list of milestone IDs that obsolete this unit."""
+	var unit = get_unit(id)
+	return unit.get("obsoleted_by", [])
+
+func is_obsolete(id: String) -> bool:
+	"""Check if a unit is obsolete (any milestone in obsoleted_by is unlocked)."""
+	var obsoleted_by = get_obsoleted_by(id)
+	if obsoleted_by.is_empty():
+		return false
+	for milestone_id in obsoleted_by:
+		if Registry.tech.is_milestone_unlocked(milestone_id):
+			return true
+	return false
+
 func is_unit_unlocked(id: String) -> bool:
 	"""Check if a unit is unlocked (all required milestones are unlocked)"""
 	var milestones = get_milestones_required(id)

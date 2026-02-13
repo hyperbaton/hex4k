@@ -223,6 +223,10 @@ func can_place_building(coord: Vector2i, building_id: String) -> Dictionary:
 	if not Registry.has_all_milestones(required_milestones):
 		return {can_place = false, reason = "Missing technology"}
 
+	# Check if building is obsolete
+	if Registry.buildings.is_obsolete(building_id):
+		return {can_place = false, reason = "Obsolete building"}
+
 	# Check perk-locked buildings (only available through perk unlocks)
 	if Registry.perks.is_perk_locked_building(building_id):
 		if not owner or building_id not in Registry.perks.get_unlocked_unique_buildings(owner):
@@ -522,7 +526,12 @@ func can_upgrade_building(coord: Vector2i) -> Dictionary:
 	if not Registry.has_all_milestones(required_milestones):
 		var target_name = Registry.get_name_label("building", target_id)
 		return {can_upgrade = false, reason = "Missing technology for " + target_name, upgrade_info = upgrade_info}
-	
+
+	# Check if target building is obsolete
+	if Registry.buildings.is_obsolete(target_id):
+		var target_name = Registry.get_name_label("building", target_id)
+		return {can_upgrade = false, reason = target_name + " is obsolete", upgrade_info = upgrade_info}
+
 	# Check initial cost
 	var initial_cost = upgrade_info.initial_cost
 	var missing = get_missing_resources(initial_cost)

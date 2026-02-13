@@ -196,6 +196,21 @@ func get_required_milestones(building_id: String) -> Array:
 		return building.requirements.get("milestones_required", [])
 	return []
 
+func get_obsoleted_by(building_id: String) -> Array:
+	"""Get the list of milestone IDs that obsolete this building."""
+	var building = get_building(building_id)
+	return building.get("obsoleted_by", [])
+
+func is_obsolete(building_id: String) -> bool:
+	"""Check if a building is obsolete (any milestone in obsoleted_by is unlocked)."""
+	var obsoleted_by = get_obsoleted_by(building_id)
+	if obsoleted_by.is_empty():
+		return false
+	for milestone_id in obsoleted_by:
+		if Registry.tech.is_milestone_unlocked(milestone_id):
+			return true
+	return false
+
 func get_required_adjacent_modifiers(building_id: String) -> Array:
 	"""Get list of modifier IDs required adjacent to the building"""
 	var building = get_building(building_id)

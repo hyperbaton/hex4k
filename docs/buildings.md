@@ -276,6 +276,7 @@ One-time effects when construction finishes.
 | `demolition_cost` | Object | {} | Resources required to demolish |
 | `upgrades_from` | string/null | null | Building ID this upgrades from |
 | `upgrades_to` | string/null | null | Building ID this can upgrade to |
+| `obsoleted_by` | Array | [] | Milestone IDs. If ANY is unlocked, building can no longer be constructed or targeted by upgrades |
 | `max_per_city` | int | 0 | Maximum instances per city (0 = unlimited) |
 | `can_units_stand` | bool | false | Whether units can occupy this tile |
 | `has_orientation` | bool | false | Whether the building has a directional facing |

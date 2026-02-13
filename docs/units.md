@@ -66,6 +66,10 @@ List of building IDs where this unit can be trained.
 
 Milestone IDs that must be unlocked to train this unit.
 
+### `obsoleted_by` (Array, optional)
+
+Milestone IDs that, when ANY is unlocked, prevent this unit from being trained. Existing units are not affected. Default is empty (never obsolete).
+
 ### `training` (Object, required)
 
 | Field | Type | Description |

@@ -354,7 +354,11 @@ func get_available_units() -> Array[String]:
 		# Check if unit is unlocked
 		if not Registry.units.is_unit_unlocked(unit_id):
 			continue
-		
+
+		# Check if unit is obsolete
+		if Registry.units.is_obsolete(unit_id):
+			continue
+
 		# Check if any of the city's OPERATIONAL buildings can train this unit
 		var trained_at = Registry.units.get_trained_at(unit_id)
 		var can_train = false
@@ -628,7 +632,11 @@ func get_building_categories() -> Array[String]:
 		var milestones = Registry.buildings.get_required_milestones(building_id)
 		if not Registry.has_all_milestones(milestones):
 			continue
-		
+
+		# Check if building is obsolete
+		if Registry.buildings.is_obsolete(building_id):
+			continue
+
 		# Check settlement type restriction
 		if current_city and not Registry.settlements.can_build_in(building_id, current_city.settlement_type):
 			continue
@@ -659,7 +667,11 @@ func get_available_buildings_in_category(category: String) -> Array[String]:
 		var milestones = Registry.buildings.get_required_milestones(building_id)
 		if not Registry.has_all_milestones(milestones):
 			continue
-		
+
+		# Check if building is obsolete
+		if Registry.buildings.is_obsolete(building_id):
+			continue
+
 		# Check settlement type restriction
 		if current_city and not Registry.settlements.can_build_in(building_id, current_city.settlement_type):
 			continue
