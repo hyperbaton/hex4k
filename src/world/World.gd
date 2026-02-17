@@ -532,15 +532,21 @@ func _move_selected_unit_to(coord: Vector2i):
 	var unit = unit_layer.selected_unit
 	if not unit:
 		return
-	
+
+	# Safety check: don't move onto a tile with a friendly unit
+	var existing_unit = unit_manager.get_unit_at(coord)
+	if existing_unit and existing_unit.owner_id == unit.owner_id:
+		print("Cannot move to ", coord, " - tile occupied by friendly unit")
+		return
+
 	# Get movement cost
 	var reachable = unit_manager.get_reachable_tiles(unit, world_query)
 	if not reachable.has(coord):
 		print("Cannot move to ", coord, " - not reachable")
 		return
-	
+
 	var move_cost = reachable[coord]
-	
+
 	# Move the unit
 	var from_coord = unit.coord
 	unit.move_to(coord, move_cost)

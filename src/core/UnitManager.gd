@@ -106,44 +106,45 @@ func _on_unit_destroyed(unit: Unit):
 # === Movement Helpers ===
 
 func get_reachable_tiles(unit: Unit, world_query) -> Dictionary:
-	"""Get all tiles a unit can reach this turn with their movement costs"""
+	"""Get all tiles a unit can reach this turn with their movement costs.
+	Tiles occupied by friendly units are traversable but not valid destinations."""
 	var reachable: Dictionary = {}  # Vector2i -> movement_cost_to_reach
 	var to_check: Array = [[unit.coord, 0]]  # [coord, cost_so_far]
-	
+
 	reachable[unit.coord] = 0
-	
+
 	while not to_check.is_empty():
 		var current = to_check.pop_front()
 		var current_coord: Vector2i = current[0]
 		var current_cost: int = current[1]
-		
+
 		# Get neighbors
 		var neighbors = _get_hex_neighbors(current_coord)
-		
+
 		for neighbor in neighbors:
 			# Get terrain data
 			var terrain_data = world_query.get_terrain_data(neighbor)
 			if not terrain_data:
 				continue  # No terrain data
-			
+
 			var terrain_id = terrain_data.terrain_id
-			
+
 			# Get movement cost (considering modifiers like paths)
 			var move_cost = Registry.units.get_effective_movement_cost(
 				unit.movement_type, terrain_id, terrain_data.modifiers)
 			if move_cost < 0:
 				continue  # Impassable
-			
+
 			var total_cost = current_cost + move_cost
-			
+
 			# Check if within movement range
 			if total_cost > unit.current_movement:
 				continue
-			
+
 			# Check if we already have a cheaper path
 			if reachable.has(neighbor) and reachable[neighbor] <= total_cost:
 				continue
-			
+
 			# Check for enemy units (can't move through them)
 			var units_there = get_units_at(neighbor)
 			var blocked = false
@@ -151,14 +152,29 @@ func get_reachable_tiles(unit: Unit, world_query) -> Dictionary:
 				if other_unit.owner_id != unit.owner_id:
 					blocked = true
 					break
-			
+
 			if blocked:
 				continue
-			
+
 			reachable[neighbor] = total_cost
 			to_check.append([neighbor, total_cost])
-	
+
+	# Remove tiles occupied by friendly units (can path through but not stop on)
+	for coord in reachable.keys():
+		if coord == unit.coord:
+			continue  # Don't remove the unit's own tile
+		if _has_friendly_unit_at(coord, unit.owner_id):
+			reachable.erase(coord)
+
 	return reachable
+
+func _has_friendly_unit_at(coord: Vector2i, owner_id: String) -> bool:
+	"""Check if there's a friendly unit at the given coordinate"""
+	var units_there = get_units_at(coord)
+	for other_unit in units_there:
+		if other_unit.owner_id == owner_id:
+			return true
+	return false
 
 func _get_hex_neighbors(coord: Vector2i) -> Array[Vector2i]:
 	"""Get the 6 adjacent hex coordinates"""
