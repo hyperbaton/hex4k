@@ -10,18 +10,20 @@
 		"requires_modifiers": [],
 		"prohibits_modifiers": ["dense_forest", "dense_jungle", "sparse_jungle"]
 	},
-	"generation": {
-		"spawn_chance": 0.60,
-		"altitude_min": 0.35,
-		"altitude_max": 0.80,
-		"humidity_min": 0.30,
-		"humidity_max": 0.60,
-		"temperature_min": 0.25,
-		"temperature_max": 0.65,
-		"terrain_types": ["grassland", "plains", "rolling_hills", "steppe", "tundra", "sharp_hills"],
-		"cluster_size": 40,
-		"cluster_falloff": 1.2
-	},
+	"generation_rules": [
+		{
+			"spawn_chance": 0.60,
+			"altitude_min": 0.35,
+			"altitude_max": 0.80,
+			"humidity_min": 0.30,
+			"humidity_max": 0.60,
+			"temperature_min": 0.25,
+			"temperature_max": 0.65,
+			"terrain_types": ["grassland", "plains", "rolling_hills", "steppe", "tundra", "sharp_hills"],
+			"cluster_size": 40,
+			"cluster_falloff": 1.2
+		}
+	],
 	"visual": {
 		"icon": "res://assets/icons/modifiers/sparse_forest.svg",
 		"overlay_color": "#2D6B2D30"

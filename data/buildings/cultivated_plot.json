@@ -40,16 +40,8 @@
 	"per_turn_penalty": [],
 	"adjacency_bonuses": [
 		{
-			"source_type": "terrain",
-			"source_id": "river",
-			"radius": 1,
-			"yields": {
-				"food": 1
-			}
-		},
-		{
-			"source_type": "terrain",
-			"source_id": "lake",
+			"source_type": "modifier",
+			"source_id": "fresh_water",
 			"radius": 1,
 			"yields": {
 				"food": 1

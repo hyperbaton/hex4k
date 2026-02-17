@@ -10,18 +10,20 @@
 		"requires_modifiers": [],
 		"prohibits_modifiers": []
 	},
-	"generation": {
-		"spawn_chance": 0.05,
-		"altitude_min": 0.3,
-		"altitude_max": 0.7,
-		"humidity_min": 0.5,
-		"humidity_max": 1.0,
-		"temperature_min": 0.3,
-		"temperature_max": 0.8,
-		"terrain_types": ["grassland", "plains"],
-		"cluster_size": 1.5,
-		"cluster_falloff": 0.8
-	},
+	"generation_rules": [
+		{
+			"spawn_chance": 0.05,
+			"altitude_min": 0.3,
+			"altitude_max": 0.7,
+			"humidity_min": 0.5,
+			"humidity_max": 1.0,
+			"temperature_min": 0.3,
+			"temperature_max": 0.8,
+			"terrain_types": ["grassland", "plains"],
+			"cluster_size": 1.5,
+			"cluster_falloff": 0.8
+		}
+	],
 	"visual": {
 		"icon": "res://assets/icons/fertile_soil.png",
 		"overlay_color": "#4A9B4A80"

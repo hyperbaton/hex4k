@@ -4,24 +4,26 @@
 	"stackable": false,
 	"conflicts_with": [],
 	"conditions": {
-		"terrain_types": ["grassland", "plains", "rolling_hills", "sharp_hills"],
-		"altitude_min": 0.40,
-		"altitude_max": 0.70,
+		"terrain_types": ["grassland", "plains", "rolling_hills", "sharp_hills", "river", "lake"],
+		"altitude_min": 0.0,
+		"altitude_max": 1.0,
 		"requires_modifiers": [],
 		"prohibits_modifiers": []
 	},
-	"generation": {
-		"spawn_chance": 0.04,
-		"altitude_min": 0.42,
-		"altitude_max": 0.65,
-		"humidity_min": 0.50,
-		"humidity_max": 1.0,
-		"temperature_min": 0.25,
-		"temperature_max": 0.75,
-		"terrain_types": ["grassland", "plains", "rolling_hills", "sharp_hills"],
-		"cluster_size": 1,
-		"cluster_falloff": 0.0
-	},
+	"generation_rules": [
+		{
+			"spawn_chance": 1.0,
+			"altitude_min": 0.0,
+			"altitude_max": 1.0,
+			"humidity_min": 0.0,
+			"humidity_max": 1.0,
+			"temperature_min": 0.0,
+			"temperature_max": 1.0,
+			"terrain_types": ["river", "lake"],
+			"cluster_size": 1,
+			"cluster_falloff": 0.0
+		}
+	],
 	"visual": {
 		"icon": "res://assets/icons/modifiers/fresh_water.svg",
 		"overlay_color": "#4169E180"

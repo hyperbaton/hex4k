@@ -10,18 +10,20 @@
 		"requires_modifiers": [],
 		"prohibits_modifiers": []
 	},
-	"generation": {
-		"spawn_chance": 0.30,
-		"altitude_min": 0.15,
-		"altitude_max": 0.32,
-		"humidity_min": 0.0,
-		"humidity_max": 1.0,
-		"temperature_min": 0.20,
-		"temperature_max": 0.85,
-		"terrain_types": ["coast", "ocean", "lake"],
-		"cluster_size": 3,
-		"cluster_falloff": 1.5
-	},
+	"generation_rules": [
+		{
+			"spawn_chance": 0.30,
+			"altitude_min": 0.15,
+			"altitude_max": 0.32,
+			"humidity_min": 0.0,
+			"humidity_max": 1.0,
+			"temperature_min": 0.20,
+			"temperature_max": 0.85,
+			"terrain_types": ["coast", "ocean", "lake"],
+			"cluster_size": 3,
+			"cluster_falloff": 1.5
+		}
+	],
 	"visual": {
 		"icon": "res://assets/icons/modifiers/fish.svg",
 		"overlay_color": "#0288D180"

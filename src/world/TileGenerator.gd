@@ -250,7 +250,11 @@ func generate_modifiers_for_tile(tile: HexTileData):
 	
 	for mod_data in gen_cache:
 		var modifier_id = mod_data.id
-		
+
+		# Skip if this modifier was already added by a previous rule
+		if tile.has_modifier(modifier_id):
+			continue
+
 		# Check if this modifier can spawn here
 		if not _can_modifier_spawn(mod_data, tile):
 			continue

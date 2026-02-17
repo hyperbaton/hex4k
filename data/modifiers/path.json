@@ -10,7 +10,7 @@
 		"requires_modifiers": [],
 		"prohibits_modifiers": ["paved_road"]
 	},
-	"generation": {},
+	"generation_rules": [],
 	"construction": {
 		"cost": {
 			"wood": 2

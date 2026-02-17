@@ -54,33 +54,31 @@ func _load_modifier_file(path: String) -> Dictionary:
 	return json.data
 
 func _build_generation_cache():
-	"""Build a cache of modifier generation parameters for efficient terrain gen"""
+	"""Build a cache of modifier generation parameters for efficient terrain gen."""
 	generation_cache.clear()
-	
+
 	for modifier_id in modifiers.keys():
 		var modifier = modifiers[modifier_id]
-		var gen = modifier.get("generation", {})
-		
-		# Skip modifiers without generation rules
-		if gen.is_empty():
-			continue
-		
-		generation_cache.append({
-			"id": modifier_id,
-			"spawn_chance": gen.get("spawn_chance", 0.0),
-			"altitude_min": gen.get("altitude_min", 0.0),
-			"altitude_max": gen.get("altitude_max", 1.0),
-			"humidity_min": gen.get("humidity_min", 0.0),
-			"humidity_max": gen.get("humidity_max", 1.0),
-			"temperature_min": gen.get("temperature_min", 0.0),
-			"temperature_max": gen.get("temperature_max", 1.0),
-			"terrain_types": gen.get("terrain_types", []),
-			"cluster_size": gen.get("cluster_size", 1.0),
-			"cluster_falloff": gen.get("cluster_falloff", 1.0),
-			"conflicts_with": modifier.get("conflicts_with", [])
-		})
-	
-	print("ModifierRegistry: Built generation cache with %d modifiers" % generation_cache.size())
+		var conflicts = modifier.get("conflicts_with", [])
+		var rules: Array = modifier.get("generation_rules", [])
+
+		for gen in rules:
+			generation_cache.append({
+				"id": modifier_id,
+				"spawn_chance": gen.get("spawn_chance", 0.0),
+				"altitude_min": gen.get("altitude_min", 0.0),
+				"altitude_max": gen.get("altitude_max", 1.0),
+				"humidity_min": gen.get("humidity_min", 0.0),
+				"humidity_max": gen.get("humidity_max", 1.0),
+				"temperature_min": gen.get("temperature_min", 0.0),
+				"temperature_max": gen.get("temperature_max", 1.0),
+				"terrain_types": gen.get("terrain_types", []),
+				"cluster_size": gen.get("cluster_size", 1.0),
+				"cluster_falloff": gen.get("cluster_falloff", 1.0),
+				"conflicts_with": conflicts
+			})
+
+	print("ModifierRegistry: Built generation cache with %d entries" % generation_cache.size())
 
 func get_generation_cache() -> Array[Dictionary]:
 	"""Get the cached generation data for terrain generation"""

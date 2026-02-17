@@ -25,18 +25,20 @@ data/modifiers/<modifier_id>.json
     "prohibits_modifiers": []
   },
 
-  "generation": {
-    "spawn_chance": 0.20,
-    "altitude_min": 0.6,
-    "altitude_max": 1.0,
-    "humidity_min": 0.0,
-    "humidity_max": 1.0,
-    "temperature_min": 0.0,
-    "temperature_max": 1.0,
-    "terrain_types": ["mountain", "rolling_hills", "sharp_hills"],
-    "cluster_size": 2.0,
-    "cluster_falloff": 1.0
-  },
+  "generation_rules": [
+    {
+      "spawn_chance": 0.20,
+      "altitude_min": 0.6,
+      "altitude_max": 1.0,
+      "humidity_min": 0.0,
+      "humidity_max": 1.0,
+      "temperature_min": 0.0,
+      "temperature_max": 1.0,
+      "terrain_types": ["mountain", "rolling_hills", "sharp_hills"],
+      "cluster_size": 2.0,
+      "cluster_falloff": 1.0
+    }
+  ],
 
   "visual": {
     "icon": "res://assets/icons/copper.png",
@@ -81,9 +83,11 @@ Defines where this modifier can exist (runtime validation).
 | `requires_modifiers` | Array | Other modifier IDs that must be present |
 | `prohibits_modifiers` | Array | Modifier IDs that must not be present |
 
-### `generation` (Object, required)
+### `generation_rules` (Array, required)
 
-Controls spawning during world generation. All range values are 0.0-1.0.
+Controls spawning during world generation. An array of generation rules, where each rule is checked independently. This allows the same modifier to spawn with different probabilities and conditions on different terrains. If the modifier is already placed by an earlier rule, later rules are skipped. Use an empty array `[]` for modifiers that are not generated (e.g., infrastructure).
+
+Each generation rule has these fields (all range values are 0.0-1.0):
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -113,7 +117,7 @@ Milestone IDs that must be unlocked before this modifier is visible or harvestab
 
 ### Resource Deposit (Copper)
 
-Found in mountainous terrain:
+Found in mountainous terrain (single generation rule):
 
 ```json
 {
@@ -128,18 +132,20 @@ Found in mountainous terrain:
     "requires_modifiers": [],
     "prohibits_modifiers": []
   },
-  "generation": {
-    "spawn_chance": 0.20,
-    "altitude_min": 0.6,
-    "altitude_max": 1.0,
-    "humidity_min": 0.0,
-    "humidity_max": 1.0,
-    "temperature_min": 0.0,
-    "temperature_max": 1.0,
-    "terrain_types": ["mountain", "rolling_hills", "sharp_hills"],
-    "cluster_size": 2.0,
-    "cluster_falloff": 1.0
-  },
+  "generation_rules": [
+    {
+      "spawn_chance": 0.20,
+      "altitude_min": 0.6,
+      "altitude_max": 1.0,
+      "humidity_min": 0.0,
+      "humidity_max": 1.0,
+      "temperature_min": 0.0,
+      "temperature_max": 1.0,
+      "terrain_types": ["mountain", "rolling_hills", "sharp_hills"],
+      "cluster_size": 2.0,
+      "cluster_falloff": 1.0
+    }
+  ],
   "visual": {
     "icon": "res://assets/icons/copper.png",
     "overlay_color": "#CD7F3280"
@@ -165,18 +171,20 @@ Stackable modifier found in lowland, humid terrain:
     "requires_modifiers": [],
     "prohibits_modifiers": []
   },
-  "generation": {
-    "spawn_chance": 0.05,
-    "altitude_min": 0.3,
-    "altitude_max": 0.7,
-    "humidity_min": 0.5,
-    "humidity_max": 1.0,
-    "temperature_min": 0.3,
-    "temperature_max": 0.8,
-    "terrain_types": ["grassland", "plains"],
-    "cluster_size": 1.5,
-    "cluster_falloff": 0.8
-  },
+  "generation_rules": [
+    {
+      "spawn_chance": 0.05,
+      "altitude_min": 0.3,
+      "altitude_max": 0.7,
+      "humidity_min": 0.5,
+      "humidity_max": 1.0,
+      "temperature_min": 0.3,
+      "temperature_max": 0.8,
+      "terrain_types": ["grassland", "plains"],
+      "cluster_size": 1.5,
+      "cluster_falloff": 0.8
+    }
+  ],
   "visual": {
     "icon": "res://assets/icons/fertile_soil.png",
     "overlay_color": "#4A9B4A80"
@@ -185,8 +193,51 @@ Stackable modifier found in lowland, humid terrain:
 }
 ```
 
+### Water Source with Multiple Generation Rules (Fresh Water)
+
+Guaranteed on river/lake tiles, rare on land:
+
+```json
+{
+  "type": "water_source",
+  "duration": -1,
+  "stackable": false,
+  "conflicts_with": [],
+  "conditions": {
+    "terrain_types": ["grassland", "plains", "rolling_hills", "sharp_hills", "river", "lake"],
+    "altitude_min": 0.0,
+    "altitude_max": 1.0,
+    "requires_modifiers": [],
+    "prohibits_modifiers": []
+  },
+  "generation_rules": [
+    {
+      "spawn_chance": 1.0,
+      "altitude_min": 0.0, "altitude_max": 1.0,
+      "humidity_min": 0.0, "humidity_max": 1.0,
+      "temperature_min": 0.0, "temperature_max": 1.0,
+      "terrain_types": ["river", "lake"],
+      "cluster_size": 1, "cluster_falloff": 0.0
+    },
+    {
+      "spawn_chance": 0.04,
+      "altitude_min": 0.42, "altitude_max": 0.65,
+      "humidity_min": 0.50, "humidity_max": 1.0,
+      "temperature_min": 0.25, "temperature_max": 0.75,
+      "terrain_types": ["grassland", "plains", "rolling_hills", "sharp_hills"],
+      "cluster_size": 1, "cluster_falloff": 0.0
+    }
+  ],
+  "visual": {
+    "icon": "res://assets/icons/modifiers/fresh_water.svg",
+    "overlay_color": "#4169E180"
+  },
+  "milestones_required": []
+}
+```
+
 ## Notes
 
 - Modifiers are referenced by buildings (via `required_modifiers` in requirements) and by tile types (via `required_modifiers` for visual display).
-- The `generation` section is only used during world creation. The `conditions` section is used for runtime validation.
+- The `generation_rules` section is only used during world creation. The `conditions` section is used for runtime validation.
 - Overlay colors use RGBA hex (8 digits). The last two digits are alpha, e.g., `80` = 50% opacity.

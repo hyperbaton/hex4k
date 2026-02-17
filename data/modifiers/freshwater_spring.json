@@ -10,18 +10,20 @@
 		"requires_modifiers": [],
 		"prohibits_modifiers": []
 	},
-	"generation": {
-		"spawn_chance": 0.03,
-		"altitude_min": 0.50,
-		"altitude_max": 0.80,
-		"humidity_min": 0.40,
-		"humidity_max": 0.90,
-		"temperature_min": 0.20,
-		"temperature_max": 0.70,
-		"terrain_types": ["grassland", "plains", "meadow", "rolling_hills", "mountain"],
-		"cluster_size": 1.0,
-		"cluster_falloff": 0.3
-	},
+	"generation_rules": [
+		{
+			"spawn_chance": 0.03,
+			"altitude_min": 0.50,
+			"altitude_max": 0.80,
+			"humidity_min": 0.40,
+			"humidity_max": 0.90,
+			"temperature_min": 0.20,
+			"temperature_max": 0.70,
+			"terrain_types": ["grassland", "plains", "meadow", "rolling_hills", "mountain"],
+			"cluster_size": 1.0,
+			"cluster_falloff": 0.3
+		}
+	],
 	"visual": {
 		"icon": "res://assets/icons/modifiers/freshwater_spring.svg",
 		"overlay_color": "#4A90B840"

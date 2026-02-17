@@ -10,18 +10,20 @@
 		"requires_modifiers": [],
 		"prohibits_modifiers": []
 	},
-	"generation": {
-		"spawn_chance": 0.25,
-		"altitude_min": 0.35,
-		"altitude_max": 0.60,
-		"humidity_min": 0.40,
-		"humidity_max": 0.75,
-		"temperature_min": 0.35,
-		"temperature_max": 0.70,
-		"terrain_types": ["plains", "meadow", "savannah"],
-		"cluster_size": 3,
-		"cluster_falloff": 1.2
-	},
+	"generation_rules": [
+		{
+			"spawn_chance": 0.25,
+			"altitude_min": 0.35,
+			"altitude_max": 0.60,
+			"humidity_min": 0.40,
+			"humidity_max": 0.75,
+			"temperature_min": 0.35,
+			"temperature_max": 0.70,
+			"terrain_types": ["plains", "meadow", "savannah"],
+			"cluster_size": 3,
+			"cluster_falloff": 1.2
+		}
+	],
 	"visual": {
 		"icon": "res://assets/icons/modifiers/wild_game.svg",
 		"overlay_color": "#6D4C4180"

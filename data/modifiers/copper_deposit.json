@@ -10,18 +10,20 @@
 		"requires_modifiers": [],
 		"prohibits_modifiers": []
 	},
-	"generation": {
-		"spawn_chance": 0.20,
-		"altitude_min": 0.6,
-		"altitude_max": 1.0,
-		"humidity_min": 0.0,
-		"humidity_max": 1.0,
-		"temperature_min": 0.0,
-		"temperature_max": 1.0,
-		"terrain_types": ["mountain", "rolling_hills", "sharp_hills"],
-		"cluster_size": 2.0,
-		"cluster_falloff": 1.0
-	},
+	"generation_rules": [
+		{
+			"spawn_chance": 0.20,
+			"altitude_min": 0.6,
+			"altitude_max": 1.0,
+			"humidity_min": 0.0,
+			"humidity_max": 1.0,
+			"temperature_min": 0.0,
+			"temperature_max": 1.0,
+			"terrain_types": ["mountain", "rolling_hills", "sharp_hills"],
+			"cluster_size": 2.0,
+			"cluster_falloff": 1.0
+		}
+	],
 	"visual": {
 		"icon": "res://assets/icons/copper.png",
 		"overlay_color": "#CD7F3280"
