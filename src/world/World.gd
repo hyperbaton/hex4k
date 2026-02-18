@@ -112,6 +112,7 @@ func _ready():
 	chunk_manager.fog_manager = fog_manager
 	unit_layer.fog_manager = fog_manager
 	city_manager.fog_manager = fog_manager
+	city_manager.world_query = world_query
 	fog_manager.visibility_changed.connect(unit_layer.update_fog_visibility)
 	fog_manager.recalculate_visibility()
 

@@ -1,6 +1,6 @@
 {
 	"category": "civil",
-	"trained_at": ["city_center", "longhouse", "tribal_camp"],
+	"trained_at": [],
 	"milestones_required": ["pack_animal_domestication"],
 	"training": {
 		"cost": {

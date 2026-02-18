@@ -15,47 +15,47 @@ data/settlements/<settlement_id>.json
   "tags": ["rural"],
 
   "tile_costs": [
-    {
-      "resource": "admin_capacity",
-      "base_cost": 0.5,
-      "distance_multiplier": 0.1,
-      "distance_exponent": 1,
-      "distance_to": "city_center",
-      "exempt_center": true
-    }
+	{
+	  "resource": "admin_capacity",
+	  "base_cost": 0.5,
+	  "distance_multiplier": 0.1,
+	  "distance_exponent": 1,
+	  "distance_to": "city_center",
+	  "exempt_center": true
+	}
   ],
 
   "tile_limits": {
-    "max_tiles": 0,
-    "expansion_allowed": true
+	"max_tiles": 0,
+	"expansion_allowed": true
   },
 
   "founding": {
-    "founded_by": "settler",
-    "initial_buildings": ["longhouse"],
-    "initial_tiles": 1,
-    "initial_resources": {
-      "food": 15,
-      "wood": 10,
-      "stone": 5
-    }
+	"founded_by": "settler",
+	"initial_buildings": ["longhouse"],
+	"initial_tiles": 1,
+	"initial_resources": {
+	  "food": 15,
+	  "wood": 10,
+	  "stone": 5
+	}
   },
 
   "transitions": [
-    {
-      "target": "village",
-      "trigger": "building_upgrade",
-      "trigger_building": "longhouse",
-      "target_building": "tribal_camp"
-    }
+	{
+	  "target": "village",
+	  "trigger": "building_upgrade",
+	  "trigger_building": "longhouse",
+	  "target_building": "tribal_camp"
+	}
   ],
 
   "bonuses": {},
 
   "visual": {
-    "map_icon": "",
-    "color": "#A0522D",
-    "label_prefix": ""
+	"map_icon": "",
+	"color": "#A0522D",
+	"label_prefix": ""
   },
 
   "milestones_required": []
@@ -144,42 +144,42 @@ The basic starting settlement, founded by settlers:
 {
   "tags": ["rural"],
   "tile_costs": [
-    {
-      "resource": "admin_capacity",
-      "base_cost": 0.5,
-      "distance_multiplier": 0.1,
-      "distance_exponent": 1,
-      "distance_to": "city_center",
-      "exempt_center": true
-    }
+	{
+	  "resource": "admin_capacity",
+	  "base_cost": 0.5,
+	  "distance_multiplier": 0.1,
+	  "distance_exponent": 1,
+	  "distance_to": "city_center",
+	  "exempt_center": true
+	}
   ],
   "tile_limits": {
-    "max_tiles": 0,
-    "expansion_allowed": true
+	"max_tiles": 0,
+	"expansion_allowed": true
   },
   "founding": {
-    "founded_by": "settler",
-    "initial_buildings": ["longhouse"],
-    "initial_tiles": 1,
-    "initial_resources": {
-      "food": 15,
-      "wood": 10,
-      "stone": 5
-    }
+	"founded_by": "settler",
+	"initial_buildings": ["longhouse"],
+	"initial_tiles": 1,
+	"initial_resources": {
+	  "food": 15,
+	  "wood": 10,
+	  "stone": 5
+	}
   },
   "transitions": [
-    {
-      "target": "village",
-      "trigger": "building_upgrade",
-      "trigger_building": "longhouse",
-      "target_building": "tribal_camp"
-    }
+	{
+	  "target": "village",
+	  "trigger": "building_upgrade",
+	  "trigger_building": "longhouse",
+	  "target_building": "tribal_camp"
+	}
   ],
   "bonuses": {},
   "visual": {
-    "map_icon": "",
-    "color": "#A0522D",
-    "label_prefix": ""
+	"map_icon": "",
+	"color": "#A0522D",
+	"label_prefix": ""
   },
   "milestones_required": []
 }

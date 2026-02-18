@@ -1,0 +1,56 @@
+{
+	"category": "infrastructure",
+	"construction": {
+		"initial_cost": {
+			"stone": 8
+		},
+		"cost_per_turn": {
+			"tools": 1
+		},
+		"total_turns": 4
+	},
+	"requirements": {
+		"terrain_types": ["plains", "meadow", "floodplains", "grassland"],
+		"terrain_exclude": ["ocean", "mountain", "lake", "river", "forest"],
+		"required_modifiers": [],
+		"required_adjacent": {
+			"building_ids": [],
+			"building_categories": [],
+			"terrain_types": ["river", "lake"],
+			"modifiers": [],
+			"min_count": 1,
+			"max_distance": 1
+		},
+		"prohibited_adjacent": {
+			"building_ids": [],
+			"building_categories": [],
+			"min_distance": 0
+		},
+		"requires_city_center_connection": true,
+		"milestones_required": ["canal_irrigation"]
+	},
+	"production": {
+		"produces": [],
+		"consumes": [
+			{ "resource": "population", "quantity": 0.5 },
+			{ "resource": "admin_capacity", "quantity": 0.5, "distance_cost": { "multiplier": 0.05, "distance_to": "nearest_source" } }
+		]
+	},
+	"per_turn_penalty": [],
+	"adjacency_bonuses": [],
+	"terrain_bonuses": {},
+	"modifier_consumption": [],
+	"provides": {
+		"modifiers": ["fresh_water"],
+		"storage": []
+	},
+	"disabled_admin_cost": 0.0,
+	"max_per_city": 0,
+	"can_units_stand": false,
+	"has_orientation": false,
+	"is_city_center": false,
+	"visual": {
+		"sprite": "res://assets/buildings/irrigation_canal.svg",
+		"color": "#4A90D9"
+	}
+}

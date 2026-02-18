@@ -112,7 +112,10 @@ func _process_city_turn(city: City) -> TurnReport.CityTurnReport:
 	
 	# Phase 3: Consumption (two-pass system, penalties if consumption fails)
 	_phase_consumption(city, report)
-	
+
+	# Phase 3b: Modifier production (active buildings place/remove modifiers on their tile)
+	_phase_modifier_production(city, report)
+
 	# Phase 4: Construction processing
 	_phase_construction(city, report)
 	
@@ -555,6 +558,15 @@ func _phase_consumption(city: City, report: TurnReport.CityTurnReport):
 
 func _process_building_consumption(city: City, instance: BuildingInstance, report: TurnReport.CityTurnReport):
 	"""Process consumption for a single building using array format."""
+	# Runtime adjacency recheck: buildings with required_adjacent must still meet the requirement
+	if world_query:
+		var adj_check = world_query.check_terrain_adjacency_requirements(instance.tile_coord, instance.building_id)
+		if not adj_check.met:
+			instance.set_expecting_resources()
+			report.add_building_waiting(instance.tile_coord, instance.building_id, {"adjacency": adj_check.reason})
+			print("    Adjacency not met: %s at %v (%s)" % [instance.building_id, instance.tile_coord, adj_check.reason])
+			return
+
 	var consumes = Registry.buildings.get_consumes(instance.building_id)
 	
 	# Filter out cap resources (already handled in Phase 1)
@@ -637,6 +649,34 @@ func _process_building_consumption(city: City, instance: BuildingInstance, repor
 			if not penalty_dict.is_empty():
 				report.add_building_penalized(instance.tile_coord, instance.building_id, penalty_dict)
 				print("    Penalty applied: %s at %v" % [instance.building_id, instance.tile_coord])
+
+# === Phase 3b: Modifier Production ===
+
+func _phase_modifier_production(city: City, report: TurnReport.CityTurnReport):
+	"""Active buildings with provides.modifiers place modifiers on their tile; inactive ones remove them."""
+	if not world_query:
+		return
+
+	for coord in city.building_instances.keys():
+		var instance: BuildingInstance = city.building_instances[coord]
+		var provided_mods = Registry.buildings.get_provided_modifiers(instance.building_id)
+		if provided_mods.is_empty():
+			continue
+
+		var terrain_data = world_query.get_terrain_data(coord)
+		if not terrain_data:
+			continue
+
+		if instance.is_active():
+			for mod_id in provided_mods:
+				if not terrain_data.has_modifier(mod_id):
+					terrain_data.add_modifier(mod_id)
+					print("    Modifier produced: %s at %v (by %s)" % [mod_id, coord, instance.building_id])
+		else:
+			for mod_id in provided_mods:
+				if terrain_data.has_modifier(mod_id):
+					terrain_data.remove_modifier(mod_id)
+					print("    Modifier removed: %s at %v (%s inactive)" % [mod_id, coord, instance.building_id])
 
 # === Phase 4: Construction ===
 

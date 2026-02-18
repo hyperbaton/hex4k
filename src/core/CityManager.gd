@@ -8,6 +8,7 @@ var cities: Dictionary = {}  # city_id -> City
 var tile_ownership: Dictionary = {}  # Vector2i -> city_id
 var players: Dictionary = {}  # player_id -> Player
 var fog_manager: FogOfWarManager  # Set by World.gd for expansion checks
+var world_query: Node  # Set by World.gd for modifier cleanup on demolish
 
 signal city_founded(city: City)
 signal city_destroyed(city: City)
@@ -287,6 +288,16 @@ func demolish_building(city_id: String, coord: Vector2i):
 	"""Demolish a building at a tile"""
 	var city = get_city(city_id)
 	if city:
+		# Clean up any modifiers provided by this building
+		var instance = city.get_building_instance(coord)
+		if instance and world_query:
+			var provided_mods = Registry.buildings.get_provided_modifiers(instance.building_id)
+			if not provided_mods.is_empty():
+				var terrain_data = world_query.get_terrain_data(coord)
+				if terrain_data:
+					for mod_id in provided_mods:
+						terrain_data.remove_modifier(mod_id)
+
 		city.demolish_building(coord)
 		emit_signal("building_demolished", city, coord)
 

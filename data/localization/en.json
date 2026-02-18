@@ -330,6 +330,10 @@
 			"name": "Smoke House",
 			"description": "A low timber structure where meat and fish are cured over smoldering wood. Nearby granaries benefit from reduced food spoilage."
 		},
+		"irrigation_canal": {
+			"name": "Irrigation Canal",
+			"description": "A stone-lined channel that diverts fresh water from a nearby river or lake onto farmland. Provides a fresh water source that boosts adjacent crop yields."
+		},
 		"grain_field": {
 			"name": "Grain Field",
 			"description": "Irrigated fields of emmer and barley fed by canal water. Produces grain for food and brewing."

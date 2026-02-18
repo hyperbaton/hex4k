@@ -26,7 +26,7 @@
 	"production": {
 		"produces": [
 			{ "resource": "population", "quantity": 1 },
-			{ "resource": "admin_capacity", "quantity": 20.0 }
+			{ "resource": "admin_capacity", "quantity": 15.0 }
 		],
 		"consumes": [
 			{ "resource": "food", "quantity": 1 }
@@ -39,7 +39,7 @@
 	"provides": {
 		"storage": [
 			{
-				"capacity": 8,
+				"capacity": 6,
 				"accepted_tags": ["population"]
 			},
 			{
