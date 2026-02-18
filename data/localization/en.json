@@ -559,6 +559,10 @@
 		"hand_cart": {
 			"name": "Hand Cart",
 			"description": "A simple two-wheeled cart pushed by a worker. Can carry goods between cities and build paths along the way."
+		},
+		"club_wielder": {
+			"name": "Club Wielder",
+			"description": "A fighter armed with a heavy wooden club. Basic but effective for defending settlements against early threats."
 		}
 	},
 	"perk": {
