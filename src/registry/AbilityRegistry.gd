@@ -147,7 +147,25 @@ func _check_single_condition(condition: Dictionary, unit: Unit, context: Diction
 						break
 				if not has_enemy:
 					return {passed = false, message = message}
-		
+
+		"has_attacks_remaining":
+			if unit.attacks_remaining <= 0:
+				return {passed = false, message = message}
+
+		"enemy_in_range":
+			var unit_manager_ref = context.get("unit_manager")
+			var ability_params = context.get("ability_params", {})
+			var attack_range: int = ability_params.get("range", 1)
+			if unit_manager_ref:
+				var has_enemy_in_range = false
+				for other_unit in unit_manager_ref.get_all_units():
+					if other_unit.owner_id != unit.owner_id:
+						if _hex_distance(unit.coord, other_unit.coord) <= attack_range:
+							has_enemy_in_range = true
+							break
+				if not has_enemy_in_range:
+					return {passed = false, message = message}
+
 		"on_city":
 			var city_manager = context.get("city_manager")
 			if city_manager:
@@ -284,8 +302,8 @@ func _execute_effect(effect: Dictionary, unit: Unit, params: Dictionary, context
 			unit.is_fortified = effect.get("value", true)
 			return {success = true, message = "", data = {}}
 		
-		"melee_combat":
-			return _effect_melee_combat(effect, unit, params, context)
+		"combat":
+			return _effect_combat(effect, unit, params, context)
 		
 		"open_cargo_dialog":
 			# Signal to UI layer to open the cargo management dialog
@@ -319,19 +337,29 @@ func _effect_found_city(effect: Dictionary, unit: Unit, params: Dictionary, cont
 	else:
 		return {success = false, message = "Failed to found city", data = {}}
 
-func _effect_melee_combat(effect: Dictionary, unit: Unit, params: Dictionary, context: Dictionary) -> Dictionary:
-	# TODO: Implement combat system
-	# This is a placeholder for future combat implementation
+func _effect_combat(effect: Dictionary, unit: Unit, params: Dictionary, context: Dictionary) -> Dictionary:
+	"""Resolve combat using CombatResolver."""
 	var target = context.get("target_unit")
 	if not target:
 		return {success = false, message = "No target selected", data = {}}
-	
-	var damage_multiplier = _resolve_param(effect.get("damage_multiplier", 1.0), params)
-	var base_damage = unit.attack * float(damage_multiplier)
-	
-	target.take_damage(int(base_damage))
-	
-	return {success = true, message = "", data = {damage_dealt = base_damage}}
+
+	var strength = float(_resolve_param(effect.get("strength", 10.0), params))
+	var attack_type: String = str(_resolve_param(effect.get("attack_type", "blunt"), params))
+	var attack_range: int = int(_resolve_param(effect.get("range", 1), params))
+
+	var attack_params = {
+		strength = strength,
+		attack_type = attack_type,
+		range = attack_range
+	}
+
+	var resolver = CombatResolver.new()
+	var result = resolver.resolve_attack(unit, target, attack_params)
+
+	# Decrement attacks remaining
+	unit.attacks_remaining -= 1
+
+	return {success = true, message = "", data = {combat_result = result}}
 
 func _resolve_param(value, params: Dictionary):
 	"""Resolve ${param_name} references in values"""
@@ -364,8 +392,11 @@ func get_available_abilities(unit: Unit, context: Dictionary) -> Array:
 		
 		if ability_id == "":
 			continue
-		
-		var check = check_conditions(ability_id, unit, context)
+
+		# Inject ability params into context for condition checks (e.g. enemy_in_range)
+		var check_context = context.duplicate()
+		check_context["ability_params"] = params
+		var check = check_conditions(ability_id, unit, check_context)
 		
 		available.append({
 			ability_id = ability_id,

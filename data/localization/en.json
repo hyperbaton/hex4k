@@ -599,6 +599,16 @@
 			"description": "A restless people accustomed to founding new settlements, building shelters quickly and governing far-flung territories."
 		}
 	},
+	"armor_class": {
+		"civilian": {
+			"name": "Civilian",
+			"description": "No meaningful armor or combat training. Vulnerable to all forms of attack."
+		},
+		"light_melee": {
+			"name": "Light Melee",
+			"description": "Basic protection suited for close-quarters combat. Can counter-attack adjacent enemies."
+		}
+	},
 	"settlement": {
 		"encampment": {
 			"name": "Encampment",

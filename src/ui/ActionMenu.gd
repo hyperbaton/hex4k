@@ -431,10 +431,12 @@ func _show_unit_info(unit_id: String):
 	
 	# Combat stats
 	var combat = unit.get("combat", {})
-	var attack = combat.get("attack", 0)
-	var defense = combat.get("defense", 0)
-	if attack > 0 or defense > 0:
-		special_parts.append("Combat: Atk %d / Def %d" % [attack, defense])
+	var armor_classes = combat.get("armor_classes", [])
+	if not armor_classes.is_empty():
+		var armor_names: Array[String] = []
+		for ac_id in armor_classes:
+			armor_names.append(Registry.localization.get_name("armor_class", ac_id))
+		special_parts.append("Armor: " + ", ".join(armor_names))
 	
 	# Maintenance
 	var maintenance = Registry.units.get_maintenance(unit_id)

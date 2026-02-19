@@ -16,10 +16,9 @@
 		"vision": 2
 	},
 	"combat": {
-		"attack": 0,
-		"defense": 3,
 		"can_attack": false,
-		"can_capture": false
+		"can_capture": false,
+		"armor_classes": ["civilian"]
 	},
 	"movement_type": "foot",
 	"maintenance": {

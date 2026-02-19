@@ -7,6 +7,7 @@ signal close_requested
 signal fortify_action_requested
 
 var current_unit: Unit = null
+var _is_enemy: bool = false
 
 # UI Elements
 var unit_name_label: Label
@@ -25,6 +26,8 @@ var cargo_capacity_label: Label
 var cargo_items_container: VBoxContainer
 
 var actions_container: VBoxContainer
+var actions_sep: HSeparator
+var actions_header_label: Label
 var fortify_button: Button
 
 func _ready():
@@ -115,17 +118,17 @@ func _setup_ui():
 	atk_label.text = "Attack:"
 	atk_label.add_theme_font_size_override("font_size", 14)
 	stats_grid.add_child(atk_label)
-	
+
 	attack_label = Label.new()
 	attack_label.add_theme_font_size_override("font_size", 14)
 	stats_grid.add_child(attack_label)
-	
-	# Defense
+
+	# Armor
 	var def_label = Label.new()
-	def_label.text = "Defense:"
+	def_label.text = "Armor:"
 	def_label.add_theme_font_size_override("font_size", 14)
 	stats_grid.add_child(def_label)
-	
+
 	defense_label = Label.new()
 	defense_label.add_theme_font_size_override("font_size", 14)
 	stats_grid.add_child(defense_label)
@@ -172,14 +175,15 @@ func _setup_ui():
 	position_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
 	info_vbox.add_child(position_label)
 	
-	# Separator
-	main_vbox.add_child(HSeparator.new())
-	
+	# Actions separator
+	actions_sep = HSeparator.new()
+	main_vbox.add_child(actions_sep)
+
 	# Actions
-	var actions_label = Label.new()
-	actions_label.text = "Actions"
-	actions_label.add_theme_font_size_override("font_size", 14)
-	main_vbox.add_child(actions_label)
+	actions_header_label = Label.new()
+	actions_header_label.text = "Actions"
+	actions_header_label.add_theme_font_size_override("font_size", 14)
+	main_vbox.add_child(actions_header_label)
 	
 	actions_container = VBoxContainer.new()
 	actions_container.add_theme_constant_override("separation", 4)
@@ -191,19 +195,27 @@ func _setup_ui():
 	actions_container.add_child(fortify_button)
 
 func show_unit(unit: Unit):
+	_show_unit_internal(unit, false)
+
+func show_enemy_unit(unit: Unit):
+	"""Show an enemy unit's info (read-only, no actions, limited detail)."""
+	_show_unit_internal(unit, true)
+
+func _show_unit_internal(unit: Unit, is_enemy: bool):
 	# Disconnect from previous unit
 	if current_unit != null and current_unit.health_changed.is_connected(_on_unit_health_changed):
 		current_unit.health_changed.disconnect(_on_unit_health_changed)
-	
+
 	current_unit = unit
-	
+	_is_enemy = is_enemy
+
 	if unit == null:
 		visible = false
 		return
-	
+
 	visible = true
 	_update_display()
-	
+
 	# Connect to unit signals for live updates
 	if not unit.health_changed.is_connected(_on_unit_health_changed):
 		unit.health_changed.connect(_on_unit_health_changed)
@@ -223,14 +235,20 @@ func refresh():
 func _update_display():
 	if current_unit == null:
 		return
-	
+
+	# Panel border color: red tint for enemies
+	var style = get_theme_stylebox("panel") as StyleBoxFlat
+	if style:
+		style.border_color = Color(0.6, 0.25, 0.25) if _is_enemy else Color(0.3, 0.3, 0.4)
+
 	# Unit name
 	unit_name_label.text = Registry.units.get_unit_name(current_unit.unit_type)
-	
+
 	# Category (from registry, not from Unit model)
 	var unit_data = Registry.units.get_unit(current_unit.unit_type)
 	var category = unit_data.get("category", "civil").capitalize()
-	category_label.text = category + " Unit"
+	var suffix = " (Enemy)" if _is_enemy else ""
+	category_label.text = category + " Unit" + suffix
 	
 	# Icon
 	_load_unit_icon()
@@ -249,14 +267,26 @@ func _update_display():
 	else:
 		health_bar.modulate = Color(0.9, 0.3, 0.3)
 	
-	# Movement
-	movement_label.text = "%d / %d" % [current_unit.current_movement, current_unit.max_movement]
+	# Movement — hide current movement for enemies
+	if _is_enemy:
+		movement_label.text = str(current_unit.max_movement)
+	else:
+		movement_label.text = "%d / %d" % [current_unit.current_movement, current_unit.max_movement]
 	
-	# Combat stats
-	attack_label.text = str(current_unit.attack)
-	defense_label.text = str(current_unit.defense)
-	
-	# Color attack/defense based on unit type
+	# Combat stats — show attack strength from ability params, armor class names
+	var attack_str = "—"
+	if current_unit.can_attack():
+		var atk_params = _get_attack_params(current_unit)
+		if not atk_params.is_empty():
+			attack_str = "%s %s" % [str(atk_params.get("strength", 0)), atk_params.get("attack_type", "")]
+	attack_label.text = attack_str
+
+	var armor_names: Array[String] = []
+	for ac_id in current_unit.armor_class_ids:
+		armor_names.append(Registry.localization.get_name("armor_class", ac_id))
+	defense_label.text = ", ".join(armor_names) if not armor_names.is_empty() else "None"
+
+	# Color attack based on unit type
 	if current_unit.is_civil():
 		attack_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 	else:
@@ -266,11 +296,23 @@ func _update_display():
 	owner_label.text = "Owner: %s" % current_unit.owner_id
 	position_label.text = "Position: (%d, %d)" % [current_unit.coord.x, current_unit.coord.y]
 	
-	# Update cargo display
-	_update_cargo()
-	
-	# Update action buttons
-	_update_actions()
+	# Hide cargo and actions for enemy units
+	if _is_enemy:
+		cargo_container.visible = false
+		var cargo_sep = find_child("CargoSep")
+		if cargo_sep:
+			cargo_sep.visible = false
+		actions_sep.visible = false
+		actions_header_label.visible = false
+		actions_container.visible = false
+	else:
+		# Update cargo display
+		_update_cargo()
+		# Update action buttons
+		actions_sep.visible = true
+		actions_header_label.visible = true
+		actions_container.visible = true
+		_update_actions()
 
 func _load_unit_icon():
 	var unit_data = Registry.units.get_unit(current_unit.unit_type)
@@ -341,6 +383,23 @@ func _update_actions():
 
 func _on_unit_health_changed(_new_health: int, _max_health: int):
 	_update_display()
+
+func _get_attack_params(unit: Unit) -> Dictionary:
+	"""Get attack params from unit's first military ability."""
+	var unit_data = Registry.units.get_unit(unit.unit_type)
+	var unit_abilities = unit_data.get("abilities", [])
+	for ability_ref in unit_abilities:
+		var ability_id: String = ""
+		var params: Dictionary = {}
+		if ability_ref is Dictionary:
+			ability_id = ability_ref.get("ability_id", "")
+			params = ability_ref.get("params", {})
+		elif ability_ref is String:
+			ability_id = ability_ref
+		var ability_data = Registry.abilities.get_ability(ability_id)
+		if ability_data.get("category", "") == "military":
+			return params
+	return {}
 
 func _on_fortify_pressed():
 	if current_unit != null:

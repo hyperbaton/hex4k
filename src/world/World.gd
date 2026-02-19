@@ -27,6 +27,12 @@ var perks_button: Button
 
 var current_player_id := "player1"
 
+# Target selection state (for combat abilities)
+var _target_selection_mode: bool = false
+var _target_selection_ability_id: String = ""
+var _target_selection_params: Dictionary = {}
+var _valid_target_coords: Array[Vector2i] = []
+
 func _ready():
 	# Initialize managers
 	world_query.initialize(self, city_manager)
@@ -104,6 +110,7 @@ func _ready():
 	
 	# Initialize player and starting units
 	setup_player_start()
+	setup_test_combat()
 	setup_test_tech_progress()
 
 	# Initialize fog of war after city/unit setup
@@ -328,6 +335,11 @@ func _on_end_turn_pressed():
 	# Refresh unit visuals
 	if unit_layer:
 		unit_layer.refresh_all()
+		# Refresh selected unit movement range and UI (movement resets on new turn)
+		if unit_layer.selected_unit:
+			_show_unit_movement_range(unit_layer.selected_unit)
+			if unit_info_panel:
+				unit_info_panel.refresh()
 
 	# Recalculate fog of war (city expansions, buildings completed)
 	if fog_manager:
@@ -372,18 +384,26 @@ func _on_tile_selected(tile: HexTile):
 	# Don't handle tile selection if city overlay, tech tree, or perks panel is open
 	if city_overlay.is_open or tech_tree_screen.is_open or perks_panel.is_open:
 		return
-	
+
 	# Don't handle if turn report is showing
 	if turn_report_panel and turn_report_panel.visible:
 		return
-	
+
 	# Don't handle if cargo dialog is open
 	if cargo_dialog and cargo_dialog.visible:
 		return
-	
+
 	# Get tile coordinate
 	var coord = Vector2i(tile.data.q, tile.data.r)
 	print("World._on_tile_selected: coord=", coord)
+
+	# Handle target selection mode (combat)
+	if _target_selection_mode:
+		if coord in _valid_target_coords:
+			_execute_target_selection(coord)
+		else:
+			_cancel_target_selection()
+		return
 
 	# Fog of war checks
 	if fog_manager:
@@ -449,8 +469,18 @@ func _on_tile_selected(tile: HexTile):
 				_show_unit_movement_range(unit_at_tile)
 				return
 		else:
-			# Enemy unit - show info but don't select
-			print("Enemy unit at tile")
+			# Enemy unit - show info panel but don't select or show movement
+			print("Enemy unit at tile: ", unit_at_tile.unit_id)
+			# Deselect own unit if selected
+			if unit_layer.selected_unit:
+				unit_layer.deselect_unit()
+				tile_highlighter.clear_all()
+				if unit_ability_bar:
+					unit_ability_bar.hide_bar()
+			tile_info_panel.hide_panel()
+			if unit_info_panel:
+				unit_info_panel.show_enemy_unit(unit_at_tile)
+			return
 	else:
 		print("  No unit at tile")
 	
@@ -581,7 +611,15 @@ func _on_highlighted_tile_clicked(coord: Vector2i):
 	if city_overlay.is_open:
 		city_overlay._on_highlighted_tile_clicked(coord)
 		return
-	
+
+	# Handle target selection mode (combat)
+	if _target_selection_mode:
+		if coord in _valid_target_coords:
+			_execute_target_selection(coord)
+		else:
+			_cancel_target_selection()
+		return
+
 	# Check if we have a selected unit - handle movement
 	if unit_layer.selected_unit:
 		print("Highlighted tile clicked for unit movement: ", coord)
@@ -593,17 +631,28 @@ func _on_ability_requested(ability_id: String, params: Dictionary):
 	if not unit:
 		print("✗ No unit selected for ability")
 		return
-	
+
 	print("Executing ability: ", ability_id, " with params: ", params)
-	
-	# Build context
+
+	# Check if this is a combat ability that needs target selection
+	var ability_data = Registry.abilities.get_ability(ability_id)
+	var needs_target = false
+	for effect in ability_data.get("effects", []):
+		if effect.get("type", "") == "combat":
+			needs_target = true
+			break
+
+	if needs_target:
+		_enter_target_selection(ability_id, params, unit)
+		return
+
+	# Non-combat abilities execute immediately
 	var context = {
 		world_query = world_query,
 		city_manager = city_manager,
 		unit_manager = unit_manager
 	}
-	
-	# Execute ability
+
 	var result = Registry.abilities.execute_ability(ability_id, unit, params, context)
 	
 	if result.success:
@@ -663,6 +712,117 @@ func _on_ability_requested(ability_id: String, params: Dictionary):
 	else:
 		print("✗ Ability failed: ", result.message)
 
+# === Target Selection (Combat) ===
+
+func _enter_target_selection(ability_id: String, params: Dictionary, unit: Unit):
+	"""Enter target selection mode for a combat ability."""
+	var attack_range: int = params.get("range", 1)
+
+	# Find valid targets (enemy units within range)
+	_valid_target_coords.clear()
+	for other_unit in unit_manager.get_all_units():
+		if other_unit.owner_id != unit.owner_id:
+			var dist = _hex_distance(unit.coord, other_unit.coord)
+			if dist <= attack_range:
+				_valid_target_coords.append(other_unit.coord)
+
+	if _valid_target_coords.is_empty():
+		print("✗ No valid targets in range")
+		return
+
+	_target_selection_mode = true
+	_target_selection_ability_id = ability_id
+	_target_selection_params = params
+
+	# Highlight valid target tiles in red
+	tile_highlighter.clear_all()
+	for coord in _valid_target_coords:
+		tile_highlighter.highlight_tile(coord, Color(0.9, 0.2, 0.2, 0.6))
+
+	print("Target selection mode — %d valid target(s)" % _valid_target_coords.size())
+
+func _cancel_target_selection():
+	"""Exit target selection mode without attacking."""
+	_target_selection_mode = false
+	_target_selection_ability_id = ""
+	_target_selection_params = {}
+	_valid_target_coords.clear()
+	tile_highlighter.clear_all()
+
+	# Restore movement highlights
+	var unit = unit_layer.selected_unit
+	if unit:
+		_show_unit_movement_range(unit)
+
+func _execute_target_selection(target_coord: Vector2i):
+	"""Execute the combat ability on the selected target."""
+	var unit = unit_layer.selected_unit
+	if not unit:
+		_cancel_target_selection()
+		return
+
+	var target_unit = unit_manager.get_unit_at(target_coord)
+	if not target_unit:
+		_cancel_target_selection()
+		return
+
+	# Exit target mode before executing
+	var ability_id = _target_selection_ability_id
+	var params = _target_selection_params.duplicate()
+	_target_selection_mode = false
+	_target_selection_ability_id = ""
+	_target_selection_params = {}
+	_valid_target_coords.clear()
+	tile_highlighter.clear_all()
+
+	# Build context with target
+	var context = {
+		world_query = world_query,
+		city_manager = city_manager,
+		unit_manager = unit_manager,
+		target_unit = target_unit
+	}
+
+	var result = Registry.abilities.execute_ability(ability_id, unit, params, context)
+
+	if result.success:
+		var combat_result = result.results.get("combat_result", {})
+		var main = combat_result.get("main_attack", {})
+		var counter = combat_result.get("counter_attack", {})
+		print("Combat: dealt %d dmg" % main.get("damage_dealt", 0))
+		if main.get("retaliation_damage", 0) > 0:
+			print("  Retaliation: %d dmg to attacker" % main.retaliation_damage)
+		if counter.get("occurred", false):
+			print("  Counter attack: %d dmg to attacker" % counter.get("damage_dealt", 0))
+		if main.get("defender_killed", false):
+			print("  Defender destroyed!")
+		if counter.get("attacker_killed", false):
+			print("  Attacker destroyed!")
+
+		# Handle attacker destruction
+		if counter.get("attacker_killed", false):
+			unit_layer.deselect_unit()
+			tile_highlighter.clear_all()
+			if unit_ability_bar:
+				unit_ability_bar.hide_bar()
+			if unit_info_panel:
+				unit_info_panel.hide_panel()
+		else:
+			# Refresh displays for surviving attacker
+			_show_unit_movement_range(unit)
+			if unit_info_panel:
+				unit_info_panel.refresh()
+	else:
+		print("✗ Combat failed: ", result.message)
+		# Restore movement highlights
+		_show_unit_movement_range(unit)
+
+func _hex_distance(a: Vector2i, b: Vector2i) -> int:
+	var q_diff = abs(a.x - b.x)
+	var r_diff = abs(a.y - b.y)
+	var s_diff = abs((-a.x - a.y) - (-b.x - b.y))
+	return int((q_diff + r_diff + s_diff) / 2)
+
 # === Fog of War Signal Handlers ===
 
 func _on_fog_trigger_unit_moved(_unit: Unit, _from_coord: Vector2i, _to_coord: Vector2i):
@@ -719,6 +879,16 @@ func _on_perks_button_pressed():
 func _on_perks_panel_closed():
 	pass  # Could re-enable other UI if needed
 
+func _unhandled_input(event: InputEvent):
+	# Cancel target selection with Escape or right-click
+	if _target_selection_mode:
+		if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+			_cancel_target_selection()
+			get_viewport().set_input_as_handled()
+		elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+			_cancel_target_selection()
+			get_viewport().set_input_as_handled()
+
 func _process(_delta):
 	chunk_manager.update_chunks(camera.global_position)
 
@@ -774,6 +944,28 @@ func setup_player_start():
 
 	# Center camera on starting position
 	camera.focus_on_coord(start_coord)
+
+func setup_test_combat():
+	"""Spawn club wielders for combat testing."""
+	await get_tree().create_timer(0.6).timeout  # After setup_player_start
+
+	var start_coord = Vector2i(-12, 15)
+
+	# Player's club wielder adjacent to nomadic band (one hex to the left)
+	var friendly_coord = Vector2i(start_coord.x - 1, start_coord.y)
+	var friendly = unit_manager.spawn_unit("club_wielder", current_player_id, friendly_coord)
+	if friendly:
+		friendly.attacks_remaining = 1
+		print("✓ Player club wielder spawned at ", friendly_coord)
+
+	# Enemy player and club wielder two tiles away (to the right of explorer)
+	var enemy_id = "enemy1"
+	city_manager.create_player(enemy_id, "Enemy")
+	var enemy_coord = Vector2i(start_coord.x + 3, start_coord.y)
+	var enemy = unit_manager.spawn_unit("club_wielder", enemy_id, enemy_coord)
+	if enemy:
+		enemy.attacks_remaining = 1
+		print("✓ Enemy club wielder spawned at ", enemy_coord)
 
 # === Test Setup (temporary) ===
 

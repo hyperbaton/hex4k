@@ -1,54 +1,65 @@
 {
   "id": "melee_attack",
   "name": "Attack",
-  "description": "Engage an adjacent enemy in melee combat",
+  "description": "Engage an enemy in melee combat",
   "icon": "res://assets/icons/abilities/melee_attack.svg",
   "category": "military",
-  
+
   "conditions": [
-    {
-      "type": "has_movement",
-      "message": "No movement remaining"
-    },
-    {
-      "type": "not_acted",
-      "message": "Already acted this turn"
-    },
-    {
-      "type": "adjacent_enemy",
-      "message": "No adjacent enemy to attack"
-    }
+	{
+	  "type": "has_movement",
+	  "message": "No movement remaining"
+	},
+	{
+	  "type": "has_attacks_remaining",
+	  "message": "No attacks remaining this turn"
+	},
+	{
+	  "type": "enemy_in_range",
+	  "message": "No enemy in attack range"
+	}
   ],
-  
+
   "costs": {
-    "movement": "all",
-    "ends_turn": true
+	"movement": "all",
+	"ends_turn": true
   },
-  
+
   "effects": [
-    {
-      "type": "melee_combat",
-      "damage_multiplier": "${damage_multiplier}",
-      "bonus_vs": "${bonus_vs}"
-    }
+	{
+	  "type": "combat",
+	  "strength": "${strength}",
+	  "attack_type": "${attack_type}",
+	  "range": "${range}"
+	}
   ],
-  
+
   "targeting": {
-    "type": "adjacent",
-    "filter": "enemy_unit",
-    "range": 1
+	"type": "range",
+	"filter": "enemy_unit",
+	"range": "${range}"
   },
-  
+
   "params": {
-    "damage_multiplier": {
-      "type": "float",
-      "default": 1.0,
-      "description": "Multiplier for base attack damage"
-    },
-    "bonus_vs": {
-      "type": "array",
-      "default": [],
-      "description": "Unit types this attack has bonus against"
-    }
+	"strength": {
+	  "type": "float",
+	  "default": 10.0,
+	  "description": "Base attack strength"
+	},
+	"attack_type": {
+	  "type": "string",
+	  "default": "blunt",
+	  "description": "Type of damage dealt (matched against armor defenses)"
+	},
+	"range": {
+	  "type": "int",
+	  "default": 1,
+	  "description": "Attack range in hexes"
+	},
+	"attacks_per_turn": {
+	  "type": "int",
+	  "default": 1,
+	  "description": "Number of attacks allowed per turn"
+	}
   }
 }

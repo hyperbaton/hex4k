@@ -21,8 +21,8 @@ var current_health: int = 100
 var max_movement: int = 2
 var current_movement: int = 2
 var vision_range: int = 2
-var attack: int = 0
-var defense: int = 0
+var armor_class_ids: Array[String] = []
+var attacks_remaining: int = 0
 
 # Movement
 var movement_type: String = "foot"  # References movement_types JSON
@@ -59,9 +59,11 @@ func _load_stats_from_registry():
 	vision_range = stats.get("vision", 2)
 	
 	var combat = unit_data.get("combat", {})
-	attack = combat.get("attack", 0)
-	defense = combat.get("defense", 0)
-	
+	var armor_ids = combat.get("armor_classes", [])
+	armor_class_ids.clear()
+	for id in armor_ids:
+		armor_class_ids.append(id)
+
 	movement_type = unit_data.get("movement_type", "foot")
 	cargo_capacity = stats.get("cargo_capacity", 0)
 
@@ -69,10 +71,31 @@ func start_turn():
 	"""Called at the start of each turn"""
 	current_movement = max_movement
 	has_acted = false
-	
+	attacks_remaining = _get_attacks_per_turn()
+
 	# Fortified units heal slightly
 	if is_fortified:
 		heal(5)
+
+func _get_attacks_per_turn() -> int:
+	"""Get attacks_per_turn from the unit's first military ability, or 0 if none."""
+	var unit_data = Registry.units.get_unit(unit_type)
+	var combat = unit_data.get("combat", {})
+	if not combat.get("can_attack", false):
+		return 0
+	var unit_abilities = unit_data.get("abilities", [])
+	for ability_ref in unit_abilities:
+		var ability_id: String = ""
+		var params: Dictionary = {}
+		if ability_ref is Dictionary:
+			ability_id = ability_ref.get("ability_id", "")
+			params = ability_ref.get("params", {})
+		elif ability_ref is String:
+			ability_id = ability_ref
+		var ability_data = Registry.abilities.get_ability(ability_id)
+		if ability_data.get("category", "") == "military":
+			return params.get("attacks_per_turn", 1)
+	return 0
 
 func move_to(new_coord: Vector2i, movement_cost: int) -> bool:
 	"""Move unit to a new coordinate. Returns true if successful."""
@@ -91,12 +114,11 @@ func can_move() -> bool:
 	return current_movement > 0 and not is_fortified
 
 func take_damage(amount: int):
-	"""Apply damage to the unit"""
-	var actual_damage = max(1, amount - defense)
-	current_health -= actual_damage
-	
+	"""Apply raw damage to the unit (already resolved by CombatResolver)"""
+	current_health -= amount
+
 	emit_signal("health_changed", current_health, max_health)
-	
+
 	if current_health <= 0:
 		current_health = 0
 		emit_signal("destroyed")
@@ -112,11 +134,6 @@ func fortify():
 	current_movement = 0
 	has_acted = true
 
-func get_effective_defense() -> int:
-	"""Get defense including fortification bonus"""
-	var bonus = 2 if is_fortified else 0
-	return defense + bonus
-
 func is_civil() -> bool:
 	return Registry.units.is_civil_unit(unit_type)
 
@@ -126,7 +143,7 @@ func is_military() -> bool:
 func can_attack() -> bool:
 	var unit_data = Registry.units.get_unit(unit_type)
 	var combat = unit_data.get("combat", {})
-	return combat.get("can_attack", false) and not has_acted
+	return combat.get("can_attack", false) and attacks_remaining > 0
 
 func get_movement_cost(terrain_type: String) -> int:
 	"""Get the movement cost to enter a terrain type. Returns -1 if impassable."""
@@ -226,6 +243,7 @@ func get_save_data() -> Dictionary:
 		"current_movement": current_movement,
 		"is_fortified": is_fortified,
 		"has_acted": has_acted,
+		"attacks_remaining": attacks_remaining,
 		"cargo": cargo.duplicate()
 	}
 
@@ -242,5 +260,6 @@ static func from_save_data(data: Dictionary) -> Unit:
 	unit.current_movement = data.get("current_movement", unit.max_movement)
 	unit.is_fortified = data.get("is_fortified", false)
 	unit.has_acted = data.get("has_acted", false)
+	unit.attacks_remaining = data.get("attacks_remaining", 0)
 	unit.cargo = data.get("cargo", {})
 	return unit

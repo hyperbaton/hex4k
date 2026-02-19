@@ -14,6 +14,7 @@ var localization: LocalizationRegistry
 var abilities: AbilityRegistry
 var tile_types: TileTypeRegistry
 var settlements: SettlementRegistry
+var armor_classes: ArmorClassRegistry
 
 func _ready():
 	print("=== Initializing Game Registries ===")
@@ -30,9 +31,11 @@ func _ready():
 	abilities = AbilityRegistry.new()
 	tile_types = TileTypeRegistry.new()
 	settlements = SettlementRegistry.new()
-	
+	armor_classes = ArmorClassRegistry.new()
+
 	# Load all data
 	localization.load_data()
+	armor_classes.load_data()
 	terrains.load_data()
 	resources.load_data()
 	modifiers.load_data()

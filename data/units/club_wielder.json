@@ -10,22 +10,21 @@
 		"turns": 2
 	},
 	"stats": {
-		"health": 80,
+		"health": 15,
 		"movement": 2,
 		"vision": 1
 	},
 	"combat": {
-		"attack": 8,
-		"defense": 4,
 		"can_attack": true,
-		"can_capture": false
+		"can_capture": false,
+		"armor_classes": ["light_melee"]
 	},
 	"movement_type": "foot",
 	"maintenance": {
 		"population": 1
 	},
 	"abilities": [
-		{ "ability_id": "melee_attack", "params": {} },
+		{ "ability_id": "melee_attack", "params": { "strength": 12, "attack_type": "blunt", "range": 1, "attacks_per_turn": 1 } },
 		{ "ability_id": "fortify", "params": {} }
 	],
 	"visual": {

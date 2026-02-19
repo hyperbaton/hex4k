@@ -6,22 +6,22 @@
   "category": "defense",
   
   "conditions": [
-    {
-      "type": "not_fortified",
-      "message": "Already fortified"
-    }
+	{
+	  "type": "not_fortified",
+	  "message": "Already fortified"
+	}
   ],
   
   "costs": {
-    "movement": "all",
-    "ends_turn": true
+	"movement": "all",
+	"ends_turn": true
   },
   
   "effects": [
-    {
-      "type": "set_fortified",
-      "value": true
-    }
+	{
+	  "type": "set_fortified",
+	  "value": true
+	}
   ],
   
   "params": {}

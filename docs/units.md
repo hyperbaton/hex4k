@@ -26,10 +26,9 @@ data/units/<unit_id>.json
     "cargo_capacity": 100
   },
   "combat": {
-    "attack": 0,
-    "defense": 5,
     "can_attack": false,
-    "can_capture": false
+    "can_capture": false,
+    "armor_classes": ["civilian"]
   },
   "movement_type": "foot",
   "maintenance": { "food": 2 },
@@ -90,10 +89,9 @@ Milestone IDs that, when ANY is unlocked, prevent this unit from being trained. 
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `attack` | int | Base attack power |
-| `defense` | int | Base defense power |
 | `can_attack` | bool | Whether this unit can initiate attacks |
 | `can_capture` | bool | Whether this unit can capture cities |
+| `armor_classes` | Array[string] | Armor class IDs that define how the unit absorbs damage (see [armor_classes.md](armor_classes.md)) |
 
 ### `movement_type` (string, required)
 
@@ -150,7 +148,7 @@ Civil unit that founds new settlements:
     "turns": 5
   },
   "stats": { "health": 100, "movement": 2, "vision": 2 },
-  "combat": { "attack": 0, "defense": 5, "can_attack": false, "can_capture": false },
+  "combat": { "can_attack": false, "can_capture": false, "armor_classes": ["civilian"] },
   "movement_type": "foot",
   "maintenance": { "food": 2 },
   "abilities": [
@@ -176,7 +174,7 @@ Transport unit with cargo capacity:
     "turns": 4
   },
   "stats": { "health": 80, "movement": 3, "vision": 2, "cargo_capacity": 100 },
-  "combat": { "attack": 0, "defense": 3, "can_attack": false, "can_capture": false },
+  "combat": { "can_attack": false, "can_capture": false, "armor_classes": ["civilian"] },
   "movement_type": "foot",
   "maintenance": { "food": 1 },
   "abilities": ["trade", "transport"]

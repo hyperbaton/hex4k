@@ -1,0 +1,13 @@
+{
+	"defenses": [
+		{
+			"attack_types": ["blunt", "piercing", "slashing"],
+			"damage_reduction": 0.0,
+			"min_damage": 1,
+			"min_damage_reduction": 0,
+			"retaliation": 0.0,
+			"counter_attack": 0.0,
+			"counter_range": 0
+		}
+	]
+}
