@@ -27,6 +27,7 @@ var building_buttons: Array[CircularButton] = []
 var unit_buttons: Array[CircularButton] = []  # Unit selection buttons
 
 var current_city: City  # Reference to current city for checking build limits
+var is_active := false  # Whether the action menu should process input (set by CityOverlay)
 
 var menu_state := MenuState.CLOSED
 
@@ -62,7 +63,7 @@ func set_city(city: City):
 
 func _input(event: InputEvent):
 	"""Handle input for buttons - check clicks on circular buttons"""
-	if not visible:
+	if not is_active:
 		return
 	
 	# Handle mouse motion for hover effects

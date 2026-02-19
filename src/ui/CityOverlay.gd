@@ -211,6 +211,7 @@ func close_overlay():
 func show_overlay():
 	visible = true
 	is_open = true
+	action_menu.is_active = true
 	# Hide the full-screen dimmer - we use CityTileDimmer for selective dimming instead
 	dimmer.visible = false
 	# Show click catcher to handle map clicks
@@ -220,6 +221,7 @@ func show_overlay():
 func hide_overlay():
 	visible = false
 	is_open = false
+	action_menu.is_active = false
 	dimmer.visible = false
 	if click_catcher:
 		click_catcher.visible = false
