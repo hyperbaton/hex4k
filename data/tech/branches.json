@@ -33,7 +33,7 @@
 		"icon": "res://assets/icons/branches/material_science.svg",
 		"starts_from": {
 			"branch": "gathering_and_crafting",
-			"milestone": "pyrotechnology"
+			"milestone": "fire_mastery"
 		},
 		"visibility": { "always_visible": false }
 	},
@@ -114,12 +114,12 @@
 		"color": "#DAA520",
 		"icon": "res://assets/icons/branches/commerce.svg",
 		"starts_from": {
-			"branch": "transport",
+			"branch": "transportation",
 			"milestone": "paved_roads"
 		},
 		"visibility": { 
 			"always_visible": false,
-			"show_when": [{ "branch": "transport", "level": 1.0 }]
+			"show_when": [{ "branch": "transportation", "level": 1.0 }]
 		}
 	},
 	"natural_sciences": {
