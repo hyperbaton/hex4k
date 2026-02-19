@@ -183,12 +183,12 @@
 		"color": "#FFD700",
 		"icon": "res://assets/icons/branches/diplomacy.svg",
 		"starts_from": {
-			"branch": "governance",
-			"milestone": "tribal_councils"
+			"branch": "commerce",
+			"milestone": "currency"
 		},
 		"visibility": { 
 			"always_visible": false,
-			"show_when": [{ "branch": "governance", "level": 1.0 }]
+			"show_when": [{ "branch": "commerce", "level": 1.0 }]
 		}
 	}
 }

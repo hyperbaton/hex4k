@@ -1,0 +1,9 @@
+{
+	"name": "Cart",
+	"description": "Simple wheeled vehicle for hauling goods",
+	"flavor_text": "The burden of transport lightened.",
+	"branch": "transportation",
+	"requirements": [{"branch": "transportation", "level": 20.0}],
+	"visibility": {"always_visible": false, "show_when": [{"branch": "transportation", "level": 10.0}]},
+	"visual": {"icon": "res://assets/icons/milestones/cart.png"}
+}

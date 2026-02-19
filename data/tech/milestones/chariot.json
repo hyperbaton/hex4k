@@ -1,0 +1,9 @@
+{
+	"name": "Chariot",
+	"description": "Two-wheeled horse-drawn vehicle for war and transport",
+	"flavor_text": "Speed and power combined.",
+	"branch": "transportation",
+	"requirements": [{"branch": "transportation", "level": 12.0}],
+	"visibility": {"always_visible": false, "show_when": [{"branch": "transportation", "level": 8.0}]},
+	"visual": {"icon": "res://assets/icons/milestones/chariot.png"}
+}

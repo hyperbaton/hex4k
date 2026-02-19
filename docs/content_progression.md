@@ -71,10 +71,14 @@ graph TD
     post_and_lintel["Post and Lintel<br/><small>lvl 4</small>"]
     mudbrick["Mudbrick<br/><small>lvl 8</small>"]
     masonry["Masonry<br/><small>lvl 12</small>"]
+    reinforced_foundations["Reinforced Foundations<br/><small>lvl 18</small>"]
+    arch_and_keystone["Arch and Keystone<br/><small>lvl 30</small>"]
     natural_shelter --> timber_framing
     timber_framing --> post_and_lintel
     post_and_lintel --> mudbrick
     mudbrick --> masonry
+    masonry --> reinforced_foundations
+    reinforced_foundations --> arch_and_keystone
   end
   style construction_sub fill:#8B735518,stroke:#8B7355,stroke-width:2px,color:#fff
 
@@ -87,28 +91,64 @@ graph TD
   subgraph engineering_sub["Engineering"]
     direction LR
     inclined_plane["Inclined Plane<br/><small>lvl 1</small>"]
+    lever["Lever<br/><small>lvl 5</small>"]
+    pulley["Pulley<br/><small>lvl 15</small>"]
+    mining["Mining<br/><small>lvl 30</small>"]
+    inclined_plane --> lever
+    lever --> pulley
+    pulley --> mining
   end
   style engineering_sub fill:#4682B418,stroke:#4682B4,stroke-width:2px,color:#fff
 
   subgraph philosophy_sub["Philosophy"]
     direction LR
     oral_tradition["Oral Tradition<br/><small>lvl 1</small>"]
+    metaphysics["Metaphysics<br/><small>lvl 10</small>"]
+    rhetoric["Rhetoric<br/><small>lvl 20</small>"]
+    formal_logic["Formal Logic<br/><small>lvl 30</small>"]
+    oral_tradition --> metaphysics
+    metaphysics --> rhetoric
+    rhetoric --> formal_logic
   end
   style philosophy_sub fill:#6A5ACD18,stroke:#6A5ACD,stroke-width:2px,color:#fff
+
+  subgraph commerce_sub["Commerce"]
+    direction LR
+    bartering["Bartering<br/><small>lvl 1</small>"]
+    currency["Currency<br/><small>lvl 5</small>"]
+    bartering --> currency
+  end
+  style commerce_sub fill:#DAA52018,stroke:#DAA520,stroke-width:2px,color:#fff
 
   subgraph governance_sub["Governance"]
     direction LR
     tribal_councils["Tribal Councils<br/><small>lvl 1</small>"]
     administrative_systems["Administrative Systems<br/><small>lvl 5</small>"]
+    monarchy["Monarchy<br/><small>lvl 10</small>"]
+    codified_laws["Codified Laws<br/><small>lvl 15</small>"]
     tribal_councils --> administrative_systems
+    administrative_systems --> monarchy
+    monarchy --> codified_laws
   end
   style governance_sub fill:#B8860B18,stroke:#B8860B,stroke-width:2px,color:#fff
+
+  subgraph public_administration_sub["Public Administration"]
+    direction LR
+    oral_decrees["Oral Decrees<br/><small>lvl 1</small>"]
+    record_keeping["Record Keeping<br/><small>lvl 2</small>"]
+    oral_decrees --> record_keeping
+  end
+  style public_administration_sub fill:#556B2F18,stroke:#556B2F,stroke-width:2px,color:#fff
 
   subgraph transportation_sub["Transportation"]
     direction LR
     wheel["Wheel<br/><small>lvl 1</small>"]
     paved_roads["Paved Roads<br/><small>lvl 2</small>"]
+    chariot["Chariot<br/><small>lvl 12</small>"]
+    cart["Cart<br/><small>lvl 20</small>"]
     wheel --> paved_roads
+    paved_roads --> chariot
+    chariot --> cart
   end
   style transportation_sub fill:#CD853F18,stroke:#CD853F,stroke-width:2px,color:#fff
 
@@ -120,6 +160,8 @@ graph TD
   masonry -. "unlocks branch" .-> inclined_plane
   oral_tradition -. "unlocks branch" .-> tribal_councils
   inclined_plane -. "unlocks branch" .-> wheel
+  administrative_systems -. "unlocks branch" .-> oral_decrees
+  paved_roads -. "unlocks branch" .-> bartering
   fire_mastery -. "unlocks branch" .-> oral_tradition
 ```
 
@@ -204,6 +246,12 @@ graph LR
   end
   style philosophy_sub fill:#6A5ACD18,stroke:#6A5ACD,stroke-width:2px,color:#fff
 
+  subgraph governance_sub["Governance"]
+    direction LR
+    administrative_systems_u(["Administrative Systems"])
+  end
+  style governance_sub fill:#B8860B18,stroke:#B8860B,stroke-width:2px,color:#fff
+
   subgraph transportation_sub["Transportation"]
     direction LR
     wheel_u(["Wheel"])
@@ -248,6 +296,7 @@ graph LR
   b_vineyard(["Vineyard"]):::building
   b_woodcutter(["Woodcutter"]):::building
   u_hand_cart{{"Hand Cart"}}:::unit
+  u_labor_gang{{"Labor Gang"}}:::unit
   b_waycamp_lodge(["Waycamp Lodge"]):::building
 
   %% Milestone unlock arrows
@@ -289,6 +338,7 @@ graph LR
   terraced_farming_u --> b_vineyard
   hafted_axes_u --> b_woodcutter
   wheel_u --> u_hand_cart
+  administrative_systems_u --> u_labor_gang
 
   %% Resources
   r_honey[/"Honey"/]:::resource
@@ -449,5 +499,5 @@ graph LR
   animal_husbandry -- "Riding" --> warfare
   diplomacy["Diplomacy"]
   style diplomacy fill:#FFD700,stroke:#FFD700,color:#fff
-  governance -- "Tribal Councils" --> diplomacy
+  commerce -- "Currency" --> diplomacy
 ```

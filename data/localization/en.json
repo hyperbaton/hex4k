@@ -207,6 +207,10 @@
 		"path": {
 			"name": "Path",
 			"description": "A cleared dirt trail that speeds travel for all units, especially wheeled transport."
+		},
+		"paved_road": {
+			"name": "Paved Road",
+			"description": "A stone-laid road offering reliable, fast travel in all weather. Superior to dirt paths."
 		}
 	},
 	"building": {
@@ -537,6 +541,14 @@
 		"construction_1": {
 			"name": "Mudbrick Construction",
 			"description": "Creating durable building materials from clay and straw."
+		},
+		"administrative_systems": {
+			"name": "Administrative Systems",
+			"description": "Organized management of community affairs, enabling directed communal labor."
+		},
+		"paved_roads": {
+			"name": "Paved Roads",
+			"description": "Durable stone-laid road surfaces for reliable travel in all conditions."
 		}
 	},
 	"unit": {
@@ -563,6 +575,10 @@
 		"club_wielder": {
 			"name": "Club Wielder",
 			"description": "A fighter armed with a heavy wooden club. Basic but effective for defending settlements against early threats."
+		},
+		"labor_gang": {
+			"name": "Labor Gang",
+			"description": "An organized group of laborers directed by the settlement's leaders. Can build paths and, with the right knowledge, lay stone roads."
 		}
 	},
 	"perk": {

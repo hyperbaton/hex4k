@@ -1,0 +1,8 @@
+{
+	"name": "Currency",
+	"description": "Standardized medium of exchange for facilitating trade.",
+	"branch": "commerce",
+	"requirements": [{ "branch": "commerce", "level": 5.0 }],
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "commerce", "level": 2.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/currency.png" }
+}

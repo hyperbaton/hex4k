@@ -1,0 +1,26 @@
+{
+	"type": "infrastructure",
+	"duration": -1,
+	"stackable": false,
+	"conflicts_with": ["path"],
+	"conditions": {
+		"terrain_types": ["grassland", "plains", "meadow", "rolling_hills", "steppe", "savannah", "beach", "floodplains", "forest", "sharp_hills"],
+		"altitude_min": 0,
+		"altitude_max": 1,
+		"requires_modifiers": [],
+		"prohibits_modifiers": ["path"]
+	},
+	"generation_rules": [],
+	"construction": {
+		"cost": {
+			"stone": 3
+		},
+		"turns": 1,
+		"milestones_required": ["paved_roads"]
+	},
+	"visual": {
+		"icon": "res://assets/icons/modifiers/paved_road.svg",
+		"overlay_color": "#A0928060"
+	},
+	"milestones_required": ["paved_roads"]
+}

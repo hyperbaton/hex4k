@@ -1,0 +1,41 @@
+{
+	"category": "civil",
+	"trained_at": ["tribal_camp"],
+	"milestones_required": ["administrative_systems"],
+	"training": {
+		"cost": {
+			"wood": 10,
+			"stone": 5,
+			"tools": 3
+		},
+		"turns": 3
+	},
+	"stats": {
+		"health": 80,
+		"movement": 2,
+		"vision": 1,
+		"cargo_capacity": 30
+	},
+	"combat": {
+		"can_attack": false,
+		"can_capture": false,
+		"armor_classes": ["civilian"]
+	},
+	"movement_type": "foot",
+	"maintenance": {
+		"population": 2
+	},
+	"abilities": [
+		{
+			"ability_id": "build_infrastructure",
+			"params": {
+				"builds": ["path", "paved_road"],
+				"turns_per_build": 1
+			}
+		}
+	],
+	"visual": {
+		"sprite": "res://assets/units/labor_gang.svg",
+		"color": "#8B7355"
+	}
+}

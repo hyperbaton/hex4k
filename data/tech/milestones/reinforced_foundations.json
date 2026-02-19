@@ -1,0 +1,8 @@
+{
+	"name": "Reinforced Foundations",
+	"description": "Strengthened bases for larger structures.",
+	"branch": "construction",
+	"requirements": [{ "branch": "construction", "level": 18.0 }],
+	"visibility": { "always_visible": false, "show_when": [{ "branch": "construction", "level": 12.0 }] },
+	"visual": { "icon": "res://assets/icons/milestones/reinforced_foundations.png" }
+}

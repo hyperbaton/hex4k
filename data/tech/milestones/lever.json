@@ -1,0 +1,24 @@
+{
+	"name": "Lever",
+	"description": "A bar pivoting on a fulcrum to multiply force",
+	"flavor_text": "Give me a lever long enough and I shall move the world.",
+	"branch": "engineering",
+	"requirements": [
+		{
+			"branch": "engineering",
+			"level": 5.0
+		}
+	],
+	"visibility": {
+		"always_visible": false,
+		"show_when": [
+			{
+				"branch": "engineering",
+				"level": 1.0
+			}
+		]
+	},
+	"visual": {
+		"icon": "res://assets/icons/milestones/lever.png"
+	}
+}
