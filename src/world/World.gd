@@ -417,6 +417,15 @@ func _update_building_visuals(report: TurnReport):
 				tile.set_building(building_id, false)  # false = not under construction
 				print("Updated visual for completed building: %s at %v" % [building_id, coord])
 
+		# Update completed upgrades
+		for upgrade in city_report.upgrades_completed:
+			var coord = upgrade.coord
+			var building_id = upgrade.to_building_id
+			var tile = chunk_manager.get_tile_at_coord(coord)
+			if tile:
+				tile.set_building(building_id, false)
+				print("Updated visual for upgraded building: %s -> %s at %v" % [upgrade.from_building_id, building_id, coord])
+
 func _on_turn_completed(report: TurnReport):
 	"""Called when turn processing is complete"""
 	print("Turn %d completed" % report.turn_number)
