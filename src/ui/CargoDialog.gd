@@ -272,17 +272,25 @@ func _on_slider_changed(new_value: float, entry: Dictionary):
 			total_cargo += new_value
 		else:
 			total_cargo += e.slider.value
-	
-	# If over capacity, clamp this slider
+
+	# If over cargo capacity, clamp this slider
 	if total_cargo > unit.cargo_capacity:
 		var excess = total_cargo - unit.cargo_capacity
 		new_value = max(0, new_value - excess)
 		entry.slider.set_value_no_signal(new_value)
-	
+
+	# Check city storage capacity when moving resources to city
+	var delta_to_city = entry.original_cargo - new_value  # positive = resources going to city
+	if delta_to_city > 0:
+		var available = city.get_available_storage(entry.resource_id)
+		if delta_to_city > available:
+			new_value = max(0, entry.original_cargo - available)
+			entry.slider.set_value_no_signal(new_value)
+
 	var city_amount = entry.total - new_value
 	entry.city_label.text = "%.0f" % city_amount
 	entry.cargo_label.text = "%.0f" % new_value
-	
+
 	_update_capacity_display()
 
 func _update_capacity_display():
@@ -335,8 +343,14 @@ func _on_confirm_pressed():
 			var to_transfer = abs(diff)
 			var removed = unit.remove_cargo(resource_id, to_transfer)
 			if removed > 0:
-				city.store_resource(resource_id, removed)
-				print("Unloaded %.0f %s to %s" % [removed, resource_id, city.city_name])
+				var stored = city.store_resource(resource_id, removed)
+				if stored < removed:
+					# City couldn't store everything (shared pool full), keep remainder in cargo
+					var remainder = removed - stored
+					unit.add_cargo(resource_id, remainder)
+					print("Unloaded %.0f %s to %s (%.0f returned to cargo - storage full)" % [stored, resource_id, city.city_name, remainder])
+				else:
+					print("Unloaded %.0f %s to %s" % [removed, resource_id, city.city_name])
 	
 	emit_signal("transfer_completed")
 	hide()
