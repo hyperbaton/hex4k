@@ -22,6 +22,14 @@ func _ready():
 	visible = false
 	close_button.pressed.connect(_on_close_pressed)
 
+	# Make panel fully opaque
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.12, 0.15, 1.0)
+	style.border_color = Color(0.3, 0.3, 0.35, 1.0)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(4)
+	add_theme_stylebox_override("panel", style)
+
 func set_world_query(p_world_query: Node):
 	"""Set the world query reference for bonus calculations"""
 	world_query = p_world_query
@@ -492,6 +500,9 @@ func add_label(container: Container, text: String, min_width: float, align_left:
 	label.text = text
 	label.custom_minimum_size.x = min_width
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT if align_left else HORIZONTAL_ALIGNMENT_RIGHT
+	if align_left:
+		label.clip_text = true
+		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	container.add_child(label)
 
 func _on_close_pressed():
