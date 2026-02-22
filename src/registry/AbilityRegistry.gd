@@ -344,22 +344,23 @@ func _effect_found_city(effect: Dictionary, unit: Unit, params: Dictionary, cont
 	var city_manager = context.get("city_manager")
 	if not city_manager:
 		return {success = false, message = "No city manager", data = {}}
-	
+
 	# Resolve parameters (replace ${param} with actual values)
 	var settlement_type = _resolve_param(effect.get("settlement_type", "encampment"), params)
 	var name_prefix = _resolve_param(effect.get("city_name_prefix", "New "), params)
-	
-	# Generate city name
+
+	# Generate default city name
 	var city_count = city_manager.get_all_cities().size() + 1
-	var city_name = name_prefix + "Settlement " + str(city_count)
-	
-	# Found the city (settlement type determines initial buildings and resources)
-	var city = city_manager.found_city(city_name, unit.coord, unit.owner_id, settlement_type)
-	
-	if city:
-		return {success = true, message = "", data = {city = city, city_id = city.city_id}}
-	else:
-		return {success = false, message = "Failed to found city", data = {}}
+	var default_name = name_prefix + "Settlement " + str(city_count)
+
+	# Return dialog request — World.gd will open the naming dialog and found the city on confirm
+	return {success = true, message = "", data = {
+		open_dialog = "settlement_naming",
+		settlement_type = settlement_type,
+		default_name = default_name,
+		coord = unit.coord,
+		owner_id = unit.owner_id
+	}}
 
 func _effect_combat(effect: Dictionary, unit: Unit, params: Dictionary, context: Dictionary) -> Dictionary:
 	"""Resolve combat using CombatResolver."""

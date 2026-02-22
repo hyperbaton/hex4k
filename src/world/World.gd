@@ -21,6 +21,8 @@ var unit_ability_bar: UnitAbilityBar
 var unit_info_panel: UnitInfoPanel
 var cargo_dialog: CargoDialog
 var convoy_dialog: ConvoyAssignmentDialog
+var naming_dialog: SettlementNamingDialog
+var _pending_founding: Dictionary = {}  # Stores data while naming dialog is open
 var trade_route_panel: TradeRoutePanel
 var trade_route_creation_dialog: TradeRouteCreationDialog
 var end_turn_button: Button
@@ -89,6 +91,9 @@ func _ready():
 	
 	# Create cargo dialog (modal, centered)
 	_create_cargo_dialog()
+
+	# Create settlement naming dialog (modal, centered)
+	_create_naming_dialog()
 
 	# Create trade route UI dialogs
 	_create_trade_route_ui()
@@ -309,6 +314,61 @@ func _on_cargo_transfer_completed():
 func _on_cargo_dialog_closed():
 	"""Cargo dialog was cancelled"""
 	pass
+
+func _create_naming_dialog():
+	"""Create the settlement naming dialog (centered modal)"""
+	var ui_root = $UI/Root
+
+	naming_dialog = SettlementNamingDialog.new()
+	naming_dialog.name = "SettlementNamingDialog"
+	naming_dialog.name_confirmed.connect(_on_settlement_name_confirmed)
+	naming_dialog.dialog_closed.connect(_on_settlement_naming_cancelled)
+	ui_root.add_child(naming_dialog)
+
+func _on_settlement_name_confirmed(city_name: String):
+	"""Player confirmed the settlement name — found the city and consume the unit"""
+	var data = _pending_founding
+	_pending_founding = {}
+
+	if data.is_empty():
+		return
+
+	var city = city_manager.found_city(city_name, data.coord, data.owner_id, data.settlement_type)
+	if city:
+		print("  City founded: ", city.city_name)
+		var center_tile = chunk_manager.get_tile_at_coord(city.city_center_coord)
+		if center_tile:
+			var building_id = city.get_building_instance(city.city_center_coord).building_id
+			center_tile.set_building(building_id)
+
+	# Consume the unit
+	var unit: Unit = data.get("unit")
+	if unit:
+		unit_manager.remove_unit(unit.unit_id)
+		unit_layer.deselect_unit()
+		tile_highlighter.clear_all()
+		if unit_ability_bar:
+			unit_ability_bar.hide_bar()
+		if unit_info_panel:
+			unit_info_panel.hide_panel()
+
+func _on_settlement_naming_cancelled():
+	"""Player cancelled — refund movement cost and keep the unit"""
+	var data = _pending_founding
+	_pending_founding = {}
+
+	if data.is_empty():
+		return
+
+	var unit: Unit = data.get("unit")
+	if unit:
+		unit.current_movement = data.get("saved_movement", 0)
+		# Refresh displays since unit still exists
+		_show_unit_movement_range(unit)
+		if unit_info_panel:
+			unit_info_panel.refresh()
+		if unit_ability_bar:
+			unit_ability_bar.refresh()
 
 func _create_trade_route_ui():
 	"""Create trade route panel, creation dialog, and convoy assignment dialog."""
@@ -721,6 +781,9 @@ func _on_ability_requested(ability_id: String, params: Dictionary):
 		trade_route_manager = trade_route_manager
 	}
 
+	# Save movement in case we need to refund (e.g. naming dialog cancelled)
+	var saved_movement = unit.current_movement
+
 	var result = Registry.abilities.execute_ability(ability_id, unit, params, context)
 
 	if result.success:
@@ -744,7 +807,23 @@ func _on_ability_requested(ability_id: String, params: Dictionary):
 			else:
 				print("✗ Cannot open cargo dialog - no city at unit location")
 			return
-		
+
+		if result.results.get("open_dialog", "") == "settlement_naming":
+			# Store pending founding data — city will be created on confirm
+			_pending_founding = {
+				settlement_type = result.results.get("settlement_type", "encampment"),
+				default_name = result.results.get("default_name", "New Settlement"),
+				coord = result.results.get("coord", unit.coord),
+				owner_id = result.results.get("owner_id", unit.owner_id),
+				unit = unit,
+				saved_movement = saved_movement
+			}
+			if naming_dialog:
+				naming_dialog.open(_pending_founding.settlement_type, _pending_founding.default_name)
+			else:
+				print("✗ No naming dialog available")
+			return
+
 		# Check if unit was consumed
 		if result.results.get("unit_consumed", false):
 			print("  Unit consumed by ability")
