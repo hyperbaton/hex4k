@@ -10,6 +10,7 @@ signal unit_moved(unit: Unit, from_coord: Vector2i, to_coord: Vector2i)
 var units: Dictionary = {}  # unit_id -> Unit
 var units_by_coord: Dictionary = {}  # Vector2i -> Array[Unit] (multiple units can stack in some cases)
 var next_unit_id: int = 1
+var world_query = null  # WorldQuery reference for placing trade route markers
 
 func generate_unit_id() -> String:
 	var id = "unit_%d" % next_unit_id
@@ -54,11 +55,12 @@ func get_units_at(coord: Vector2i) -> Array:
 	return units_by_coord.get(coord, [])
 
 func get_unit_at(coord: Vector2i) -> Unit:
-	"""Get the first unit at a coordinate (for single-unit-per-tile games)"""
+	"""Get the first non-trade-route-assigned unit at a coordinate"""
 	var units_here = get_units_at(coord)
-	if units_here.is_empty():
-		return null
-	return units_here[0]
+	for u in units_here:
+		if not u.is_assigned_to_trade_route:
+			return u
+	return null
 
 func has_unit_at(coord: Vector2i) -> bool:
 	var units_here = units_by_coord.get(coord, [])
@@ -98,6 +100,11 @@ func _remove_unit_from_coord(unit: Unit, coord: Vector2i):
 func _on_unit_moved(from_coord: Vector2i, to_coord: Vector2i, unit: Unit):
 	_remove_unit_from_coord(unit, from_coord)
 	_add_unit_to_coord(unit, to_coord)
+
+	# Place trade route marker if unit is in explore route mode
+	if unit.is_exploring_route and unit.has_cargo_capacity() and world_query:
+		_place_trade_route_marker(unit, to_coord)
+
 	emit_signal("unit_moved", unit, from_coord, to_coord)
 
 func _on_unit_destroyed(unit: Unit):
@@ -186,6 +193,34 @@ func _get_hex_neighbors(coord: Vector2i) -> Array[Vector2i]:
 	for dir in directions:
 		neighbors.append(coord + dir)
 	return neighbors
+
+# === Trade Route Assignment ===
+
+func remove_unit_from_map(unit: Unit):
+	"""Remove a unit from the coord grid (for trade route assignment)."""
+	_remove_unit_from_coord(unit, unit.coord)
+
+func return_unit_to_map(unit: Unit, coord: Vector2i):
+	"""Return a unit to the coord grid at the given position.
+	Emits unit_moved so sprites and other systems update."""
+	var old_coord = unit.coord
+	unit.coord = coord
+	_add_unit_to_coord(unit, coord)
+	# Emit moved signal so UnitSprite repositions and UnitLayer updates visibility
+	unit.emit_signal("moved", old_coord, coord)
+	emit_signal("unit_moved", unit, old_coord, coord)
+
+# === Trade Route Exploration ===
+
+func _place_trade_route_marker(unit: Unit, coord: Vector2i):
+	"""Place a trade route marker on the tile for this unit's type."""
+	var terrain_data = world_query.get_terrain_data(coord)
+	if not terrain_data:
+		return
+	var marker_id = Registry.modifiers.get_trade_route_marker_id(unit.unit_type)
+	if not terrain_data.has_modifier(marker_id):
+		terrain_data.add_modifier(marker_id)
+		print("UnitManager: Placed trade route marker '%s' at %v" % [marker_id, coord])
 
 # === Cargo Operations ===
 

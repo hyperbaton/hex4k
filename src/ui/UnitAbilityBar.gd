@@ -92,39 +92,70 @@ func show_unit_abilities(unit: Unit):
 
 func _create_ability_button(ability_id: String, params: Dictionary, can_use: bool, reason: String) -> Button:
 	var button = Button.new()
-	
+
 	var ability_name = Registry.abilities.get_ability_name(ability_id)
 	var ability_desc = Registry.abilities.get_ability_description(ability_id)
-	
-	button.text = ability_name
+
+	# Check if this is a toggle ability that is currently active
+	var is_toggle_active = _is_toggle_ability_active(ability_id)
+
+	if is_toggle_active:
+		button.text = _get_toggle_off_text(ability_id)
+	else:
+		button.text = ability_name
+
 	button.custom_minimum_size = Vector2(100, 40)
 	button.disabled = not can_use
-	
+
 	# Tooltip
 	if can_use:
-		button.tooltip_text = ability_desc
+		if is_toggle_active:
+			button.tooltip_text = ability_desc + "\n\n[Currently ACTIVE - click to deactivate]"
+		else:
+			button.tooltip_text = ability_desc
 	else:
 		button.tooltip_text = ability_desc + "\n\n[Cannot use: " + reason + "]"
-	
+
 	# Style
 	if can_use:
-		var normal_style = StyleBoxFlat.new()
-		normal_style.bg_color = Color(0.2, 0.4, 0.6)
-		normal_style.set_corner_radius_all(4)
-		normal_style.set_content_margin_all(8)
-		button.add_theme_stylebox_override("normal", normal_style)
-		
-		var hover_style = StyleBoxFlat.new()
-		hover_style.bg_color = Color(0.25, 0.5, 0.7)
-		hover_style.set_corner_radius_all(4)
-		hover_style.set_content_margin_all(8)
-		button.add_theme_stylebox_override("hover", hover_style)
-		
-		var pressed_style = StyleBoxFlat.new()
-		pressed_style.bg_color = Color(0.15, 0.35, 0.5)
-		pressed_style.set_corner_radius_all(4)
-		pressed_style.set_content_margin_all(8)
-		button.add_theme_stylebox_override("pressed", pressed_style)
+		if is_toggle_active:
+			# Active toggle style (green tones)
+			var normal_style = StyleBoxFlat.new()
+			normal_style.bg_color = Color(0.2, 0.55, 0.3)
+			normal_style.set_corner_radius_all(4)
+			normal_style.set_content_margin_all(8)
+			button.add_theme_stylebox_override("normal", normal_style)
+
+			var hover_style = StyleBoxFlat.new()
+			hover_style.bg_color = Color(0.25, 0.65, 0.35)
+			hover_style.set_corner_radius_all(4)
+			hover_style.set_content_margin_all(8)
+			button.add_theme_stylebox_override("hover", hover_style)
+
+			var pressed_style = StyleBoxFlat.new()
+			pressed_style.bg_color = Color(0.15, 0.45, 0.25)
+			pressed_style.set_corner_radius_all(4)
+			pressed_style.set_content_margin_all(8)
+			button.add_theme_stylebox_override("pressed", pressed_style)
+		else:
+			# Normal style (blue tones)
+			var normal_style = StyleBoxFlat.new()
+			normal_style.bg_color = Color(0.2, 0.4, 0.6)
+			normal_style.set_corner_radius_all(4)
+			normal_style.set_content_margin_all(8)
+			button.add_theme_stylebox_override("normal", normal_style)
+
+			var hover_style = StyleBoxFlat.new()
+			hover_style.bg_color = Color(0.25, 0.5, 0.7)
+			hover_style.set_corner_radius_all(4)
+			hover_style.set_content_margin_all(8)
+			button.add_theme_stylebox_override("hover", hover_style)
+
+			var pressed_style = StyleBoxFlat.new()
+			pressed_style.bg_color = Color(0.15, 0.35, 0.5)
+			pressed_style.set_corner_radius_all(4)
+			pressed_style.set_content_margin_all(8)
+			button.add_theme_stylebox_override("pressed", pressed_style)
 	else:
 		var disabled_style = StyleBoxFlat.new()
 		disabled_style.bg_color = Color(0.2, 0.2, 0.2)
@@ -132,11 +163,27 @@ func _create_ability_button(ability_id: String, params: Dictionary, can_use: boo
 		disabled_style.set_content_margin_all(8)
 		button.add_theme_stylebox_override("disabled", disabled_style)
 		button.add_theme_color_override("font_disabled_color", Color(0.5, 0.5, 0.5))
-	
+
 	# Connect signal with ability info
 	button.pressed.connect(_on_ability_button_pressed.bind(ability_id, params))
-	
+
 	return button
+
+func _is_toggle_ability_active(ability_id: String) -> bool:
+	"""Check if a toggle ability is currently active on the unit."""
+	if not current_unit:
+		return false
+	match ability_id:
+		"explore_route":
+			return current_unit.is_exploring_route
+	return false
+
+func _get_toggle_off_text(ability_id: String) -> String:
+	"""Get the button text for when a toggle ability is active (to deactivate)."""
+	match ability_id:
+		"explore_route":
+			return "Stop Exploring"
+	return "Deactivate"
 
 func _on_ability_button_pressed(ability_id: String, params: Dictionary):
 	print("Ability button pressed: ", ability_id)

@@ -21,6 +21,7 @@ const BUILDING_OFFSET = 180.0
 var build_button: CircularButton
 var expand_button: CircularButton
 var train_button: CircularButton
+var routes_button: CircularButton
 var action_buttons: Array[CircularButton] = []  # All main action buttons
 var category_buttons: Array[CircularButton] = []
 var building_buttons: Array[CircularButton] = []
@@ -177,7 +178,12 @@ func setup_action_buttons():
 	expand_button.pressed.connect(_on_expand_pressed)
 	buttons_container.add_child(expand_button)
 	action_buttons.append(expand_button)
-	
+
+	routes_button = create_circular_button("Routes", Color(0.6, 0.4, 0.8))  # Purple
+	routes_button.pressed.connect(_on_routes_pressed)
+	buttons_container.add_child(routes_button)
+	action_buttons.append(routes_button)
+
 	# Position at bottom center
 	position_action_buttons()
 
@@ -264,6 +270,11 @@ func _on_expand_pressed():
 	"""Handle expand button press"""
 	close_all_menus()
 	emit_signal("expand_requested")
+
+func _on_routes_pressed():
+	"""Handle routes button press"""
+	close_all_menus()
+	emit_signal("routes_requested")
 
 func _on_train_pressed():
 	"""Handle train button press"""

@@ -2,7 +2,7 @@
 	"category": "production",
 	"construction": {
 		"initial_cost": {
-			"wood": 10
+			"wood": 5
 		},
 		"cost_per_turn": {},
 		"total_turns": 1

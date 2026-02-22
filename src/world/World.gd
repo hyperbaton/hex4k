@@ -13,12 +13,16 @@ extends Node2D
 var city_tile_dimmer: CityTileDimmer
 var turn_manager: TurnManager
 var unit_manager: UnitManager
+var trade_route_manager: TradeRouteManager
 var unit_layer: UnitLayer
 var fog_manager: FogOfWarManager
 var fog_overlay: FogOfWarOverlay
 var unit_ability_bar: UnitAbilityBar
 var unit_info_panel: UnitInfoPanel
 var cargo_dialog: CargoDialog
+var convoy_dialog: ConvoyAssignmentDialog
+var trade_route_panel: TradeRoutePanel
+var trade_route_creation_dialog: TradeRouteCreationDialog
 var end_turn_button: Button
 var turn_label: Label
 var turn_report_panel: PanelContainer
@@ -40,9 +44,13 @@ func _ready():
 	
 	# Create unit manager
 	unit_manager = UnitManager.new()
-	
-	# Create turn manager with unit manager and world_query references
-	turn_manager = TurnManager.new(city_manager, unit_manager, world_query)
+	unit_manager.world_query = world_query
+
+	# Create trade route manager
+	trade_route_manager = TradeRouteManager.new(city_manager, unit_manager, world_query)
+
+	# Create turn manager with unit manager, world_query, and trade route manager
+	turn_manager = TurnManager.new(city_manager, unit_manager, world_query, trade_route_manager)
 	turn_manager.turn_completed.connect(_on_turn_completed)
 	
 	# Create unit layer for visuals (in world space, above tiles)
@@ -81,6 +89,9 @@ func _ready():
 	
 	# Create cargo dialog (modal, centered)
 	_create_cargo_dialog()
+
+	# Create trade route UI dialogs
+	_create_trade_route_ui()
 	
 	# Create perks panel and button
 	_create_perks_ui()
@@ -110,8 +121,10 @@ func _ready():
 	
 	# Initialize player and starting units
 	setup_player_start()
-	setup_test_combat()
-	setup_test_tech_progress()
+	# setup_test_combat()
+	# setup_test_tech_progress()
+	setup_advanced_test_tech()
+	setup_advanced_test_city()
 
 	# Initialize fog of war after city/unit setup
 	fog_manager.initialize(current_player_id, city_manager, unit_manager, world_query)
@@ -246,7 +259,8 @@ func _create_unit_ability_bar():
 	unit_ability_bar.set_context({
 		world_query = world_query,
 		city_manager = city_manager,
-		unit_manager = unit_manager
+		unit_manager = unit_manager,
+		trade_route_manager = trade_route_manager
 	})
 	unit_ability_bar.ability_requested.connect(_on_ability_requested)
 	ui_root.add_child(unit_ability_bar)
@@ -295,6 +309,50 @@ func _on_cargo_transfer_completed():
 func _on_cargo_dialog_closed():
 	"""Cargo dialog was cancelled"""
 	pass
+
+func _create_trade_route_ui():
+	"""Create trade route panel, creation dialog, and convoy assignment dialog."""
+	var ui_root = $UI/Root
+
+	# Convoy assignment dialog
+	convoy_dialog = ConvoyAssignmentDialog.new()
+	convoy_dialog.name = "ConvoyAssignmentDialog"
+	convoy_dialog.convoy_assigned.connect(_on_convoy_assigned)
+	ui_root.add_child(convoy_dialog)
+
+	# Trade route panel (city-level overview)
+	trade_route_panel = TradeRoutePanel.new()
+	trade_route_panel.name = "TradeRoutePanel"
+	trade_route_panel.create_route_requested.connect(_on_create_route_requested)
+	ui_root.add_child(trade_route_panel)
+
+	# Trade route creation dialog
+	trade_route_creation_dialog = TradeRouteCreationDialog.new()
+	trade_route_creation_dialog.name = "TradeRouteCreationDialog"
+	trade_route_creation_dialog.route_created.connect(_on_trade_route_created)
+	ui_root.add_child(trade_route_creation_dialog)
+
+func _on_convoy_assigned(route_id: String, unit: Unit):
+	"""Handle convoy being assigned to a route."""
+	print("Convoy assigned: %s -> route %s" % [unit.unit_id, route_id])
+	# Update unit display (it's now abstracted into the route)
+	unit_layer.deselect_unit()
+	unit_layer.update_unit_display(unit)
+	if unit_ability_bar:
+		unit_ability_bar.hide_bar()
+	if unit_info_panel:
+		unit_info_panel.hide_panel()
+
+func _on_create_route_requested(city_id: String):
+	"""Handle request to create a new route from the trade route panel."""
+	if trade_route_creation_dialog:
+		trade_route_creation_dialog.open(city_id, trade_route_manager, city_manager)
+
+func _on_trade_route_created(route: TradeRoute):
+	"""Handle a new trade route being created."""
+	print("Trade route created: %s" % route.route_id)
+	if trade_route_panel and trade_route_panel.visible:
+		trade_route_panel.refresh()
 
 func _on_end_turn_pressed():
 	"""Handle End Turn button press"""
@@ -452,7 +510,7 @@ func _on_tile_selected(tile: HexTile):
 					tile_info_panel.hide_panel()
 					if city_tile_dimmer:
 						city_tile_dimmer.activate(city)
-					city_overlay.open_city(city, world_query, city_manager, tile_highlighter, chunk_manager)
+					city_overlay.open_city(city, world_query, city_manager, tile_highlighter, chunk_manager, trade_route_manager, unit_manager)
 					return
 				# No city - just keep unit selected, maybe show unit info
 				print("Unit already selected, no city here")
@@ -521,7 +579,7 @@ func _on_tile_selected(tile: HexTile):
 			if city_tile_dimmer:
 				city_tile_dimmer.activate(city)
 			# Open city overlay with chunk_manager reference
-			city_overlay.open_city(city, world_query, city_manager, tile_highlighter, chunk_manager)
+			city_overlay.open_city(city, world_query, city_manager, tile_highlighter, chunk_manager, trade_route_manager, unit_manager)
 			return
 		
 		# Otherwise show tile info
@@ -650,15 +708,24 @@ func _on_ability_requested(ability_id: String, params: Dictionary):
 	var context = {
 		world_query = world_query,
 		city_manager = city_manager,
-		unit_manager = unit_manager
+		unit_manager = unit_manager,
+		trade_route_manager = trade_route_manager
 	}
 
 	var result = Registry.abilities.execute_ability(ability_id, unit, params, context)
-	
+
 	if result.success:
 		print("✓ Ability executed: ", result.message)
-		
+
 		# Check if we need to open a dialog
+		if result.results.get("open_dialog", "") == "convoy_assignment":
+			var city = city_manager.get_city_at_tile(unit.coord)
+			if city and convoy_dialog:
+				convoy_dialog.open(unit, city, trade_route_manager, city_manager)
+			else:
+				print("✗ Cannot open convoy dialog - no city or dialog")
+			return
+
 		if result.results.get("open_dialog", "") == "cargo":
 			# Open cargo dialog for unit at its current city
 			var city = city_manager.get_city_at_tile(unit.coord)
@@ -709,6 +776,8 @@ func _on_ability_requested(ability_id: String, params: Dictionary):
 		_show_unit_movement_range(unit)
 		if unit_info_panel:
 			unit_info_panel.refresh()
+		if unit_ability_bar:
+			unit_ability_bar.refresh()
 	else:
 		print("✗ Ability failed: ", result.message)
 
@@ -780,6 +849,7 @@ func _execute_target_selection(target_coord: Vector2i):
 		world_query = world_query,
 		city_manager = city_manager,
 		unit_manager = unit_manager,
+		trade_route_manager = trade_route_manager,
 		target_unit = target_unit
 	}
 
@@ -1009,5 +1079,127 @@ func setup_test_tech_progress():
 	Registry.tech.set_branch_progress("construction", 0.0)
 	Registry.tech.set_branch_progress("gathering_and_crafting", 0.0)
 	Registry.tech.set_branch_progress("mysticism", 0.0)
-	
+
 	print("✓ Set test tech progress")
+
+func setup_advanced_test_tech():
+	"""Unlock all technology needed for an advanced test city.
+	Covers: tribal_camp, cultivated_plot, flint_knapper, trade_post,
+	cleared_field, gathering_hut, woodcutter, hut, fishing_hut,
+	food_cache, storytellers_fire, and their full dependency chains."""
+	# Root branches
+	Registry.tech.set_branch_progress("gathering_and_crafting", 15.0)  # fire_mastery, hafted_axes, lithic_reduction, foraging
+	Registry.tech.set_branch_progress("construction", 12.0)           # masonry, post_and_lintel, timber_framing, natural_shelter
+	Registry.tech.set_branch_progress("agriculture", 40.0)            # digging_sticks, canal_irrigation → unlocks communication
+	Registry.tech.set_branch_progress("animal_husbandry", 1.0)        # pack_animal_domestication
+	Registry.tech.set_branch_progress("philosophy", 1.0)              # oral_tradition → unlocks governance
+	Registry.tech.set_branch_progress("mysticism", 0.0)
+
+	# Child branches (unlocked by milestones above)
+	# masonry → engineering, inclined_plane → transportation, paved_roads → commerce
+	Registry.tech.set_branch_progress("engineering", 1.0)             # inclined_plane → unlocks transportation
+	Registry.tech.set_branch_progress("transportation", 2.0)          # paved_roads → unlocks commerce
+	# oral_tradition → governance, administrative_systems → public_administration
+	Registry.tech.set_branch_progress("governance", 5.0)              # administrative_systems → unlocks public_administration
+	# canal_irrigation → communication
+	Registry.tech.set_branch_progress("communication", 5.0)           # record_keeping requirement
+	# administrative_systems → public_administration
+	Registry.tech.set_branch_progress("public_administration", 2.0)   # record_keeping
+
+	# check_milestone_unlocks is called by set_branch_progress, but call once more
+	# to catch any cascading unlocks
+	Registry.tech.check_milestone_unlocks()
+
+	print("✓ Advanced test tech unlocked")
+
+func setup_advanced_test_city():
+	"""Create a well-developed test city with multiple tiles and completed buildings.
+	Call setup_advanced_test_tech() before this to ensure milestones are unlocked."""
+	await get_tree().create_timer(0.5).timeout  # Wait for chunks to load
+
+	# Create player if not already created
+	if not city_manager.get_player(current_player_id):
+		city_manager.create_player(current_player_id, "Test Player")
+
+	var center_coord = Vector2i(-12, 15)
+
+	# Found city (encampment with longhouse as city center)
+	var city = city_manager.found_city("Test City", center_coord, current_player_id)
+	if not city:
+		push_warning("Failed to found advanced test city")
+		return
+
+	# Upgrade city center from longhouse to tribal_camp
+	var center_tile = city.get_tile(center_coord)
+	if center_tile:
+		center_tile.building_id = "tribal_camp"
+	var center_instance = BuildingInstance.new("tribal_camp", center_coord)
+	center_instance.set_active()
+	city.building_instances[center_coord] = center_instance
+
+	# Define all additional tiles with their buildings
+	var tile_buildings: Array[Dictionary] = [
+		{coord = Vector2i(-12, 14), building = "cultivated_plot"},
+		{coord = Vector2i(-13, 16), building = "flint_knapper"},
+		{coord = Vector2i(-13, 17), building = "trade_post"},
+		{coord = Vector2i(-12, 16), building = "cleared_field"},
+		{coord = Vector2i(-11, 14), building = "gathering_hut"},
+		{coord = Vector2i(-11, 15), building = "woodcutter"},
+		{coord = Vector2i(-11, 16), building = "hut"},
+		{coord = Vector2i(-10, 14), building = "gathering_hut"},
+		{coord = Vector2i(-10, 15), building = "hut"},
+		{coord = Vector2i(-9, 11),  building = "fishing_hut"},
+		{coord = Vector2i(-9, 12),  building = "food_cache"},
+		{coord = Vector2i(-9, 13),  building = "hut"},
+		{coord = Vector2i(-9, 14),  building = "hut"},
+		{coord = Vector2i(-9, 15),  building = "storytellers_fire"},
+	]
+
+	for entry in tile_buildings:
+		var coord: Vector2i = entry.coord
+		var building_id: String = entry.building
+
+		# Claim tile
+		city.add_tile(coord)
+		city_manager.tile_ownership[coord] = city.city_id
+
+		# Place completed building
+		var instance = BuildingInstance.new(building_id, coord)
+		instance.set_active()
+		city.building_instances[coord] = instance
+
+		# Update CityTile reference
+		var tile = city.get_tile(coord)
+		if tile:
+			tile.building_id = building_id
+
+		# Update visual on the hex map
+		var hex_tile = chunk_manager.get_tile_at_coord(coord)
+		if hex_tile:
+			hex_tile.set_building(building_id, false)
+
+	# Update center tile visual too
+	var center_hex = chunk_manager.get_tile_at_coord(center_coord)
+	if center_hex:
+		center_hex.set_building("tribal_camp", false)
+
+	# Stock the city with resources
+	city.recalculate_city_stats()
+	city.store_resource("food", 50.0)
+	city.store_resource("wood", 40.0)
+	city.store_resource("stone", 30.0)
+	city.store_resource("tools", 10.0)
+	city.store_resource("population", 15.0)
+
+	print("✓ Advanced test city founded at %v with %d tiles" % [center_coord, city.tiles.size()])
+	print("  Buildings: %d" % city.building_instances.size())
+	print("  Pop: %d | Food: %.0f | Wood: %.0f | Stone: %.0f" % [
+		city.get_total_population(),
+		city.get_total_resource("food"),
+		city.get_total_resource("wood"),
+		city.get_total_resource("stone")
+	])
+	print("  Click the city to open the overlay!")
+
+	# Center camera on the city
+	camera.focus_on_coord(center_coord)

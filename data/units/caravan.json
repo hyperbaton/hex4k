@@ -1,6 +1,6 @@
 {
 	"category": "civil",
-	"trained_at": [],
+	"trained_at": ["trade_post"],
 	"milestones_required": ["pack_animal_domestication"],
 	"training": {
 		"cost": {
@@ -24,7 +24,7 @@
 	"maintenance": {
 		"food": 1
 	},
-	"abilities": ["trade", "transport"],
+	"abilities": ["trade", "transport", "explore_route", "assign_convoy"],
 	"visual": {
 		"sprite": "res://assets/units/caravan.svg",
 		"color": "#DAA520"

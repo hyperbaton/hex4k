@@ -1,0 +1,22 @@
+{
+	"id": "explore_route",
+	"name": "Explore Route",
+	"description": "Toggle route exploration mode. While active, every tile this unit moves through is marked as part of a trade route for this unit type.",
+	"icon": "res://assets/icons/abilities/explore_route.svg",
+	"category": "logistics",
+	"conditions": [
+		{
+			"type": "has_cargo_capacity",
+			"message": "This unit cannot carry cargo"
+		}
+	],
+	"costs": {
+		"movement": 0,
+		"ends_turn": false
+	},
+	"effects": [
+		{
+			"type": "toggle_explore_route_mode"
+		}
+	]
+}

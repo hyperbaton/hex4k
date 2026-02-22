@@ -13,6 +13,8 @@ signal closed
 var current_city: City
 var world_query: WorldQuery
 var city_manager: CityManager
+var trade_route_manager: TradeRouteManager
+var unit_manager: UnitManager
 var tile_highlighter: TileHighlighter
 var chunk_manager: Node  # ChunkManager reference for updating tile visuals
 var selected_building_id: String = ""
@@ -26,6 +28,8 @@ var close_button: Button
 var click_catcher: Control  # Invisible control to catch map clicks
 var tile_info_panel: CityTileInfoPanel  # Panel for showing tile/building info
 var queue_panel: CityQueuePanel  # Panel for showing construction and training queues
+var trade_route_panel_instance: TradeRoutePanel  # Trade route panel
+var trade_route_details_instance: TradeRouteDetailsPanel  # Route details panel
 
 func _ready():
 	hide_overlay()
@@ -34,6 +38,7 @@ func _ready():
 	action_menu.build_requested.connect(_on_build_requested)
 	action_menu.expand_requested.connect(_on_expand_requested)
 	action_menu.train_requested.connect(_on_train_requested)
+	action_menu.routes_requested.connect(_on_routes_requested)
 	action_menu.closed.connect(_on_action_menu_closed)
 	resource_detail_panel.closed.connect(_on_resource_detail_closed)
 	city_header.clicked.connect(_on_header_clicked)
@@ -167,11 +172,13 @@ func _input(event: InputEvent):
 				get_viewport().set_input_as_handled()
 				return
 
-func open_city(city: City, p_world_query: WorldQuery, p_city_manager: CityManager, p_tile_highlighter: TileHighlighter, p_chunk_manager: Node = null):
+func open_city(city: City, p_world_query: WorldQuery, p_city_manager: CityManager, p_tile_highlighter: TileHighlighter, p_chunk_manager: Node = null, p_trade_route_manager: TradeRouteManager = null, p_unit_manager: UnitManager = null):
 	"""Open the overlay for a specific city"""
 	current_city = city
 	world_query = p_world_query
 	city_manager = p_city_manager
+	trade_route_manager = p_trade_route_manager
+	unit_manager = p_unit_manager
 	tile_highlighter = p_tile_highlighter
 	chunk_manager = p_chunk_manager
 	
@@ -182,6 +189,7 @@ func open_city(city: City, p_world_query: WorldQuery, p_city_manager: CityManage
 	current_city.recalculate_city_stats()
 	
 	# Update UI
+	city_header.trade_route_manager = trade_route_manager
 	city_header.set_city(city)
 	
 	# Show queue panel and update it
@@ -206,6 +214,8 @@ func close_overlay():
 		tile_info_panel.hide_panel()
 	if queue_panel:
 		queue_panel.hide_panel()
+	if trade_route_panel_instance and trade_route_panel_instance.visible:
+		trade_route_panel_instance.close()
 	emit_signal("closed")
 
 func show_overlay():
@@ -852,6 +862,98 @@ func expand_to_tile(coord: Vector2i):
 				parent.city_tile_dimmer.activate(current_city)
 				break
 			parent = parent.get_parent()
+
+# === Trade Routes ===
+
+func _on_routes_requested():
+	"""Player clicked the Routes button - show trade route panel"""
+	if not current_city or not trade_route_manager:
+		return
+
+	# Cancel any other active mode
+	selected_building_id = ""
+	is_expand_mode = false
+	is_train_mode = false
+	selected_unit_for_training = ""
+	if tile_highlighter:
+		tile_highlighter.clear_all()
+
+	# Create trade route panel on first use
+	if not trade_route_panel_instance:
+		trade_route_panel_instance = TradeRoutePanel.new()
+		trade_route_panel_instance.name = "TradeRoutePanelOverlay"
+		trade_route_panel_instance.create_route_requested.connect(_on_create_route_from_panel)
+		trade_route_panel_instance.route_selected.connect(_on_route_details_requested)
+		trade_route_panel_instance.closed.connect(_on_trade_route_panel_closed)
+		add_child(trade_route_panel_instance)
+
+	# Position centered
+	var viewport_size = get_viewport().get_visible_rect().size
+	await get_tree().process_frame
+	trade_route_panel_instance.open(current_city, trade_route_manager, city_manager, unit_manager)
+	await get_tree().process_frame
+	var panel_size = trade_route_panel_instance.size
+	trade_route_panel_instance.position = Vector2(
+		(viewport_size.x - panel_size.x) / 2,
+		(viewport_size.y - panel_size.y) / 2 - 40
+	)
+
+func _on_create_route_from_panel(city_id: String):
+	"""Handle create route request from trade route panel"""
+	# Find the trade route creation dialog in the World's UI
+	var parent = get_parent()
+	while parent:
+		if parent.has_method("get") and parent.get("trade_route_creation_dialog"):
+			var dialog = parent.trade_route_creation_dialog
+			dialog.open(city_id, trade_route_manager, city_manager)
+			break
+		parent = parent.get_parent()
+
+func _on_route_details_requested(route_id: String):
+	"""Player clicked Details on a trade route - open the details panel."""
+	if not trade_route_manager:
+		return
+	var route = trade_route_manager.get_route(route_id)
+	if not route:
+		return
+
+	# Create details panel on first use
+	if not trade_route_details_instance:
+		trade_route_details_instance = TradeRouteDetailsPanel.new()
+		trade_route_details_instance.name = "TradeRouteDetailsOverlay"
+		trade_route_details_instance.closed.connect(_on_trade_route_details_closed)
+		trade_route_details_instance.route_changed.connect(_on_trade_route_details_changed)
+		add_child(trade_route_details_instance)
+
+	# Position centered
+	var viewport_size = get_viewport().get_visible_rect().size
+	await get_tree().process_frame
+	trade_route_details_instance.open(route, trade_route_manager, city_manager, unit_manager)
+	await get_tree().process_frame
+	var panel_size = trade_route_details_instance.size
+	trade_route_details_instance.position = Vector2(
+		(viewport_size.x - panel_size.x) / 2,
+		(viewport_size.y - panel_size.y) / 2 - 20
+	)
+
+func _on_trade_route_details_closed():
+	"""Details panel was closed - refresh the routes list."""
+	if trade_route_panel_instance and trade_route_panel_instance.visible:
+		trade_route_panel_instance.refresh()
+
+func _on_trade_route_details_changed():
+	"""Convoy or allocation changed in the details panel - refresh parent."""
+	if trade_route_panel_instance and trade_route_panel_instance.visible:
+		trade_route_panel_instance.refresh()
+	# Also refresh city header (convoy counts may have changed)
+	if current_city:
+		city_header.update_display()
+
+func _on_trade_route_panel_closed():
+	"""Trade route panel was closed"""
+	# Also close details panel if open
+	if trade_route_details_instance and trade_route_details_instance.visible:
+		trade_route_details_instance.close()
 
 # === Train Mode ===
 

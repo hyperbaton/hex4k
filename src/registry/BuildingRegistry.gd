@@ -265,6 +265,13 @@ func get_caravan_capacity(building_id: String) -> int:
 		return building.provides.get("caravan_capacity", 0)
 	return 0
 
+func get_trade_route_capacity(building_id: String) -> int:
+	"""Get the trade route capacity this building provides (number of trade routes)."""
+	var building = get_building(building_id)
+	if building.has("provides"):
+		return building.provides.get("trade_route_capacity", 0)
+	return 0
+
 func get_building_vision(building_id: String) -> int:
 	"""Get the vision range this building provides. Default 0."""
 	var building = get_building(building_id)

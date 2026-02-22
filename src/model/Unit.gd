@@ -34,6 +34,8 @@ var cargo_capacity: int = 0  # Max total cargo weight
 # State
 var is_fortified: bool = false
 var has_acted: bool = false  # Has performed an action this turn (attack, ability, etc.)
+var is_exploring_route: bool = false  # When true, tiles moved through get trade route markers
+var is_assigned_to_trade_route: bool = false  # When true, unit is abstracted into a trade route
 
 func _init(p_unit_id: String, p_unit_type: String, p_owner_id: String, p_coord: Vector2i):
 	unit_id = p_unit_id
@@ -133,6 +135,10 @@ func fortify():
 	is_fortified = true
 	current_movement = 0
 	has_acted = true
+
+func toggle_explore_route_mode():
+	"""Toggle trade route exploration mode."""
+	is_exploring_route = not is_exploring_route
 
 func is_civil() -> bool:
 	return Registry.units.is_civil_unit(unit_type)
@@ -244,7 +250,9 @@ func get_save_data() -> Dictionary:
 		"is_fortified": is_fortified,
 		"has_acted": has_acted,
 		"attacks_remaining": attacks_remaining,
-		"cargo": cargo.duplicate()
+		"cargo": cargo.duplicate(),
+		"is_exploring_route": is_exploring_route,
+		"is_assigned_to_trade_route": is_assigned_to_trade_route
 	}
 
 static func from_save_data(data: Dictionary) -> Unit:
@@ -262,4 +270,6 @@ static func from_save_data(data: Dictionary) -> Unit:
 	unit.has_acted = data.get("has_acted", false)
 	unit.attacks_remaining = data.get("attacks_remaining", 0)
 	unit.cargo = data.get("cargo", {})
+	unit.is_exploring_route = data.get("is_exploring_route", false)
+	unit.is_assigned_to_trade_route = data.get("is_assigned_to_trade_route", false)
 	return unit

@@ -180,6 +180,9 @@ class CityTurnReport extends RefCounted:
 	var population_total: int = 0
 	var population_capacity: int = 0
 	
+	# Trade transfers
+	var trade_transfers: Array[Dictionary] = []  # [{route_id, resource_id, amount, direction, dest_city_id}]
+
 	# Resource totals (end of turn)
 	var resource_totals: Dictionary = {}  # resource_id -> amount stored
 	
@@ -266,7 +269,17 @@ class CityTurnReport extends RefCounted:
 	func set_generic_knowledge_target(knowledge_resource_id: String, target_branch: String):
 		"""Record where generic knowledge was routed."""
 		generic_knowledge_targets[knowledge_resource_id] = target_branch
-	
+
+	func add_trade_transfer(route_id: String, resource_id: String, amount: float, direction: String, dest_city_id: String):
+		"""Track a resource transfer via trade route."""
+		trade_transfers.append({
+			"route_id": route_id,
+			"resource_id": resource_id,
+			"amount": amount,
+			"direction": direction,
+			"dest_city_id": dest_city_id
+		})
+
 	# === Backward Compatibility ===
 	# TODO: Remove in Phase 6 cleanup.
 	
@@ -420,12 +433,18 @@ class CityTurnReport extends RefCounted:
 					var target_name = Registry.tech.get_branch_name(target)
 					lines.append("  Generic %s: +%.2f → %s" % [res_id, amount, target_name])
 		
+		# Trade transfers
+		if not trade_transfers.is_empty():
+			for transfer in trade_transfers:
+				var dest_name = transfer.dest_city_id
+				lines.append("  Trade: %.1f %s -> %s" % [transfer.amount, transfer.resource_id, dest_name])
+
 		# Population
 		if population_change != 0:
 			var sign = "+" if population_change > 0 else ""
 			lines.append("  Population: %s%.0f (Total: %d/%d)" % [sign, population_change, population_total, population_capacity])
-		
+
 		if lines.is_empty():
 			return "  No significant changes"
-		
+
 		return "\n".join(lines)

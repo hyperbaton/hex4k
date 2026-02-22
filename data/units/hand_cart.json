@@ -35,7 +35,9 @@
 				"builds": ["path"],
 				"turns_per_build": 1
 			}
-		}
+		},
+		"explore_route",
+		"assign_convoy"
 	],
 	"visual": {
 		"sprite": "res://assets/units/hand_cart.svg",

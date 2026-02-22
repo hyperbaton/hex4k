@@ -160,3 +160,19 @@ func blocks_vision(modifier_id: String) -> bool:
 	"""Check if a modifier blocks line-of-sight"""
 	var modifier = get_modifier(modifier_id)
 	return modifier.get("blocks_vision", false)
+
+# === Trade Route Helpers ===
+
+func is_trade_route_marker(modifier_id: String) -> bool:
+	"""Check if a modifier is a trade route marker (encoded as trade_route_marker_{unit_type})"""
+	return modifier_id.begins_with("trade_route_marker_")
+
+func get_trade_route_marker_unit_type(modifier_id: String) -> String:
+	"""Extract the unit type from a trade route marker modifier ID."""
+	if is_trade_route_marker(modifier_id):
+		return modifier_id.substr("trade_route_marker_".length())
+	return ""
+
+func get_trade_route_marker_id(unit_type: String) -> String:
+	"""Get the trade route marker modifier ID for a given unit type."""
+	return "trade_route_marker_" + unit_type

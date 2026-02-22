@@ -1,0 +1,30 @@
+{
+	"id": "assign_convoy",
+	"name": "Assign to Trade Route",
+	"description": "Assign this unit to an active trade route. The unit will operate automatically, transporting resources between cities.",
+	"icon": "res://assets/icons/abilities/assign_convoy.svg",
+	"category": "logistics",
+	"conditions": [
+		{
+			"type": "on_city",
+			"message": "Must be on a city tile to assign to a trade route"
+		},
+		{
+			"type": "has_cargo_capacity",
+			"message": "This unit cannot carry cargo"
+		},
+		{
+			"type": "city_has_trade_routes",
+			"message": "This city has no active trade routes"
+		}
+	],
+	"costs": {
+		"movement": "all",
+		"ends_turn": true
+	},
+	"effects": [
+		{
+			"type": "open_convoy_assignment_dialog"
+		}
+	]
+}

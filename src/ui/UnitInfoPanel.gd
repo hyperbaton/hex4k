@@ -18,6 +18,7 @@ var movement_label: Label
 var attack_label: Label
 var defense_label: Label
 var category_label: Label
+var mode_label: Label
 var owner_label: Label
 var position_label: Label
 
@@ -71,7 +72,13 @@ func _setup_ui():
 	category_label.add_theme_font_size_override("font_size", 12)
 	category_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
 	header_vbox.add_child(category_label)
-	
+
+	mode_label = Label.new()
+	mode_label.add_theme_font_size_override("font_size", 11)
+	mode_label.add_theme_color_override("font_color", Color(0.5, 0.8, 0.5))
+	mode_label.visible = false
+	header_vbox.add_child(mode_label)
+
 	# Separator
 	main_vbox.add_child(HSeparator.new())
 	
@@ -249,6 +256,9 @@ func _update_display():
 	var category = unit_data.get("category", "civil").capitalize()
 	var suffix = " (Enemy)" if _is_enemy else ""
 	category_label.text = category + " Unit" + suffix
+
+	# Mode indicator
+	_update_mode_label()
 	
 	# Icon
 	_load_unit_icon()
@@ -313,6 +323,27 @@ func _update_display():
 		actions_header_label.visible = true
 		actions_container.visible = true
 		_update_actions()
+
+func _update_mode_label():
+	"""Update the mode indicator below the category."""
+	if current_unit == null or _is_enemy:
+		mode_label.visible = false
+		return
+
+	if current_unit.is_assigned_to_trade_route:
+		mode_label.text = "Assigned to Trade Route"
+		mode_label.add_theme_color_override("font_color", Color(0.6, 0.7, 0.9))
+		mode_label.visible = true
+	elif current_unit.is_exploring_route:
+		mode_label.text = "Exploring Route"
+		mode_label.add_theme_color_override("font_color", Color(0.5, 0.8, 0.5))
+		mode_label.visible = true
+	elif current_unit.is_fortified:
+		mode_label.text = "Fortified"
+		mode_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.9))
+		mode_label.visible = true
+	else:
+		mode_label.visible = false
 
 func _load_unit_icon():
 	var unit_data = Registry.units.get_unit(current_unit.unit_type)

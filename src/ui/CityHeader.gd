@@ -10,7 +10,10 @@ signal clicked
 @onready var resources_container := $HBoxContainer/ResourcesContainer
 
 var current_city: City
+var trade_route_manager: TradeRouteManager  # For trade route capacity display
 var admin_display: HBoxContainer  # Admin capacity display
+var trade_display: HBoxContainer  # Trade route capacity display
+var convoy_display: HBoxContainer  # Convoy capacity display
 
 # Cache for loaded textures
 static var icon_cache: Dictionary = {}
@@ -43,6 +46,12 @@ func update_display():
 	
 	# Admin capacity
 	update_admin_display()
+
+	# Trade route capacity
+	update_trade_display()
+
+	# Convoy capacity
+	update_convoy_display()
 
 func update_resources():
 	# Clear existing resource displays
@@ -117,6 +126,123 @@ func update_admin_display():
 	
 	# Add to resources container (at the end)
 	resources_container.add_child(admin_display)
+
+func update_trade_display():
+	"""Update the trade route capacity display"""
+	# Remove old display if it exists
+	if trade_display and is_instance_valid(trade_display):
+		trade_display.queue_free()
+		trade_display = null
+
+	if not current_city:
+		return
+
+	# Only show if city has any trade route capacity
+	var total_capacity = current_city.get_trade_route_capacity()
+	if total_capacity <= 0:
+		return
+
+	# Get used count from trade route manager
+	var used: int = 0
+	if trade_route_manager:
+		used = trade_route_manager.get_used_trade_route_count(current_city.city_id)
+
+	# Create new trade display
+	trade_display = HBoxContainer.new()
+	trade_display.add_theme_constant_override("separation", 4)
+
+	# Separator
+	trade_display.add_child(VSeparator.new())
+
+	# Icon
+	var icon_container = TextureRect.new()
+	icon_container.custom_minimum_size = Vector2(24, 24)
+	icon_container.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon_container.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	var icon_path = "res://assets/icons/trade_route_capacity.svg"
+	if ResourceLoader.exists(icon_path):
+		var texture = load(icon_path)
+		if texture:
+			icon_container.texture = texture
+	trade_display.add_child(icon_container)
+
+	# Label: used / total
+	var label = Label.new()
+	label.text = "%d / %d" % [used, total_capacity]
+	label.add_theme_font_size_override("font_size", 14)
+
+	# Color based on capacity
+	var available = total_capacity - used
+	if available <= 0:
+		label.add_theme_color_override("font_color", Color.RED)
+	elif available == 1:
+		label.add_theme_color_override("font_color", Color.YELLOW)
+	else:
+		label.add_theme_color_override("font_color", Color.WHITE)
+
+	trade_display.add_child(label)
+
+	# Tooltip
+	trade_display.tooltip_text = "Trade Routes: %d / %d" % [used, total_capacity]
+	trade_display.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	resources_container.add_child(trade_display)
+
+func update_convoy_display():
+	"""Update the convoy capacity display"""
+	# Remove old display if it exists
+	if convoy_display and is_instance_valid(convoy_display):
+		convoy_display.queue_free()
+		convoy_display = null
+
+	if not current_city:
+		return
+
+	# Only show if city has any convoy capacity
+	var total_capacity = current_city.get_convoy_capacity()
+	if total_capacity <= 0:
+		return
+
+	# Get used count from trade route manager
+	var used: int = 0
+	if trade_route_manager:
+		used = trade_route_manager.get_used_convoy_count(current_city.city_id)
+
+	# Create new convoy display
+	convoy_display = HBoxContainer.new()
+	convoy_display.add_theme_constant_override("separation", 4)
+
+	# Separator
+	convoy_display.add_child(VSeparator.new())
+
+	# Icon - reuse trade route icon but with a convoy label
+	var icon_label = Label.new()
+	icon_label.text = "Convoys"
+	icon_label.add_theme_font_size_override("font_size", 12)
+	icon_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.65))
+	convoy_display.add_child(icon_label)
+
+	# Label: used / total
+	var label = Label.new()
+	label.text = "%d / %d" % [used, total_capacity]
+	label.add_theme_font_size_override("font_size", 14)
+
+	# Color based on capacity
+	var available = total_capacity - used
+	if available <= 0:
+		label.add_theme_color_override("font_color", Color.RED)
+	elif available == 1:
+		label.add_theme_color_override("font_color", Color.YELLOW)
+	else:
+		label.add_theme_color_override("font_color", Color.WHITE)
+
+	convoy_display.add_child(label)
+
+	# Tooltip
+	convoy_display.tooltip_text = "Convoy Slots: %d / %d" % [used, total_capacity]
+	convoy_display.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	resources_container.add_child(convoy_display)
 
 func add_resource_display(resource_id: String, amount: float, capacity: float):
 	var display = HBoxContainer.new()

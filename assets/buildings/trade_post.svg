@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Trade Post - open-air trading pavilion with goods -->
+  <defs>
+    <linearGradient id="postWood" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#A0845C"/>
+      <stop offset="100%" style="stop-color:#6B5230"/>
+    </linearGradient>
+    <linearGradient id="canopyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#C8A260"/>
+      <stop offset="100%" style="stop-color:#9A7840"/>
+    </linearGradient>
+    <linearGradient id="crateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#D4A574"/>
+      <stop offset="100%" style="stop-color:#A67B4A"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Support posts -->
+  <rect x="8" y="18" width="4" height="38" fill="url(#postWood)" stroke="#4A3520" stroke-width="0.8"/>
+  <rect x="52" y="18" width="4" height="38" fill="url(#postWood)" stroke="#4A3520" stroke-width="0.8"/>
+  <rect x="30" y="16" width="4" height="40" fill="url(#postWood)" stroke="#4A3520" stroke-width="0.8"/>
+
+  <!-- Canopy/awning -->
+  <path d="M4,18 L32,10 L60,18 L58,22 L32,15 L6,22 Z" fill="url(#canopyGrad)" stroke="#8B6914" stroke-width="1"/>
+  <!-- Canopy stripes -->
+  <line x1="14" y1="17" x2="18" y2="13" stroke="#B89850" stroke-width="0.8" opacity="0.6"/>
+  <line x1="24" y1="14.5" x2="28" y2="11.5" stroke="#B89850" stroke-width="0.8" opacity="0.6"/>
+  <line x1="40" y1="14.5" x2="36" y2="11.5" stroke="#B89850" stroke-width="0.8" opacity="0.6"/>
+  <line x1="50" y1="17" x2="46" y2="13" stroke="#B89850" stroke-width="0.8" opacity="0.6"/>
+
+  <!-- Counter/table -->
+  <rect x="6" y="36" width="52" height="4" fill="url(#postWood)" stroke="#4A3520" stroke-width="0.8"/>
+  <line x1="6" y1="38" x2="58" y2="38" stroke="#4A3520" stroke-width="0.5" opacity="0.5"/>
+
+  <!-- Crates and barrels (goods on display) -->
+  <!-- Crate 1 -->
+  <rect x="10" y="26" width="10" height="10" rx="1" fill="url(#crateGrad)" stroke="#6B5230" stroke-width="0.8"/>
+  <line x1="13" y1="26" x2="13" y2="36" stroke="#6B5230" stroke-width="0.5" opacity="0.5"/>
+  <line x1="17" y1="26" x2="17" y2="36" stroke="#6B5230" stroke-width="0.5" opacity="0.5"/>
+  <line x1="10" y1="31" x2="20" y2="31" stroke="#6B5230" stroke-width="0.5" opacity="0.5"/>
+
+  <!-- Crate 2 (stacked) -->
+  <rect x="12" y="18" width="8" height="8" rx="1" fill="#C49A6C" stroke="#6B5230" stroke-width="0.8"/>
+  <line x1="16" y1="18" x2="16" y2="26" stroke="#6B5230" stroke-width="0.5" opacity="0.5"/>
+
+  <!-- Barrel -->
+  <ellipse cx="28" cy="36" rx="5" ry="2" fill="#8B6914" stroke="#5A4A0A" stroke-width="0.5"/>
+  <rect x="23" y="24" width="10" height="12" rx="1" fill="#A07830" stroke="#6B5230" stroke-width="0.8"/>
+  <ellipse cx="28" cy="24" rx="5" ry="2" fill="#B8860B" stroke="#6B5230" stroke-width="0.5"/>
+  <!-- Barrel bands -->
+  <line x1="23" y1="28" x2="33" y2="28" stroke="#DAA520" stroke-width="1"/>
+  <line x1="23" y1="33" x2="33" y2="33" stroke="#DAA520" stroke-width="1"/>
+
+  <!-- Sacks of goods -->
+  <path d="M40,36 Q42,26 44,28 Q46,26 48,36 Z" fill="#D2B48C" stroke="#8B7355" stroke-width="0.8"/>
+  <path d="M44,36 Q46,28 48,30 Q50,28 52,36 Z" fill="#C4A67A" stroke="#8B7355" stroke-width="0.8"/>
+  <!-- Sack tie -->
+  <line x1="43.5" y1="28" x2="44.5" y2="28" stroke="#6B5230" stroke-width="1.5"/>
+  <line x1="48.5" y1="30" x2="49.5" y2="30" stroke="#6B5230" stroke-width="1.5"/>
+
+  <!-- Hanging scale (trade symbol) -->
+  <line x1="32" y1="16" x2="32" y2="20" stroke="#8B8B8B" stroke-width="1"/>
+  <line x1="27" y1="20" x2="37" y2="20" stroke="#8B8B8B" stroke-width="1.2"/>
+  <!-- Scale pans -->
+  <path d="M26,20 Q24,24 28,24 Z" fill="#AAAAAA" stroke="#777" stroke-width="0.5"/>
+  <path d="M36,20 Q34,23 38,23 Z" fill="#AAAAAA" stroke="#777" stroke-width="0.5"/>
+  <!-- Chains -->
+  <line x1="27" y1="20" x2="26" y2="22" stroke="#8B8B8B" stroke-width="0.5"/>
+  <line x1="37" y1="20" x2="36.5" y2="21.5" stroke="#8B8B8B" stroke-width="0.5"/>
+
+  <!-- Ground -->
+  <rect x="2" y="56" width="60" height="6" fill="#8B7355" stroke="#6B5230" stroke-width="0.8" rx="1"/>
+  <line x1="2" y1="58" x2="62" y2="58" stroke="#6B5230" stroke-width="0.5" opacity="0.4"/>
+</svg>

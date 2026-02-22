@@ -223,7 +223,21 @@ func _check_single_condition(condition: Dictionary, unit: Unit, context: Diction
 				for resource_id in cost.keys():
 					if not unit.has_cargo(resource_id, cost[resource_id]):
 						return {passed = false, message = "Need %s in cargo" % resource_id}
-		
+
+		"city_has_trade_routes":
+			var city_manager = context.get("city_manager")
+			var trade_route_manager = context.get("trade_route_manager")
+			if city_manager and trade_route_manager:
+				var city = city_manager.get_city_at_tile(unit.coord)
+				if city:
+					var city_routes = trade_route_manager.get_routes_for_city(city.city_id)
+					if city_routes.is_empty():
+						return {passed = false, message = message}
+				else:
+					return {passed = false, message = "Not on a city tile"}
+			else:
+				return {passed = false, message = message}
+
 		_:
 			push_warning("AbilityRegistry: Unknown condition type: " + condition_type)
 	
@@ -311,7 +325,17 @@ func _execute_effect(effect: Dictionary, unit: Unit, params: Dictionary, context
 		
 		"build_modifier":
 			return _effect_build_modifier(unit, params, context)
-		
+
+		"open_convoy_assignment_dialog":
+			# Signal to UI layer to open the convoy assignment dialog
+			return {success = true, message = "", data = {open_dialog = "convoy_assignment"}}
+
+		"toggle_explore_route_mode":
+			unit.is_exploring_route = not unit.is_exploring_route
+			var mode_str = "enabled" if unit.is_exploring_route else "disabled"
+			print("  Route exploration %s for %s" % [mode_str, unit.unit_type])
+			return {success = true, message = "", data = {explore_route_mode = unit.is_exploring_route}}
+
 		_:
 			push_warning("AbilityRegistry: Unknown effect type: " + effect_type)
 			return {success = true, message = "", data = {}}

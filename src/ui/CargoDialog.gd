@@ -23,7 +23,7 @@ func _setup_ui():
 	custom_minimum_size = Vector2(480, 400)
 	
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.08, 0.08, 0.12, 0.95)
+	style.bg_color = Color(0.08, 0.08, 0.12, 1.0)
 	style.border_color = Color(0.4, 0.35, 0.25)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(10)

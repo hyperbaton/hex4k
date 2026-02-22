@@ -88,6 +88,7 @@ func update_unit_display(unit: Unit):
 		var sprite = unit_sprites[unit.unit_id]
 		sprite._update_health_bar()
 		sprite._update_movement_indicator()
+		_update_sprite_fog_visibility(unit)
 
 func refresh_all():
 	"""Refresh all unit sprites"""
@@ -108,10 +109,18 @@ func update_fog_visibility():
 		_update_sprite_fog_visibility(unit)
 
 func _update_sprite_fog_visibility(unit: Unit):
-	"""Update a single unit sprite's visibility based on fog"""
-	if not fog_manager or not unit_sprites.has(unit.unit_id):
+	"""Update a single unit sprite's visibility based on fog and trade route assignment"""
+	if not unit_sprites.has(unit.unit_id):
 		return
 	var sprite = unit_sprites[unit.unit_id]
+
+	# Units assigned to trade routes are abstracted away — always hidden
+	if unit.is_assigned_to_trade_route:
+		sprite.visible = false
+		return
+
+	if not fog_manager:
+		return
 	if unit.owner_id == fog_manager.player_id:
 		sprite.visible = true  # Own units always visible
 	else:

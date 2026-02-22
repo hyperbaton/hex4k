@@ -863,6 +863,22 @@ func get_total_building_capacity() -> int:
 			total += Registry.buildings.get_building_capacity(instance.building_id)
 	return total
 
+func get_trade_route_capacity() -> int:
+	"""Get total trade route capacity from all operational buildings."""
+	var total: int = 0
+	for instance in building_instances.values():
+		if instance.is_operational():
+			total += Registry.buildings.get_trade_route_capacity(instance.building_id)
+	return total
+
+func get_convoy_capacity() -> int:
+	"""Get total convoy capacity from all operational buildings."""
+	var total: int = 0
+	for instance in building_instances.values():
+		if instance.is_operational():
+			total += Registry.buildings.get_caravan_capacity(instance.building_id)
+	return total
+
 func get_constructions_in_progress() -> Array[Vector2i]:
 	"""Get coordinates of all buildings currently under construction, in insertion order."""
 	var coords: Array[Vector2i] = []

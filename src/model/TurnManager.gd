@@ -26,10 +26,14 @@ var unit_manager: UnitManager
 # Reference to world query for terrain/modifier data
 var world_query: Node  # WorldQuery type
 
-func _init(p_city_manager: CityManager, p_unit_manager: UnitManager = null, p_world_query: Node = null):
+# Reference to trade route manager for per-turn resource transfers
+var trade_route_manager: TradeRouteManager
+
+func _init(p_city_manager: CityManager, p_unit_manager: UnitManager = null, p_world_query: Node = null, p_trade_route_manager: TradeRouteManager = null):
 	city_manager = p_city_manager
 	unit_manager = p_unit_manager
 	world_query = p_world_query
+	trade_route_manager = p_trade_route_manager
 
 func process_turn() -> TurnReport:
 	"""Process a complete turn for all cities"""
@@ -49,7 +53,16 @@ func process_turn() -> TurnReport:
 		for unit in unit_manager.get_all_units():
 			unit.start_turn()
 		print("  Units refreshed: %d" % unit_manager.get_all_units().size())
-	
+
+	# Validate trade routes and clean up dead convoys
+	if trade_route_manager:
+		_validate_trade_routes(report)
+
+	# Clear trade ledger flows before city processing
+	for city in city_manager.get_all_cities():
+		if not city.is_abandoned:
+			city.resources.clear_flows()
+
 	# Process each city (skip abandoned cities)
 	var cities_to_abandon: Array[City] = []
 	
@@ -109,7 +122,10 @@ func _process_city_turn(city: City) -> TurnReport.CityTurnReport:
 	
 	# Phase 2b: Modifier consumption (active buildings may consume nearby modifiers)
 	_phase_modifier_consumption(city, report)
-	
+
+	# Phase 2c: Trade transfers (send/receive resources via trade routes)
+	_phase_trade(city, report)
+
 	# Phase 3: Consumption (two-pass system, penalties if consumption fails)
 	_phase_consumption(city, report)
 
@@ -527,6 +543,17 @@ func _phase_modifier_consumption(city: City, report: TurnReport.CityTurnReport):
 					else:
 						report.add_modifier_consumed(coord, instance.building_id, target_coord, modifier_id, "")
 						print("    Modifier consumed: %s removed at %v (by %s)" % [modifier_id, target_coord, instance.building_id])
+
+# === Phase 2c: Trade ===
+
+func _phase_trade(city: City, report: TurnReport.CityTurnReport):
+	"""Process trade route transfers for this city.
+	Only processes routes where this city is the source (outgoing transfers).
+	Incoming transfers are handled when the other city is processed."""
+	if not trade_route_manager:
+		return
+
+	trade_route_manager.process_trade(city, report)
 
 # === Phase 3: Consumption ===
 
@@ -1222,3 +1249,52 @@ func _check_perk_unlocks(report: TurnReport):
 				if unlock_branch and unlock_branch is String and unlock_branch != "":
 					# Tech branch unlocking via perks (reserved for future use)
 					print("    Perk requests tech branch unlock: %s" % unlock_branch)
+
+# === Trade Route Validation ===
+
+func _validate_trade_routes(report: TurnReport):
+	"""Validate all trade routes at the start of a turn.
+	Remove routes with broken paths or dead convoys."""
+	var routes_to_remove: Array[String] = []
+
+	for route_id in trade_route_manager.routes.keys():
+		var route: TradeRoute = trade_route_manager.routes[route_id]
+
+		# Check for dead convoys (units that no longer exist)
+		if unit_manager:
+			var dead_convoys: Array[String] = []
+			for convoy in route.convoys:
+				var unit = unit_manager.get_unit(convoy.unit_id)
+				if not unit or unit.current_health <= 0:
+					dead_convoys.append(convoy.unit_id)
+
+			for unit_id in dead_convoys:
+				route.remove_convoy(unit_id)
+				print("  Trade: Removed dead convoy %s from route %s" % [unit_id, route_id])
+
+		# Check if path is still valid (all markers present)
+		if not trade_route_manager.validate_route(route):
+			routes_to_remove.append(route_id)
+			var city_a = city_manager.get_city(route.city_a_id)
+			var city_b = city_manager.get_city(route.city_b_id)
+			var city_a_name = city_a.city_name if city_a else route.city_a_id
+			var city_b_name = city_b.city_name if city_b else route.city_b_id
+			report.add_critical_alert(
+				"trade_route_broken",
+				route.city_a_id,
+				"Trade route %s <-> %s broken! Route markers missing." % [city_a_name, city_b_name],
+				{"route_id": route_id, "city_a_id": route.city_a_id, "city_b_id": route.city_b_id}
+			)
+			print("  Trade: Route %s broken (markers missing)" % route_id)
+
+		# Check if either city was abandoned
+		var city_a = city_manager.get_city(route.city_a_id)
+		var city_b = city_manager.get_city(route.city_b_id)
+		if (city_a and city_a.is_abandoned) or (city_b and city_b.is_abandoned):
+			if route_id not in routes_to_remove:
+				routes_to_remove.append(route_id)
+				print("  Trade: Route %s removed (city abandoned)" % route_id)
+
+	# Remove broken routes
+	for route_id in routes_to_remove:
+		trade_route_manager.remove_route(route_id)

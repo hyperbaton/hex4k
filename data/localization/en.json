@@ -211,6 +211,10 @@
 		"paved_road": {
 			"name": "Paved Road",
 			"description": "A stone-laid road offering reliable, fast travel in all weather. Superior to dirt paths."
+		},
+		"trade_route_marker": {
+			"name": "Trade Route Marker",
+			"description": "A tile explored by a convoy unit for establishing a trade route."
 		}
 	},
 	"building": {
@@ -369,6 +373,10 @@
 		"road_dirt": {
 			"name": "Dirt Road",
 			"description": "Basic road allowing faster movement for caravans."
+		},
+		"trade_post": {
+			"name": "Trade Post",
+			"description": "A managed waypoint for organizing trade between settlements. Provides storage for tradeable goods and enables the creation of trade routes."
 		}
 	},
 	"tech_branch": {

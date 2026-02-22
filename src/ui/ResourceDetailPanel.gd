@@ -16,6 +16,7 @@ var calculated_production: Dictionary = {}  # resource_id -> amount
 var calculated_consumption: Dictionary = {}  # resource_id -> amount
 var calculated_decay: Dictionary = {}  # resource_id -> amount
 var calculated_bonuses: Dictionary = {}  # resource_id -> bonus amount (terrain/modifier/adjacency)
+var calculated_trade: Dictionary = {}  # resource_id -> net trade (incoming - outgoing)
 
 func _ready():
 	visible = false
@@ -41,6 +42,7 @@ func _calculate_city_flows():
 	calculated_consumption.clear()
 	calculated_decay.clear()
 	calculated_bonuses.clear()
+	calculated_trade.clear()
 	
 	if not current_city:
 		return
@@ -104,6 +106,17 @@ func _calculate_city_flows():
 				# Decay calculation matches BuildingInstance.apply_decay()
 				var decay_amount = stored * decay_rate
 				calculated_decay[resource_id] = decay_amount
+
+	# Trade flows from last turn's ledger
+	if current_city.resources:
+		for resource_id in current_city.resources.trade_incoming.keys():
+			var amount = current_city.resources.trade_incoming[resource_id]
+			if amount > 0:
+				calculated_trade[resource_id] = calculated_trade.get(resource_id, 0.0) + amount
+		for resource_id in current_city.resources.trade_outgoing.keys():
+			var amount = current_city.resources.trade_outgoing[resource_id]
+			if amount > 0:
+				calculated_trade[resource_id] = calculated_trade.get(resource_id, 0.0) - amount
 
 func _calculate_production_bonuses(coord: Vector2i, building_id: String) -> Dictionary:
 	"""
@@ -269,9 +282,10 @@ func update_display():
 		var capacity = current_city.get_total_storage_capacity(resource_id)
 		var production = calculated_production.get(resource_id, 0.0)
 		var consumption = calculated_consumption.get(resource_id, 0.0)
-		
+		var trade = calculated_trade.get(resource_id, 0.0)
+
 		# Show if has storage capacity, current stock, or any flow
-		if capacity > 0 or stored > 0 or production > 0 or consumption > 0:
+		if capacity > 0 or stored > 0 or production > 0 or consumption > 0 or trade != 0:
 			relevant_resources.append(resource_id)
 	
 	# Add each relevant resource
@@ -288,6 +302,7 @@ func add_list_header():
 		"Capacity",
 		"Production",
 		"Consumption",
+		"Trade",
 		"Decay",
 		"Net"
 	)
@@ -309,10 +324,11 @@ func add_resource_row(resource_id: String):
 	var capacity = current_city.get_total_storage_capacity(resource_id)
 	var production = calculated_production.get(resource_id, 0.0)
 	var consumption = calculated_consumption.get(resource_id, 0.0)
+	var trade = calculated_trade.get(resource_id, 0.0)
 	var decay = calculated_decay.get(resource_id, 0.0)
 	var bonus = calculated_bonuses.get(resource_id, 0.0)
-	var net = production - consumption - decay
-	
+	var net = production - consumption + trade - decay
+
 	# Format production with bonus indicator
 	var prod_text = "-"
 	if production > 0:
@@ -320,25 +336,31 @@ func add_resource_row(resource_id: String):
 			prod_text = "+%.1f*" % production  # Asterisk indicates includes bonuses
 		else:
 			prod_text = "+%.1f" % production
-	
+
+	# Format trade
+	var trade_text = "-"
+	if trade != 0:
+		trade_text = "%+.1f" % trade
+
 	var row = create_resource_row(
 		name_label,
 		"%.1f" % stored,
 		"%.0f" % capacity if capacity > 0 else "-",
 		prod_text,
 		"-%.1f" % consumption if consumption > 0 else "-",
+		trade_text,
 		"-%.1f" % decay if decay > 0 else "-",
 		"%+.1f" % net if net != 0 else "0"
 	)
-	
-	# Color code the net value
-	var net_label = row.get_child(6) as Label
+
+	# Color code the net value (child index 7 now)
+	var net_label = row.get_child(7) as Label
 	if net_label:
 		if net > 0:
 			net_label.add_theme_color_override("font_color", Color(0.5, 0.9, 0.5))
 		elif net < 0:
 			net_label.add_theme_color_override("font_color", Color(0.9, 0.5, 0.5))
-	
+
 	# Color production green (brighter if has bonus)
 	var prod_label = row.get_child(3) as Label
 	if prod_label and production > 0:
@@ -346,17 +368,25 @@ func add_resource_row(resource_id: String):
 			prod_label.add_theme_color_override("font_color", Color(0.5, 0.95, 0.6))  # Bright green
 		else:
 			prod_label.add_theme_color_override("font_color", Color(0.6, 0.85, 0.6))
-	
+
 	# Color consumption red
 	var cons_label = row.get_child(4) as Label
 	if cons_label and consumption > 0:
 		cons_label.add_theme_color_override("font_color", Color(0.85, 0.6, 0.6))
-	
+
+	# Color trade (blue for incoming, orange-red for outgoing)
+	var trade_label = row.get_child(5) as Label
+	if trade_label and trade != 0:
+		if trade > 0:
+			trade_label.add_theme_color_override("font_color", Color(0.5, 0.7, 0.9))
+		else:
+			trade_label.add_theme_color_override("font_color", Color(0.9, 0.6, 0.5))
+
 	# Color decay orange
-	var decay_label = row.get_child(5) as Label
+	var decay_label = row.get_child(6) as Label
 	if decay_label and decay > 0:
 		decay_label.add_theme_color_override("font_color", Color(0.85, 0.7, 0.5))
-	
+
 	# Highlight row if storage is getting full or empty
 	if capacity > 0:
 		var fill_ratio = stored / capacity
@@ -370,33 +400,37 @@ func add_resource_row(resource_id: String):
 			for child in row.get_children():
 				if child is Label:
 					child.add_theme_color_override("font_color", Color(1.0, 0.6, 0.6))
-	
+
 	resource_list.add_child(row)
 
 func add_totals_row():
 	var sep = HSeparator.new()
 	resource_list.add_child(sep)
-	
+
 	# Calculate totals
 	var total_prod = 0.0
 	var total_cons = 0.0
+	var total_trade = 0.0
 	var total_decay = 0.0
 	var total_bonus = 0.0
-	
+
 	for amount in calculated_production.values():
 		total_prod += amount
-	
+
 	for amount in calculated_consumption.values():
 		total_cons += amount
-	
+
+	for amount in calculated_trade.values():
+		total_trade += amount
+
 	for amount in calculated_decay.values():
 		total_decay += amount
-	
+
 	for amount in calculated_bonuses.values():
 		total_bonus += amount
-	
-	var total_net = total_prod - total_cons - total_decay
-	
+
+	var total_net = total_prod - total_cons + total_trade - total_decay
+
 	# Format production total with bonus indicator
 	var prod_text = "-"
 	if total_prod > 0:
@@ -404,13 +438,19 @@ func add_totals_row():
 			prod_text = "+%.1f*" % total_prod
 		else:
 			prod_text = "+%.1f" % total_prod
-	
+
+	# Format trade total
+	var trade_text = "-"
+	if total_trade != 0:
+		trade_text = "%+.1f" % total_trade
+
 	var row = create_resource_row(
 		"TOTALS",
 		"-",
 		"-",
 		prod_text,
 		"-%.1f" % total_cons if total_cons > 0 else "-",
+		trade_text,
 		"-%.1f" % total_decay if total_decay > 0 else "-",
 		"%+.1f" % total_net if total_net != 0 else "0"
 	)
@@ -430,20 +470,21 @@ func add_totals_row():
 		legend.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 		resource_list.add_child(legend)
 
-func create_resource_row(name: String, stored: String, capacity: String, 
+func create_resource_row(name: String, stored: String, capacity: String,
 						 production: String, consumption: String,
-						 decay: String, net: String) -> HBoxContainer:
+						 trade: String, decay: String, net: String) -> HBoxContainer:
 	var row = HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
-	
+
 	add_label(row, name, 150, true)  # Name is left-aligned
 	add_label(row, stored, 80)
 	add_label(row, capacity, 80)
 	add_label(row, production, 80)
 	add_label(row, consumption, 80)
+	add_label(row, trade, 80)
 	add_label(row, decay, 80)
 	add_label(row, net, 80)
-	
+
 	return row
 
 func add_label(container: Container, text: String, min_width: float, align_left: bool = false):
