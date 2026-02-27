@@ -3,6 +3,8 @@ class_name UnitSprite
 
 # Visual representation of a unit on the map
 
+signal step_animation_finished
+
 var unit: Unit
 var unit_icon: Sprite2D
 var selection_ring: Node2D
@@ -10,6 +12,7 @@ var health_bar: Node2D
 var movement_indicator: Label
 
 var is_selected: bool = false
+var _current_tween: Tween = null
 
 func _ready():
 	_create_visuals()
@@ -158,12 +161,22 @@ func _on_health_changed(_new_health: int, _max_health: int):
 	_update_health_bar()
 
 func _on_unit_moved(_from: Vector2i, to: Vector2i):
-	# Animate movement
+	"""Animate one movement step. Emits step_animation_finished when done."""
 	var target_pos = WorldUtil.axial_to_pixel(to.x, to.y)
-	var tween = create_tween()
-	tween.tween_property(self, "position", target_pos, 0.3).set_ease(Tween.EASE_OUT)
-	
+
+	# Kill any existing tween (safety)
+	if _current_tween and _current_tween.is_valid():
+		_current_tween.kill()
+
+	_current_tween = create_tween()
+	_current_tween.tween_property(self, "position", target_pos, 0.2).set_ease(Tween.EASE_IN_OUT)
+	_current_tween.finished.connect(_on_step_tween_finished, CONNECT_ONE_SHOT)
+
 	_update_movement_indicator()
+
+func _on_step_tween_finished():
+	_current_tween = null
+	emit_signal("step_animation_finished")
 
 func _process(_delta: float):
 	# Keep the unit facing up (no rotation from hex grid)

@@ -39,6 +39,9 @@ var _target_selection_ability_id: String = ""
 var _target_selection_params: Dictionary = {}
 var _valid_target_coords: Array[Vector2i] = []
 
+# Step-by-step movement state
+var _is_unit_moving: bool = false
+
 func _ready():
 	# Initialize managers
 	world_query.initialize(self, city_manager)
@@ -426,6 +429,9 @@ func _on_trade_route_created(route: TradeRoute):
 
 func _on_end_turn_pressed():
 	"""Handle End Turn button press"""
+	if _is_unit_moving:
+		return
+
 	# Disable button during processing
 	end_turn_button.disabled = true
 	end_turn_button.text = "Processing..."
@@ -528,6 +534,10 @@ func _on_tile_selected(tile: HexTile):
 
 	# Don't handle if cargo dialog is open
 	if cargo_dialog and cargo_dialog.visible:
+		return
+
+	# Don't handle if a unit is currently executing step-by-step movement
+	if _is_unit_moving:
 		return
 
 	# Get tile coordinate
@@ -696,7 +706,7 @@ func _show_unit_movement_range(unit: Unit):
 		unit_ability_bar.show_unit_abilities(unit)
 
 func _move_selected_unit_to(coord: Vector2i):
-	"""Move the selected unit to the target coordinate"""
+	"""Move the selected unit to the target coordinate, step by step."""
 	var unit = unit_layer.selected_unit
 	if not unit:
 		return
@@ -707,24 +717,70 @@ func _move_selected_unit_to(coord: Vector2i):
 		print("Cannot move to ", coord, " - tile occupied by friendly unit")
 		return
 
-	# Get movement cost
-	var reachable = unit_manager.get_reachable_tiles(unit, world_query)
-	if not reachable.has(coord):
-		print("Cannot move to ", coord, " - not reachable")
+	# Find the optimal path
+	var path: Array[Vector2i] = unit_manager.find_path(unit, coord, world_query)
+	if path.is_empty():
+		print("Cannot move to ", coord, " - no path found")
 		return
 
-	var move_cost = reachable[coord]
+	# Enter moving state — blocks all tile input
+	_is_unit_moving = true
+	tile_highlighter.clear_all()
 
-	# Move the unit
-	var from_coord = unit.coord
-	unit.move_to(coord, move_cost)
-	
-	print("Moved unit from ", from_coord, " to ", coord, " (cost: ", move_cost, ", remaining: ", unit.current_movement, ")")
-	
+	# Get the sprite for awaiting animation
+	var sprite: UnitSprite = unit_layer.get_sprite(unit)
+
+	# Walk the path step by step
+	var completed := true
+	for i in range(path.size()):
+		var step_coord: Vector2i = path[i]
+
+		# Get the cost for this individual step
+		var step_cost: int = unit_manager.get_step_cost(unit, step_coord, world_query)
+		if step_cost < 0 or step_cost > unit.current_movement:
+			print("Movement interrupted at step %d: cost %d exceeds remaining %d" % [i, step_cost, unit.current_movement])
+			completed = false
+			break
+
+		# Check if an enemy now occupies the next tile (revealed by fog)
+		var units_there = unit_manager.get_units_at(step_coord)
+		var blocked_by_enemy := false
+		for other_unit in units_there:
+			if other_unit.owner_id != unit.owner_id:
+				blocked_by_enemy = true
+				break
+		if blocked_by_enemy:
+			print("Movement interrupted at step %d: enemy detected at %v" % [i, step_coord])
+			completed = false
+			break
+
+		# Execute the step (triggers: coord index update, trade markers, fog recalc)
+		var from_coord = unit.coord
+		unit.move_to(step_coord, step_cost)
+
+		# Await the visual animation
+		if sprite:
+			await sprite.step_animation_finished
+
+		# After fog recalculates, check if remaining path is still clear
+		if i < path.size() - 1:
+			var next_coord: Vector2i = path[i + 1]
+			var next_units = unit_manager.get_units_at(next_coord)
+			for other_unit in next_units:
+				if other_unit.owner_id != unit.owner_id:
+					print("Movement stopped: enemy revealed at %v ahead" % next_coord)
+					completed = false
+					break
+			if not completed:
+				break
+
+	# Exit moving state
+	_is_unit_moving = false
+
 	# Refresh unit info panel
 	if unit_info_panel:
 		unit_info_panel.refresh()
-	
+
 	# Update movement highlights
 	if unit.current_movement > 0:
 		# Still has movement - show new range
@@ -737,6 +793,8 @@ func _move_selected_unit_to(coord: Vector2i):
 		if unit_ability_bar:
 			unit_ability_bar.show_unit_abilities(unit)
 
+	unit_manager.emit_signal("unit_movement_finished", unit, completed)
+
 func _on_city_overlay_closed():
 	# City overlay closed - deactivate dimmer
 	if city_tile_dimmer:
@@ -747,6 +805,10 @@ func _on_highlighted_tile_clicked(coord: Vector2i):
 	# Forward to city overlay if open
 	if city_overlay.is_open:
 		city_overlay._on_highlighted_tile_clicked(coord)
+		return
+
+	# Don't handle if a unit is currently executing step-by-step movement
+	if _is_unit_moving:
 		return
 
 	# Handle target selection mode (combat)

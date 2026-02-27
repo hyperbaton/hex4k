@@ -88,6 +88,12 @@ func get_selected_unit() -> Unit:
 func has_selection() -> bool:
 	return selected_unit != null
 
+func get_sprite(unit: Unit) -> UnitSprite:
+	"""Get the UnitSprite for a given unit"""
+	if unit and unit_sprites.has(unit.unit_id):
+		return unit_sprites[unit.unit_id]
+	return null
+
 func update_unit_display(unit: Unit):
 	"""Force update of a unit's display"""
 	if unit_sprites.has(unit.unit_id):

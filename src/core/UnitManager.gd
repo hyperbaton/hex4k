@@ -6,6 +6,7 @@ class_name UnitManager
 signal unit_spawned(unit: Unit)
 signal unit_destroyed(unit: Unit)
 signal unit_moved(unit: Unit, from_coord: Vector2i, to_coord: Vector2i)
+signal unit_movement_finished(unit: Unit, completed: bool)
 
 var units: Dictionary = {}  # unit_id -> Unit
 var units_by_coord: Dictionary = {}  # Vector2i -> Array[Unit] (multiple units can stack in some cases)
@@ -182,6 +183,89 @@ func _has_friendly_unit_at(coord: Vector2i, owner_id: String) -> bool:
 		if other_unit.owner_id == owner_id:
 			return true
 	return false
+
+func find_path(unit: Unit, target: Vector2i, world_query) -> Array[Vector2i]:
+	"""Find the optimal path from unit's current position to target.
+	Uses Dijkstra with parent pointers. Returns array of coordinates
+	from start (exclusive) to target (inclusive). Empty if no path."""
+	var start = unit.coord
+	if start == target:
+		return []
+
+	var costs: Dictionary = {}      # Vector2i -> int (best cost to reach)
+	var parents: Dictionary = {}    # Vector2i -> Vector2i (came from)
+	var to_check: Array = [[start, 0]]  # [coord, cost_so_far]
+	costs[start] = 0
+
+	while not to_check.is_empty():
+		# Find minimum cost entry
+		var min_idx := 0
+		for i in range(1, to_check.size()):
+			if to_check[i][1] < to_check[min_idx][1]:
+				min_idx = i
+		var current = to_check[min_idx]
+		to_check.remove_at(min_idx)
+
+		var current_coord: Vector2i = current[0]
+		var current_cost: int = current[1]
+
+		# Skip if we already found a better path
+		if current_cost > costs.get(current_coord, 999999):
+			continue
+
+		# Early exit if we reached target
+		if current_coord == target:
+			break
+
+		for neighbor in _get_hex_neighbors(current_coord):
+			var terrain_data = world_query.get_terrain_data(neighbor)
+			if not terrain_data:
+				continue
+
+			var move_cost = Registry.units.get_effective_movement_cost(
+				unit.movement_type, terrain_data.terrain_id, terrain_data.modifiers)
+			if move_cost < 0:
+				continue  # Impassable
+
+			var total_cost = current_cost + move_cost
+			if total_cost > unit.current_movement:
+				continue
+
+			# Check for enemy units blocking
+			var units_there = get_units_at(neighbor)
+			var blocked := false
+			for other_unit in units_there:
+				if other_unit.owner_id != unit.owner_id:
+					blocked = true
+					break
+			if blocked:
+				continue
+
+			if total_cost < costs.get(neighbor, 999999):
+				costs[neighbor] = total_cost
+				parents[neighbor] = current_coord
+				to_check.append([neighbor, total_cost])
+
+	# Reconstruct path
+	if not parents.has(target):
+		return []
+
+	var path: Array[Vector2i] = []
+	var current = target
+	while current != start:
+		path.push_front(current)
+		current = parents[current]
+
+	return path
+
+func get_step_cost(unit: Unit, to_coord: Vector2i, world_query) -> int:
+	"""Get the movement cost for a single step to an adjacent tile.
+	Returns -1 if the step is invalid."""
+	var terrain_data = world_query.get_terrain_data(to_coord)
+	if not terrain_data:
+		return -1
+	return Registry.units.get_effective_movement_cost(
+		unit.movement_type, terrain_data.terrain_id, terrain_data.modifiers)
 
 func _get_hex_neighbors(coord: Vector2i) -> Array[Vector2i]:
 	"""Get the 6 adjacent hex coordinates"""
