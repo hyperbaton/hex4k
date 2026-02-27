@@ -36,12 +36,6 @@
 	"per_turn_penalty": [],
 	"adjacency_bonuses": [],
 	"provides": {
-		"storage": [
-			{
-				"capacity": 40,
-				"accepted_tags": ["tradeable"]
-			}
-		],
 		"building_capacity": 0,
 		"caravan_capacity": 2,
 		"trade_route_capacity": 1,

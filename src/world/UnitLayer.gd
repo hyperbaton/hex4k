@@ -46,6 +46,12 @@ func _create_unit_sprite(unit: Unit) -> UnitSprite:
 	unit_sprites[unit.unit_id] = sprite
 	return sprite
 
+func create_sprites_for_existing_units():
+	"""Create sprites for all units that don't have one yet (used after loading)"""
+	for unit in unit_manager.get_all_units():
+		if not unit_sprites.has(unit.unit_id):
+			_create_unit_sprite(unit)
+
 func get_unit_at_screen_pos(screen_pos: Vector2) -> Unit:
 	"""Find unit at screen position"""
 	# Convert to world position

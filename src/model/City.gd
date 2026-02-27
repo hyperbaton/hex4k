@@ -969,3 +969,62 @@ func get_construction_at_tile(coord: Vector2i) -> Dictionary:
 			cost_per_turn = instance.cost_per_turn
 		}
 	return {}
+
+# === Save/Load ===
+
+func to_dict() -> Dictionary:
+	"""Serialize city state to dictionary"""
+	var tiles_data: Array = []
+	for coord in tiles.keys():
+		var tile: CityTile = tiles[coord]
+		tiles_data.append({
+			"coord": [coord.x, coord.y],
+			"building_id": tile.building_id,
+			"is_city_center": tile.is_city_center,
+			"distance_from_center": tile.distance_from_center
+		})
+
+	var buildings_data: Array = []
+	for coord in building_instances.keys():
+		var instance: BuildingInstance = building_instances[coord]
+		buildings_data.append(instance.to_dict())
+
+	return {
+		"city_id": city_id,
+		"city_name": city_name,
+		"owner_id": owner.player_id if owner else "",
+		"settlement_type": settlement_type,
+		"city_center_coord": [city_center_coord.x, city_center_coord.y],
+		"is_abandoned": is_abandoned,
+		"tiles": tiles_data,
+		"building_instances": buildings_data
+	}
+
+static func from_dict(data: Dictionary) -> City:
+	"""Reconstruct city from dictionary. Owner is set by CityManager after load."""
+	var center = data.get("city_center_coord", [0, 0])
+	var city = City.new(
+		data.get("city_id", ""),
+		data.get("city_name", ""),
+		Vector2i(int(center[0]), int(center[1]))
+	)
+	city.settlement_type = data.get("settlement_type", "encampment")
+	city.is_abandoned = data.get("is_abandoned", false)
+
+	# Restore tiles
+	for tile_data in data.get("tiles", []):
+		var tc = tile_data.get("coord", [0, 0])
+		var coord = Vector2i(int(tc[0]), int(tc[1]))
+		var tile = CityTile.new(coord)
+		tile.building_id = tile_data.get("building_id", "")
+		tile.is_city_center = tile_data.get("is_city_center", false)
+		tile.distance_from_center = tile_data.get("distance_from_center", 0)
+		city.tiles[coord] = tile
+
+	# Restore building instances
+	for bldg_data in data.get("building_instances", []):
+		var instance = BuildingInstance.from_dict(bldg_data)
+		city.building_instances[instance.tile_coord] = instance
+
+	city.update_frontier()
+	return city

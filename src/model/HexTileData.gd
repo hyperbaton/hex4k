@@ -54,7 +54,7 @@ static func read_tile(file: FileAccess) -> HexTileData:
 	tile.altitude = file.get_float()
 	tile.humidity = file.get_float()
 	tile.temperature = file.get_float()
-	#tile.is_river = file.get_var()
+	tile.is_river = file.get_var()
 
 	tile.terrain_id = file.get_pascal_string()
 	

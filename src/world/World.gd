@@ -102,6 +102,7 @@ func _ready():
 	_create_perks_ui()
 
 	# Connect signals
+	chunk_manager.chunk_loaded.connect(_on_chunk_loaded)
 	chunk_manager.tile_selected.connect(_on_tile_selected)
 	city_overlay.closed.connect(_on_city_overlay_closed)
 	tile_highlighter.tile_clicked.connect(_on_highlighted_tile_clicked)
@@ -120,16 +121,19 @@ func _ready():
 	match GameState.mode:
 		GameState.Mode.NEW_GAME:
 			start_new_world()
+			# Initialize player and starting units (new game only)
+			setup_player_start()
+			# setup_test_combat()
+			# setup_test_tech_progress()
+			setup_advanced_test_tech()
+			setup_advanced_test_city()
 
 		GameState.Mode.LOAD_GAME:
 			load_existing_world()
-	
-	# Initialize player and starting units
-	setup_player_start()
-	# setup_test_combat()
-	# setup_test_tech_progress()
-	setup_advanced_test_tech()
-	setup_advanced_test_city()
+
+	# Create unit sprites for loaded units (UnitLayer.setup ran before units were loaded)
+	if GameState.mode == GameState.Mode.LOAD_GAME:
+		unit_layer.create_sprites_for_existing_units()
 
 	# Initialize fog of war after city/unit setup
 	fog_manager.initialize(current_player_id, city_manager, unit_manager, world_query)
@@ -140,6 +144,12 @@ func _ready():
 	city_manager.world_query = world_query
 	fog_manager.visibility_changed.connect(unit_layer.update_fog_visibility)
 	fog_manager.recalculate_visibility()
+
+	# Force chunk update at the correct camera position and restore building visuals
+	# (Chunks loaded during ChunkManager._ready() were loaded before the signal was connected)
+	if GameState.mode == GameState.Mode.LOAD_GAME:
+		chunk_manager.update_chunks(camera.global_position)
+		_restore_loaded_chunk_visuals()
 
 func _create_turn_ui():
 	"""Create the End Turn button and turn counter"""
@@ -1054,7 +1064,110 @@ func start_new_world():
 	chunk_manager.noise_seed = GameState.world_seed
 
 func load_existing_world():
-	chunk_manager.load_world(GameState.save_id)
+	"""Load complete game state from save (terrain already loaded by ChunkManager._ready())"""
+	print("=== LOADING GAME STATE ===")
+
+	var path = "user://saves/%s/game_state.json" % GameState.save_id
+	if not FileAccess.file_exists(path):
+		push_warning("No game_state.json found - terrain only")
+		return
+
+	var file = FileAccess.open(path, FileAccess.READ)
+	var json_text = file.get_as_text()
+	file.close()
+	var game_data = JSON.parse_string(json_text)
+	if not game_data:
+		push_error("Failed to parse game_state.json")
+		return
+
+	# Restore tech state (before cities, since city stats may check milestones)
+	if game_data.has("tech"):
+		Registry.tech.load_save_data(game_data.tech)
+
+	# Restore turn counter
+	turn_manager.current_turn = game_data.get("current_turn", 0)
+	current_player_id = game_data.get("current_player_id", "player1")
+
+	# Restore cities and players
+	if game_data.has("city_manager"):
+		city_manager.load_save_data(game_data.city_manager)
+
+	# Restore units
+	if game_data.has("units"):
+		unit_manager.load_save_data(game_data.units)
+
+	# Restore trade routes
+	if game_data.has("trade_routes"):
+		trade_route_manager.from_dict(game_data.trade_routes)
+
+	# Restore fog of war explored tiles (visibility recalculated later)
+	if game_data.has("fog_of_war"):
+		fog_manager.load_save_data(game_data.fog_of_war)
+
+	# Update turn label
+	if turn_label:
+		turn_label.text = "Turn %d" % turn_manager.current_turn
+
+	# Focus camera on the player's first city (or first unit)
+	var player_cities = city_manager.get_cities_for_player(current_player_id)
+	if not player_cities.is_empty():
+		camera.focus_on_coord(player_cities[0].city_center_coord)
+	else:
+		var player_units = unit_manager.get_player_units(current_player_id)
+		if not player_units.is_empty():
+			camera.focus_on_coord(player_units[0].coord)
+
+	print("=== GAME LOADED ===")
+
+func save_game():
+	"""Save complete game state"""
+	print("=== SAVING GAME ===")
+
+	# Save terrain chunks (binary)
+	chunk_manager.save_world()
+
+	# Save metadata (seed, display name, turn)
+	chunk_manager.save_meta(turn_manager.current_turn)
+
+	# Build game state dictionary
+	var game_data: Dictionary = {
+		"save_version": 1,
+		"current_turn": turn_manager.current_turn,
+		"current_player_id": current_player_id,
+		"city_manager": city_manager.get_save_data(),
+		"units": unit_manager.get_save_data(),
+		"trade_routes": trade_route_manager.to_dict(),
+		"fog_of_war": fog_manager.get_save_data(),
+		"tech": Registry.tech.get_save_data()
+	}
+
+	# Write game_state.json
+	var save_dir = "user://saves/%s" % GameState.save_id
+	var path = "%s/game_state.json" % save_dir
+	var file = FileAccess.open(path, FileAccess.WRITE)
+	file.store_string(JSON.stringify(game_data, "\t"))
+	file.close()
+
+	print("=== GAME SAVED ===")
+
+func _on_chunk_loaded(chunk_coord: Vector2i):
+	"""When a chunk loads, restore building visuals for any city tiles in it"""
+	var chunk = chunk_manager.loaded_chunks.get(chunk_coord)
+	if not chunk:
+		return
+	for child in chunk.get_children():
+		if child is HexTile:
+			var coord = Vector2i(child.data.q, child.data.r)
+			var city = city_manager.get_city_at_tile(coord)
+			if city:
+				var instance = city.get_building_instance(coord)
+				if instance:
+					child.set_building(instance.building_id, instance.is_under_construction())
+
+func _restore_loaded_chunk_visuals():
+	"""Set building visuals for all currently loaded chunks (used after loading)"""
+	for chunk_coord in chunk_manager.loaded_chunks.keys():
+		_on_chunk_loaded(chunk_coord)
 
 # === Public API for WorldQuery ===
 

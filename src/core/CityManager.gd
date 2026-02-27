@@ -342,3 +342,53 @@ func calculate_hex_distance(a: Vector2i, b: Vector2i) -> int:
 	var r_diff = abs(a.y - b.y)
 	var s_diff = abs((-a.x - a.y) - (-b.x - b.y))
 	return int((q_diff + r_diff + s_diff) / 2)
+
+# === Save/Load ===
+
+func get_save_data() -> Dictionary:
+	"""Serialize all players and cities"""
+	var players_data: Array = []
+	for player in players.values():
+		players_data.append(player.to_dict())
+
+	var cities_data: Array = []
+	for city in cities.values():
+		cities_data.append(city.to_dict())
+
+	return {
+		"players": players_data,
+		"cities": cities_data
+	}
+
+func load_save_data(data: Dictionary):
+	"""Restore players and cities from save data"""
+	cities.clear()
+	tile_ownership.clear()
+	players.clear()
+
+	# Restore players first
+	for player_data in data.get("players", []):
+		var player = Player.from_dict(player_data)
+		players[player.player_id] = player
+
+	# Restore cities
+	for city_data in data.get("cities", []):
+		var city = City.from_dict(city_data)
+		cities[city.city_id] = city
+
+		# Rebuild tile_ownership from city tiles
+		for coord in city.tiles.keys():
+			tile_ownership[coord] = city.city_id
+
+		# Reconnect owner reference
+		var owner_id = city_data.get("owner_id", "")
+		if owner_id != "" and players.has(owner_id):
+			var player = players[owner_id]
+			city.owner = player
+			if not player.cities.has(city):
+				player.cities.append(city)
+
+		# Recalculate cap state
+		city.recalculate_city_stats()
+
+	print("CityManager: Loaded %d players, %d cities" % [players.size(), cities.size()])

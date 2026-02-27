@@ -41,3 +41,23 @@ func get_all_cities() -> Array[City]:
 func has_lost() -> bool:
 	"""Check if this player has lost (no cities remaining)"""
 	return cities.is_empty()
+
+# === Save/Load ===
+
+func to_dict() -> Dictionary:
+	return {
+		"player_id": player_id,
+		"player_name": player_name,
+		"is_human": is_human,
+		"civilization_perks": civilization_perks.duplicate()
+	}
+
+static func from_dict(data: Dictionary) -> Player:
+	var player = Player.new(
+		data.get("player_id", ""),
+		data.get("player_name", ""),
+		data.get("is_human", true)
+	)
+	for perk in data.get("civilization_perks", []):
+		player.civilization_perks.append(perk)
+	return player

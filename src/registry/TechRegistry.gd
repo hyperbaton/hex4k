@@ -342,6 +342,27 @@ func set_preferred_research_branch(branch_id: String):
 func get_preferred_research_branch() -> String:
 	return preferred_research_branch
 
+# === Save/Load ===
+
+func get_save_data() -> Dictionary:
+	return {
+		"branch_progress": branch_progress.duplicate(),
+		"unlocked_milestones": unlocked_milestones.duplicate(),
+		"preferred_research_branch": preferred_research_branch
+	}
+
+func load_save_data(data: Dictionary):
+	var saved_progress = data.get("branch_progress", {})
+	for branch_id in branch_progress.keys():
+		branch_progress[branch_id] = saved_progress.get(branch_id, 0.0)
+
+	unlocked_milestones.clear()
+	for milestone_id in data.get("unlocked_milestones", []):
+		if not milestone_id in unlocked_milestones:
+			unlocked_milestones.append(milestone_id)
+
+	preferred_research_branch = data.get("preferred_research_branch", "")
+
 func get_generic_research_target() -> String:
 	"""Get the branch to direct generic research to. Returns preferred if set, otherwise random visible branch."""
 	if preferred_research_branch != "" and branch_exists(preferred_research_branch):

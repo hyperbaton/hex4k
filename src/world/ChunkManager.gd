@@ -13,6 +13,7 @@ var current_save: String
 var selected_tile: HexTile = null
 var fog_manager: FogOfWarManager  # Set by World.gd
 signal tile_selected(tile: HexTile)
+signal chunk_loaded(chunk_coord: Vector2i)
 
 func _ready():
 	
@@ -21,6 +22,8 @@ func _ready():
 			generator = TileGenerator.new(noise_seed)
 
 		GameState.Mode.LOAD_GAME:
+			load_meta()
+			noise_seed = GameState.world_seed
 			generator = TileGenerator.new(noise_seed)
 			load_world(GameState.save_id)
 
@@ -99,6 +102,7 @@ func load_chunk(coord: Vector2i):
 	add_child(chunk)
 
 	loaded_chunks[coord] = chunk
+	emit_signal("chunk_loaded", coord)
 
 func unload_chunk(coord: Vector2i):
 	if not loaded_chunks.has(coord):
@@ -131,27 +135,52 @@ func save_world():
 		)
 		
 func get_chunk_path(coord: Vector2i) -> String:
+	var save_dir = "user://saves/%s" % GameState.save_id
 	var dir = DirAccess.open("user://")
 	if not dir.dir_exists("user://saves/"):
 		dir.make_dir("user://saves/")
-
-	if not dir.dir_exists("user://saves/save_001/"):
-		dir.make_dir("user://saves/save_001/")
-
-	if not dir.dir_exists("user://saves/save_001/chunks/"):
-		dir.make_dir("user://saves/save_001/chunks/")
-		
-	return "user://saves/save_001/chunks/chunk_%d_%d.bin" % [coord.x, coord.y]
+	if not dir.dir_exists(save_dir):
+		dir.make_dir(save_dir)
+	if not dir.dir_exists(save_dir + "/chunks/"):
+		dir.make_dir(save_dir + "/chunks/")
+	return "%s/chunks/chunk_%d_%d.bin" % [save_dir, coord.x, coord.y]
 	
 func load_world(save_id: String):
 	current_save = save_id
 	load_visible_chunks()
 
+func save_meta(current_turn: int = 1):
+	"""Save world metadata (seed, version, display name, turn) to meta.json"""
+	var save_dir = "user://saves/%s" % GameState.save_id
+	var dir = DirAccess.open("user://")
+	if not dir.dir_exists("user://saves/"):
+		dir.make_dir("user://saves/")
+	if not dir.dir_exists(save_dir):
+		dir.make_dir(save_dir)
+
+	var path = "%s/meta.json" % save_dir
+	var meta = {
+		"seed": GameState.world_seed,
+		"save_version": 1,
+		"display_name": GameState.save_display_name,
+		"current_turn": current_turn,
+		"timestamp": Time.get_datetime_string_from_system()
+	}
+	var file = FileAccess.open(path, FileAccess.WRITE)
+	file.store_string(JSON.stringify(meta, "\t"))
+	file.close()
+
 func load_meta():
-	var path = "user://saves/%s/meta.json" % current_save
+	"""Load world metadata from meta.json"""
+	var path = "user://saves/%s/meta.json" % GameState.save_id
+	if not FileAccess.file_exists(path):
+		push_warning("No meta.json found for save: %s" % GameState.save_id)
+		return
 	var file = FileAccess.open(path, FileAccess.READ)
 	var meta = JSON.parse_string(file.get_as_text())
-	GameState.world_seed = meta.seed
+	file.close()
+	if meta:
+		GameState.world_seed = meta.get("seed", GameState.world_seed)
 	
 func get_camera_chunk() -> Vector2i:
 	var cam_pos = get_node("../Camera2D").global_position
@@ -179,6 +208,7 @@ func spawn_chunk_node(coord: Vector2i, data: ChunkData):
 
 	add_child(node)
 	loaded_chunks[coord] = node
+	emit_signal("chunk_loaded", coord)
 
 func unload_far_chunks(visible: Array[Vector2i]):
 	for coord in loaded_chunks.keys():
