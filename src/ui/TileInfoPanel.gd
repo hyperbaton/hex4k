@@ -1,21 +1,45 @@
 extends PanelContainer
 class_name TileInfoPanel
 
-@onready var title_label = $VBoxContainer/Title
-@onready var coords_label = $VBoxContainer/Coords
-@onready var terrain_label = $VBoxContainer/Terrain
-
+var title_label: Label
+var coords_label: Label
+var terrain_label: Label
 var modifiers_label: Label = null
 
 func _ready():
-	# Create modifiers label if it doesn't exist
-	var vbox = $VBoxContainer
-	if vbox:
-		modifiers_label = Label.new()
-		modifiers_label.name = "Modifiers"
-		modifiers_label.add_theme_font_size_override("font_size", 12)
-		modifiers_label.add_theme_color_override("font_color", Color(0.8, 0.9, 0.7))
-		vbox.add_child(modifiers_label)
+	# Create internal structure (supports both scene-based and code-based instantiation)
+	var vbox: VBoxContainer = get_node_or_null("VBoxContainer")
+	if not vbox:
+		vbox = VBoxContainer.new()
+		vbox.name = "VBoxContainer"
+		add_child(vbox)
+
+	title_label = vbox.get_node_or_null("Title")
+	if not title_label:
+		title_label = Label.new()
+		title_label.name = "Title"
+		title_label.add_theme_font_size_override("font_size", 14)
+		vbox.add_child(title_label)
+
+	coords_label = vbox.get_node_or_null("Coords")
+	if not coords_label:
+		coords_label = Label.new()
+		coords_label.name = "Coords"
+		coords_label.add_theme_font_size_override("font_size", 12)
+		vbox.add_child(coords_label)
+
+	terrain_label = vbox.get_node_or_null("Terrain")
+	if not terrain_label:
+		terrain_label = Label.new()
+		terrain_label.name = "Terrain"
+		terrain_label.add_theme_font_size_override("font_size", 12)
+		vbox.add_child(terrain_label)
+
+	modifiers_label = Label.new()
+	modifiers_label.name = "Modifiers"
+	modifiers_label.add_theme_font_size_override("font_size", 12)
+	modifiers_label.add_theme_color_override("font_color", Color(0.8, 0.9, 0.7))
+	vbox.add_child(modifiers_label)
 
 func show_tile(tile: HexTile):
 	"""Legacy method for showing a HexTile"""
@@ -23,7 +47,7 @@ func show_tile(tile: HexTile):
 	title_label.text = "Tile Information"
 	coords_label.text = "Coordinates: (%d, %d)" % [tile.data.q, tile.data.r]
 	terrain_label.text = "Terrain: %s" % tile.data.terrain_id
-	
+
 	# Show modifiers
 	if modifiers_label:
 		if tile.data.modifiers.size() > 0:
@@ -38,21 +62,21 @@ func show_tile(tile: HexTile):
 func show_tile_view(view: TileView):
 	"""New method for showing a TileView with full information"""
 	visible = true
-	
+
 	title_label.text = "Tile Information"
 	coords_label.text = "Coordinates: (%d, %d)" % [view.coord.x, view.coord.y]
-	
+
 	var terrain_text = "Terrain: %s" % view.get_terrain_name()
-	
+
 	if view.is_claimed():
 		terrain_text += "\nCity: %s" % view.get_city_name()
 		terrain_text += "\nOwner: %s" % view.get_owner_name()
-		
+
 		if view.has_building():
 			terrain_text += "\nBuilding: %s" % view.get_building_name()
-	
+
 	terrain_label.text = terrain_text
-	
+
 	# Show modifiers (just names - effects are defined on buildings/movement types)
 	if modifiers_label:
 		var modifiers = view.get_modifiers()
@@ -64,7 +88,7 @@ func show_tile_view(view: TileView):
 				mod_text += "\n  • " + mod_name
 				if mod_type == "resource_deposit":
 					mod_text += " (deposit)"
-			
+
 			modifiers_label.text = mod_text
 			modifiers_label.visible = true
 		else:

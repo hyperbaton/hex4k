@@ -1,6 +1,5 @@
 extends Node2D
 
-@onready var tile_info_panel := $UI/Root/TileInfoPanel
 @onready var chunk_manager := $ChunkManager
 @onready var camera := $Camera2D
 @onready var city_manager := $CityManager
@@ -8,7 +7,6 @@ extends Node2D
 @onready var city_overlay := $CityOverlayLayer/CityOverlay
 @onready var tile_highlighter := $TileHighlighter
 @onready var tech_tree_screen := $TechTreeLayer/TechTreeScreen
-@onready var tech_tree_button := $UI/Root/TechTreeButton
 
 var city_tile_dimmer: CityTileDimmer
 var turn_manager: TurnManager
@@ -30,8 +28,11 @@ var trade_route_creation_dialog: TradeRouteCreationDialog
 var end_turn_button: Button
 var turn_label: Label
 var turn_report_panel: PanelContainer
+var tile_info_panel: TileInfoPanel
 var perks_panel: PerksPanel
-var perks_button: Button
+var header_bar: WorldHeaderBar
+var game_menu: GameMenuDialog
+var bottom_right_container: VBoxContainer
 
 var current_player_id := "player1"
 
@@ -85,15 +86,21 @@ func _ready():
 	add_child(fog_overlay)
 	move_child(fog_overlay, unit_layer.get_index() + 1)
 
-	# Create turn UI
-	_create_turn_ui()
-	
+	# Create header bar (top-left: Menu, Tech Tree, Perks)
+	_create_header_bar()
+
+	# Create game menu dialog (centered modal)
+	_create_game_menu()
+
+	# Create bottom-right UI (tile info + turn controls)
+	_create_bottom_right_ui()
+
 	# Create unit ability bar (in UI layer)
 	_create_unit_ability_bar()
-	
+
 	# Create unit info panel (right side)
 	_create_unit_info_panel()
-	
+
 	# Create cargo dialog (modal, centered)
 	_create_cargo_dialog()
 
@@ -102,8 +109,8 @@ func _ready():
 
 	# Create trade route UI dialogs
 	_create_trade_route_ui()
-	
-	# Create perks panel and button
+
+	# Create perks panel
 	_create_perks_ui()
 
 	# Connect signals
@@ -111,10 +118,7 @@ func _ready():
 	chunk_manager.tile_selected.connect(_on_tile_selected)
 	city_overlay.closed.connect(_on_city_overlay_closed)
 	tile_highlighter.tile_clicked.connect(_on_highlighted_tile_clicked)
-	tech_tree_button.pressed.connect(_on_tech_tree_button_pressed)
 	tech_tree_screen.closed.connect(_on_tech_tree_closed)
-	perks_button.pressed.connect(_on_perks_button_pressed)
-	perks_panel.closed.connect(_on_perks_panel_closed)
 
 	# Connect fog of war recalculation triggers
 	unit_manager.unit_moved.connect(_on_fog_trigger_unit_moved)
@@ -139,6 +143,7 @@ func _ready():
 	# Create unit sprites for loaded units (UnitLayer.setup ran before units were loaded)
 	if GameState.mode == GameState.Mode.LOAD_GAME:
 		unit_layer.create_sprites_for_existing_units()
+		turn_label.text = "Turn %d" % turn_manager.current_turn
 
 	# Initialize fog of war after city/unit setup
 	fog_manager.initialize(current_player_id, city_manager, unit_manager, world_query)
@@ -156,40 +161,81 @@ func _ready():
 		chunk_manager.update_chunks(camera.global_position)
 		_restore_loaded_chunk_visuals()
 
-func _create_turn_ui():
-	"""Create the End Turn button and turn counter"""
+func _create_header_bar():
+	"""Create the top header bar with Menu, Tech Tree, Perks buttons"""
 	var ui_root = $UI/Root
-	
-	# Container for turn controls (bottom right)
-	var turn_container = VBoxContainer.new()
-	turn_container.name = "TurnContainer"
-	turn_container.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	turn_container.anchor_left = 1.0
-	turn_container.anchor_top = 1.0
-	turn_container.offset_left = -160
-	turn_container.offset_top = -100
-	turn_container.offset_right = -20
-	turn_container.offset_bottom = -20
-	turn_container.add_theme_constant_override("separation", 8)
-	ui_root.add_child(turn_container)
-	
+	header_bar = WorldHeaderBar.new()
+	header_bar.name = "HeaderBar"
+	ui_root.add_child(header_bar)
+	header_bar.menu_pressed.connect(_on_menu_button_pressed)
+	header_bar.tech_tree_pressed.connect(_on_tech_tree_button_pressed)
+	header_bar.perks_pressed.connect(_on_perks_button_pressed)
+
+func _create_game_menu():
+	"""Create the game menu dialog (Save/Load/Main Menu/Exit)"""
+	game_menu = GameMenuDialog.new()
+	game_menu.name = "GameMenuDialog"
+	game_menu.world_node = self
+	game_menu.closed.connect(_on_game_menu_closed)
+	add_child(game_menu)
+
+func _create_bottom_right_ui():
+	"""Create the integrated bottom-right UI with tile info and turn controls"""
+	var ui_root = $UI/Root
+
+	# Main container anchored to bottom-right
+	bottom_right_container = VBoxContainer.new()
+	bottom_right_container.name = "BottomRightContainer"
+	bottom_right_container.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	bottom_right_container.anchor_left = 1.0
+	bottom_right_container.anchor_top = 1.0
+	bottom_right_container.offset_left = -310
+	bottom_right_container.offset_top = -200
+	bottom_right_container.offset_right = -10
+	bottom_right_container.offset_bottom = -10
+	bottom_right_container.add_theme_constant_override("separation", 6)
+	bottom_right_container.alignment = BoxContainer.ALIGNMENT_END
+	ui_root.add_child(bottom_right_container)
+
+	# Tile info panel (hidden by default, shows when a tile is selected)
+	tile_info_panel = TileInfoPanel.new()
+	tile_info_panel.name = "TileInfoPanel"
+	tile_info_panel.visible = false
+	tile_info_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var tile_style := StyleBoxFlat.new()
+	tile_style.bg_color = Color(0.1, 0.1, 0.15, 0.85)
+	tile_style.border_color = Color(0.3, 0.3, 0.4)
+	tile_style.set_border_width_all(1)
+	tile_style.set_corner_radius_all(4)
+	tile_style.set_content_margin_all(8)
+	tile_info_panel.add_theme_stylebox_override("panel", tile_style)
+	bottom_right_container.add_child(tile_info_panel)
+
+	# Turn controls row (always visible)
+	var turn_row := HBoxContainer.new()
+	turn_row.name = "TurnRow"
+	turn_row.add_theme_constant_override("separation", 10)
+	turn_row.alignment = BoxContainer.ALIGNMENT_END
+	bottom_right_container.add_child(turn_row)
+
 	# Turn counter label
 	turn_label = Label.new()
 	turn_label.name = "TurnLabel"
 	turn_label.text = "Turn 0"
-	turn_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	turn_label.add_theme_font_size_override("font_size", 18)
-	turn_container.add_child(turn_label)
-	
+	turn_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	turn_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	turn_label.add_theme_font_size_override("font_size", 16)
+	turn_row.add_child(turn_label)
+
 	# End turn button
 	end_turn_button = Button.new()
 	end_turn_button.name = "EndTurnButton"
 	end_turn_button.text = "End Turn"
-	end_turn_button.custom_minimum_size = Vector2(120, 40)
+	end_turn_button.custom_minimum_size = Vector2(100, 36)
 	end_turn_button.pressed.connect(_on_end_turn_pressed)
-	turn_container.add_child(end_turn_button)
-	
-	# Turn report panel (hidden by default)
+	turn_row.add_child(end_turn_button)
+
+	# Turn report panel (hidden by default, centered on screen)
 	_create_turn_report_panel(ui_root)
 
 func _create_turn_report_panel(parent: Control):
@@ -530,8 +576,10 @@ func _on_report_close_pressed():
 	turn_report_panel.visible = false
 
 func _on_tile_selected(tile: HexTile):
-	# Don't handle tile selection if city overlay, tech tree, or perks panel is open
+	# Don't handle tile selection if city overlay, tech tree, perks, or game menu is open
 	if city_overlay.is_open or tech_tree_screen.is_open or perks_panel.is_open:
+		return
+	if game_menu and game_menu.is_open:
 		return
 
 	# Don't handle if turn report is showing
@@ -605,6 +653,7 @@ func _on_tile_selected(tile: HexTile):
 					tile_info_panel.hide_panel()
 					if city_tile_dimmer:
 						city_tile_dimmer.activate(city)
+					_set_world_ui_visible(false)
 					city_overlay.open_city(city, world_query, city_manager, tile_highlighter, chunk_manager, trade_route_manager, unit_manager)
 					return
 				# No city - just keep unit selected, maybe show unit info
@@ -673,7 +722,8 @@ func _on_tile_selected(tile: HexTile):
 			# Activate tile dimmer for this city
 			if city_tile_dimmer:
 				city_tile_dimmer.activate(city)
-			# Open city overlay with chunk_manager reference
+			# Hide world UI and open city overlay
+			_set_world_ui_visible(false)
 			city_overlay.open_city(city, world_query, city_manager, tile_highlighter, chunk_manager, trade_route_manager, unit_manager)
 			return
 		
@@ -802,10 +852,11 @@ func _move_selected_unit_to(coord: Vector2i):
 	unit_manager.emit_signal("unit_movement_finished", unit, completed)
 
 func _on_city_overlay_closed():
-	# City overlay closed - deactivate dimmer
+	# City overlay closed - deactivate dimmer and restore world UI
 	if city_tile_dimmer:
 		city_tile_dimmer.deactivate()
 	tile_highlighter.clear_all()
+	_set_world_ui_visible(true)
 
 func _on_highlighted_tile_clicked(coord: Vector2i):
 	# Forward to city overlay if open
@@ -1081,25 +1132,18 @@ func _on_tech_tree_closed():
 	pass  # Could re-enable other UI if needed
 
 func _create_perks_ui():
-	"""Create the Perks button and PerksPanel."""
-	# Perks panel (CanvasLayer, created in code)
+	"""Create the PerksPanel (button is now in the header bar)."""
 	perks_panel = PerksPanel.new()
 	perks_panel.name = "PerksPanel"
+	perks_panel.closed.connect(_on_perks_panel_closed)
 	add_child(perks_panel)
 
-	# Perks button (positioned next to the tech tree button)
-	var ui_root = $UI/Root
-	perks_button = Button.new()
-	perks_button.name = "PerksButton"
-	perks_button.text = "Perks"
-	perks_button.custom_minimum_size = Vector2(80, 36)
-	# Position below tech tree button (top-left area)
-	perks_button.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	perks_button.offset_left = 10
-	perks_button.offset_top = 50
-	perks_button.offset_right = 90
-	perks_button.offset_bottom = 86
-	ui_root.add_child(perks_button)
+func _on_menu_button_pressed():
+	if not game_menu.is_open:
+		game_menu.open_menu()
+
+func _on_game_menu_closed():
+	pass
 
 func _on_perks_button_pressed():
 	if not perks_panel.is_open:
@@ -1113,7 +1157,14 @@ func _on_perks_button_pressed():
 		perks_panel.show_panel(player, perk_game_state)
 
 func _on_perks_panel_closed():
-	pass  # Could re-enable other UI if needed
+	pass
+
+func _set_world_ui_visible(show: bool):
+	"""Show or hide world UI elements (used when city overlay opens/closes)"""
+	if header_bar:
+		header_bar.visible = show
+	if bottom_right_container:
+		bottom_right_container.visible = show
 
 func _unhandled_input(event: InputEvent):
 	# Cancel target selection with Escape or right-click

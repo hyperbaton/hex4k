@@ -1,12 +1,10 @@
-[gd_scene load_steps=11 format=3 uid="uid://dygkvii468c7v"]
+[gd_scene load_steps=9 format=3 uid="uid://dygkvii468c7v"]
 
 [ext_resource type="Script" uid="uid://cs824houtmiri" path="res://src/world/World.gd" id="1_7g83o"]
 [ext_resource type="Script" uid="uid://dmm1myogjxbjx" path="res://src/world/Camera.gd" id="2_d1c63"]
 [ext_resource type="Script" uid="uid://cnnkwytawfh78" path="res://src/core/CityManager.gd" id="3_citymanager"]
 [ext_resource type="Script" uid="uid://dnio28xxq5yxt" path="res://src/world/ChunkManager.gd" id="4_1lgw5"]
-[ext_resource type="Script" uid="uid://ddi1sqhd2lfj5" path="res://src/ui/TileInfoPanel.gd" id="4_d1c63"]
 [ext_resource type="Script" uid="uid://cang8i38qryjs" path="res://src/world/WorldQuery.gd" id="4_worldquery"]
-[ext_resource type="Script" uid="uid://kowa1myr1x3l" path="res://src/ui/SaveButton.gd" id="5_1lgw5"]
 [ext_resource type="Script" uid="uid://diu83eqo7iit0" path="res://src/world/TileHighlighter.gd" id="6_tilehigh"]
 [ext_resource type="PackedScene" path="res://scenes/CityOverlay.tscn" id="8_cityoverlay"]
 [ext_resource type="PackedScene" path="res://scenes/TechTreeScreen.tscn" id="9_techtree"]
@@ -39,45 +37,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-
-[node name="TileInfoPanel" type="PanelContainer" parent="UI/Root"]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -300.0
-offset_top = -77.0
-grow_horizontal = 0
-grow_vertical = 0
-script = ExtResource("4_d1c63")
-
-[node name="VBoxContainer" type="VBoxContainer" parent="UI/Root/TileInfoPanel"]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="UI/Root/TileInfoPanel/VBoxContainer"]
-layout_mode = 2
-
-[node name="Coords" type="Label" parent="UI/Root/TileInfoPanel/VBoxContainer"]
-layout_mode = 2
-
-[node name="Terrain" type="Label" parent="UI/Root/TileInfoPanel/VBoxContainer"]
-layout_mode = 2
-
-[node name="SaveButton" type="Button" parent="UI/Root"]
-layout_mode = 1
-offset_right = 8.0
-offset_bottom = 8.0
-text = "Save world"
-script = ExtResource("5_1lgw5")
-
-[node name="TechTreeButton" type="Button" parent="UI/Root"]
-layout_mode = 1
-offset_left = 100.0
-offset_right = 200.0
-offset_bottom = 40.0
-text = "Tech Tree"
 
 [node name="CityOverlayLayer" type="CanvasLayer" parent="."]
 layer = 10
