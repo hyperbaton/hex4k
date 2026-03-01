@@ -14,6 +14,8 @@ var city_tile_dimmer: CityTileDimmer
 var turn_manager: TurnManager
 var unit_manager: UnitManager
 var trade_route_manager: TradeRouteManager
+var origin_spawner: OriginSpawner
+var empire_spawn_manager: EmpireSpawnManager
 var unit_layer: UnitLayer
 var fog_manager: FogOfWarManager
 var fog_overlay: FogOfWarOverlay
@@ -128,8 +130,8 @@ func _ready():
 			setup_player_start()
 			# setup_test_combat()
 			# setup_test_tech_progress()
-			setup_advanced_test_tech()
-			setup_advanced_test_city()
+			# setup_advanced_test_tech()
+			# setup_advanced_test_city()
 
 		GameState.Mode.LOAD_GAME:
 			load_existing_world()
@@ -505,6 +507,10 @@ func _update_building_visuals(report: TurnReport):
 func _on_turn_completed(report: TurnReport):
 	"""Called when turn processing is complete"""
 	print("Turn %d completed" % report.turn_number)
+
+	# Check for late-game AI empire spawns
+	if empire_spawn_manager:
+		empire_spawn_manager.check_empire_spawns(report.turn_number)
 
 func _show_turn_report(report: TurnReport):
 	"""Show the turn report panel"""
@@ -1146,9 +1152,10 @@ func load_existing_world():
 	if game_data.has("tech"):
 		Registry.tech.load_save_data(game_data.tech)
 
-	# Restore turn counter
+	# Restore turn counter and origin
 	turn_manager.current_turn = game_data.get("current_turn", 0)
 	current_player_id = game_data.get("current_player_id", "player1")
+	GameState.origin_id = game_data.get("origin_id", "default")
 
 	# Restore cities and players
 	if game_data.has("city_manager"):
@@ -1165,6 +1172,15 @@ func load_existing_world():
 	# Restore fog of war explored tiles (visibility recalculated later)
 	if game_data.has("fog_of_war"):
 		fog_manager.load_save_data(game_data.fog_of_war)
+
+	# Restore empire spawn manager state
+	# (origin_spawner + empire_spawn_manager created here for loaded games)
+	origin_spawner = OriginSpawner.new()
+	origin_spawner.initialize(self, city_manager, unit_manager, fog_manager, chunk_manager)
+	empire_spawn_manager = EmpireSpawnManager.new()
+	empire_spawn_manager.initialize(origin_spawner, city_manager)
+	if game_data.has("empire_spawns"):
+		empire_spawn_manager.load_save_data(game_data.empire_spawns)
 
 	# Update turn label
 	if turn_label:
@@ -1196,11 +1212,13 @@ func save_game():
 		"save_version": 1,
 		"current_turn": turn_manager.current_turn,
 		"current_player_id": current_player_id,
+		"origin_id": GameState.origin_id,
 		"city_manager": city_manager.get_save_data(),
 		"units": unit_manager.get_save_data(),
 		"trade_routes": trade_route_manager.to_dict(),
 		"fog_of_war": fog_manager.get_save_data(),
-		"tech": Registry.tech.get_save_data()
+		"tech": Registry.tech.get_save_data(),
+		"empire_spawns": empire_spawn_manager.get_save_data() if empire_spawn_manager else {}
 	}
 
 	# Write game_state.json
@@ -1255,28 +1273,29 @@ func found_city_at_coords(city_name: String, coord: Vector2i, player_id: String)
 # === Player Start ===
 
 func setup_player_start():
-	"""Initialize the player with starting units (nomadic band + explorer)"""
+	"""Initialize the player using the selected origin configuration."""
 	await get_tree().create_timer(0.5).timeout  # Wait for chunks to load
 
-	# Create player
-	city_manager.create_player(current_player_id, "Test Player")
+	# Create and initialize origin spawner
+	origin_spawner = OriginSpawner.new()
+	origin_spawner.initialize(self, city_manager, unit_manager, fog_manager, chunk_manager)
 
-	# Starting position (will be randomized later)
-	var start_coord = Vector2i(-12, 15)
-	var adjacent_coord = Vector2i(start_coord.x + 1, start_coord.y)
+	# Create empire spawn manager for late-game AI spawns
+	empire_spawn_manager = EmpireSpawnManager.new()
+	empire_spawn_manager.initialize(origin_spawner, city_manager)
 
-	# Spawn nomadic band (can found first encampment)
-	var band = unit_manager.spawn_unit("nomadic_band", current_player_id, start_coord)
-	if band:
-		print("✓ Nomadic band spawned at ", start_coord)
+	# Apply the selected origin
+	var origin_id := GameState.origin_id
+	print("=== Applying origin: %s ===" % origin_id)
+	var spawn_coord := origin_spawner.apply_origin(origin_id, current_player_id, "Player")
 
-	# Spawn explorer next to the nomadic band
-	var explorer = unit_manager.spawn_unit("explorer", current_player_id, adjacent_coord)
-	if explorer:
-		print("✓ Explorer spawned at ", adjacent_coord)
+	# Refresh building visuals on already-loaded chunks
+	# (Chunks loaded during the await, before buildings were placed in the data model)
+	_restore_loaded_chunk_visuals()
 
-	# Center camera on starting position
-	camera.focus_on_coord(start_coord)
+	# Center camera on spawn location
+	camera.focus_on_coord(spawn_coord)
+	print("=== Origin setup complete at %v ===" % spawn_coord)
 
 func setup_test_combat():
 	"""Spawn club wielders for combat testing."""

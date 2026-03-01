@@ -7,6 +7,7 @@ var player_id: String  # Unique identifier
 var player_name: String
 var is_human: bool = true
 var civilization_perks: Array[String] = []  # List of perk IDs
+var origin_id: String = ""  # Which origin this player started with
 
 # Cities owned by this player
 var cities: Array[City] = []
@@ -49,7 +50,8 @@ func to_dict() -> Dictionary:
 		"player_id": player_id,
 		"player_name": player_name,
 		"is_human": is_human,
-		"civilization_perks": civilization_perks.duplicate()
+		"civilization_perks": civilization_perks.duplicate(),
+		"origin_id": origin_id
 	}
 
 static func from_dict(data: Dictionary) -> Player:
@@ -60,4 +62,5 @@ static func from_dict(data: Dictionary) -> Player:
 	)
 	for perk in data.get("civilization_perks", []):
 		player.civilization_perks.append(perk)
+	player.origin_id = data.get("origin_id", "")
 	return player

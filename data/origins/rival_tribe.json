@@ -1,0 +1,33 @@
+{
+	"tags": ["ai", "aggressive", "late_game"],
+	"spawn": {
+		"search_radius": 80,
+		"min_radius": 40,
+		"retry_step": 6,
+		"max_attempts": 30,
+		"min_distance_from_other_players": 25,
+		"min_turns": 50,
+		"initial_explored_radius": 4,
+		"terrain_conditions": [
+			{ "type": "center_passable", "movement_type": "foot" },
+			{ "type": "terrain_tag", "tag": "land", "radius": 3, "min": 12 }
+		],
+		"force_modifiers": []
+	},
+	"tech": {
+		"milestones": ["fire_mastery", "lithic_reduction", "masonry"],
+		"branch_progress": {}
+	},
+	"perks": [],
+	"units": [
+		{ "unit_type": "nomadic_band" },
+		{ "unit_type": "club_wielder" },
+		{ "unit_type": "club_wielder" },
+		{ "unit_type": "explorer" }
+	],
+	"settlements": [],
+	"visual": {
+		"icon": "res://assets/icons/origins/rival_tribe.svg",
+		"color": "#8B2500"
+	}
+}

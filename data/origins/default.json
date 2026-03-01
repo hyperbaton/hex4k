@@ -1,0 +1,32 @@
+{
+	"tags": ["standard", "balanced"],
+	"spawn": {
+		"search_radius": 25,
+		"min_radius": 0,
+		"retry_step": 4,
+		"max_attempts": 40,
+		"min_distance_from_other_players": 20,
+		"min_turns": 0,
+		"initial_explored_radius": 5,
+		"terrain_conditions": [
+			{ "type": "center_passable", "movement_type": "foot" },
+			{ "type": "terrain_tag", "tag": "land", "radius": 3, "min": 15 },
+			{ "type": "modifier", "modifier_id": "fresh_water", "radius": 4, "min": 1 }
+		],
+		"force_modifiers": []
+	},
+	"tech": {
+		"milestones": [],
+		"branch_progress": {}
+	},
+	"perks": [],
+	"units": [
+		{ "unit_type": "nomadic_band" },
+		{ "unit_type": "explorer" }
+	],
+	"settlements": [],
+	"visual": {
+		"icon": "res://assets/icons/origins/default.svg",
+		"color": "#4A7C59"
+	}
+}

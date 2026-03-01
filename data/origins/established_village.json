@@ -1,0 +1,52 @@
+{
+	"tags": ["scenario", "settled", "easy"],
+	"spawn": {
+		"search_radius": 20,
+		"min_radius": 0,
+		"retry_step": 3,
+		"max_attempts": 40,
+		"min_distance_from_other_players": 20,
+		"min_turns": 0,
+		"initial_explored_radius": 6,
+		"terrain_conditions": [
+			{ "type": "center_passable", "movement_type": "foot" },
+			{ "type": "terrain_tag", "tag": "land", "radius": 4, "min": 20 },
+			{ "type": "modifier", "modifier_id": "fresh_water", "radius": 3, "min": 2 }
+		],
+		"force_modifiers": [
+			{ "modifier_id": "copper_deposit", "radius": 5, "count": 1, "terrain_filter": ["rolling_hills", "sharp_hills"] }
+		]
+	},
+	"tech": {
+		"milestones": ["fire_mastery", "digging_sticks"],
+		"branch_progress": {
+			"agriculture": 10.0,
+			"construction": 5.0
+		}
+	},
+	"perks": ["agricultural_society"],
+	"units": [
+		{ "unit_type": "explorer" }
+	],
+	"settlements": [
+		{
+			"settlement_type": "encampment",
+			"name": "Homestead",
+			"offset": [0, 0],
+			"population": 12,
+			"resources": { "food": 50, "wood": 30, "stone": 20 },
+			"buildings": [
+				{ "building_id": "longhouse", "placement": "center" },
+				{
+					"building_id": "crop_field",
+					"placement": "adjacent",
+					"terrain_required": ["plains", "meadow", "grassland"]
+				}
+			]
+		}
+	],
+	"visual": {
+		"icon": "res://assets/icons/origins/established_village.svg",
+		"color": "#2E8B57"
+	}
+}

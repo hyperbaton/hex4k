@@ -49,8 +49,7 @@ func _create_no_saves_dialog():
 	add_child(no_saves_dialog)
 
 func _on_new_game():
-	GameState.start_new_game(randi())
-	get_tree().change_scene_to_file("res://scenes/GameRoot.tscn")
+	get_tree().change_scene_to_file("res://scenes/NewGameScreen.tscn")
 
 func _on_quit():
 	get_tree().quit()

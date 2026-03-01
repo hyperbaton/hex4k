@@ -642,5 +642,23 @@
 			"name": "Seasonal Camp",
 			"description": "A lighter forward outpost centered on a waycamp lodge. Cheaper to maintain but with fewer resources."
 		}
+	},
+	"origin": {
+		"default": {
+			"name": "Wandering Tribe",
+			"description": "A small nomadic band seeking fertile lands to settle. A balanced start with no technology or settlements."
+		},
+		"steppe_nomads": {
+			"name": "Steppe Nomads",
+			"description": "Hardy people of the open grasslands. Start with fire mastery and an extra explorer, but must find their footing in the dry steppe."
+		},
+		"established_village": {
+			"name": "Established Village",
+			"description": "Begin with a functioning encampment, basic agriculture, and a head start in technology. An easier start for learning the game."
+		},
+		"rival_tribe": {
+			"name": "Rival Tribe",
+			"description": "A hostile tribe that emerges in distant lands. Arrives with warriors and knowledge of stone masonry."
+		}
 	}
 }

@@ -15,6 +15,7 @@ var abilities: AbilityRegistry
 var tile_types: TileTypeRegistry
 var settlements: SettlementRegistry
 var armor_classes: ArmorClassRegistry
+var origins: OriginRegistry
 
 func _ready():
 	print("=== Initializing Game Registries ===")
@@ -32,6 +33,7 @@ func _ready():
 	tile_types = TileTypeRegistry.new()
 	settlements = SettlementRegistry.new()
 	armor_classes = ArmorClassRegistry.new()
+	origins = OriginRegistry.new()
 
 	# Load all data
 	localization.load_data()
@@ -46,7 +48,11 @@ func _ready():
 	tile_types.load_data()
 	settlements.load_data()
 	# AbilityRegistry loads in _init()
-	
+
+	# Origins loaded last so validation can cross-reference all other registries
+	origins.load_data()
+	origins.validate()
+
 	print("=== Registry Initialization Complete ===")
 
 # Convenience methods for localization
